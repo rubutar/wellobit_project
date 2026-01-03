@@ -19,7 +19,7 @@ struct MainTabView: View {
 
             router.makeLibrary()
                 .tabItem {
-                    Label("Library", systemImage: "books.vertical")
+                    Label("Breath", systemImage: "play.circle.fill")
                 }
         }
     }

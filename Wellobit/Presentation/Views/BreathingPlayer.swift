@@ -22,6 +22,12 @@ struct BreathingPlayer: View {
 
     var body: some View {
         VStack() {
+            
+            Text("\(viewModel.currentCycle)/\(viewModel.totalCycles)")
+                .font(.title2.bold())
+                .foregroundColor(.white)
+            
+            
             ZStack() {
                 // 🔵 BREATHING ANIMATION
                 BreathingCircle(
@@ -53,6 +59,6 @@ struct BreathingPlayer: View {
     
     private var phaseLabel: String {
         guard let phase = viewModel.currentPhase else { return "" }
-        return "Cycle \(viewModel.currentCycle)/\(viewModel.totalCycles) · \(phase.rawValue.capitalized) (\(viewModel.remainingSeconds))"
+        return "\(phase.rawValue.capitalized) (\(viewModel.remainingSeconds))"
     }
 }
