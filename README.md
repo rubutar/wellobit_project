@@ -20,6 +20,7 @@
 - Session completion state (“Well done”)
 - When the value of the phase and cycle changed, the session should be back inactive (active session should be cancelled).
 - Add cues for each phase (inhale, exhale, hold)
+- Add preset library and hold in/hold out value can be zero/skipped.
 
 ## Notes
 - The items above describe the **logic and behavior** of the breathing session, not the final visual design.
