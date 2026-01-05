@@ -36,7 +36,8 @@ final class LibraryViewModel: ObservableObject {
     }
     
     func update(phase: BreathingPhase, value: Double) {
-        let stepped = (value * 5).rounded() / 5
+//        let stepped = (value * 5).rounded() / 5
+        let stepped = Double(Int(round(value)))
         settings = updateUseCase.execute(settings: settings, phase: phase, value: stepped)
         repository.save(settings: settings)
     }

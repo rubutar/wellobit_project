@@ -15,45 +15,65 @@ struct BreathingCircle: View {
     @State private var scale: CGFloat = 0.4
 
     var body: some View {
-        Circle()
-            .fill(Color.blue.opacity(0.35))
-            .frame(width: 260, height: 260)
-            .scaleEffect(scale)
-            .onChange(of: phase) { newPhase in
-                handlePhaseChange(newPhase)
-            }
+        ZStack {
+
+            // Outer soft ring
+            Circle()
+                .fill(Color.blue.opacity(0.12))
+                .frame(width: 340, height: 340)
+                .scaleEffect(scale * 1.05)
+                .blur(radius: 8)
+
+            // Middle diffusion layer
+            Circle()
+                .fill(Color.blue.opacity(0.20))
+                .frame(width: 300, height: 300)
+                .scaleEffect(scale)
+                .blur(radius: 4)
+
+            // Core circle
+            Circle()
+                .fill(Color.blue.opacity(0.35))
+                .frame(width: 260, height: 260)
+                .scaleEffect(scale)
+        }
+        .onChange(of: phase) { newPhase in
+            animate(for: newPhase)
+        }
     }
 
-    // MARK: - Phase logic (THIS IS THE KEY)
-    private func handlePhaseChange(_ phase: BreathingPhase?) {
+    // MARK: - Breathing animation
+    private func animate(for phase: BreathingPhase?) {
         guard let phase else {
             scale = 0.4
             return
         }
 
+        let adjustedDuration = duration * 1.3
+
         switch phase {
 
         case .inhale:
-            // Smooth expand
-            withAnimation(.easeInOut(duration: duration)) {
-                scale = 1.0
-            }
-
-        case .holdIn:
-            // Stop animation, keep large
-            withAnimation(.none) {
+            withAnimation(
+                .timingCurve(0.2, 0.0, 0.1, 1.0, duration: adjustedDuration)
+            ) {
                 scale = 1.0
             }
 
         case .exhale:
-            // Smooth shrink
-            withAnimation(.easeInOut(duration: duration)) {
+            withAnimation(
+                .timingCurve(0.2, 0.0, 0.1, 1.0, duration: adjustedDuration)
+            ) {
                 scale = 0.4
             }
 
+        case .holdIn:
+            withAnimation(.linear(duration: 0.4)) {
+                scale = 1.0
+            }
+
         case .holdOut:
-            // Stop animation, keep small
-            withAnimation(.none) {
+            withAnimation(.linear(duration: 0.4)) {
                 scale = 0.4
             }
         }
