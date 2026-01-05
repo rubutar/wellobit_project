@@ -19,6 +19,7 @@
 - Mute / unmute control for background audio (just apply when the player is active)
 - Session completion state (“Well done”)
 - When the value of the phase and cycle changed, the session should be back inactive (active session should be cancelled).
+- Add cues for each phase (inhale, exhale, hold)
 
 ## Notes
 - The items above describe the **logic and behavior** of the breathing session, not the final visual design.
