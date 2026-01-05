@@ -9,8 +9,9 @@
 import Foundation
 import Combine
 import AVFoundation
+import UIKit
 
-
+// MARK: - Presentation State
 enum PlayerUIState: Equatable {
     case idle
     case preparing(seconds: Int)
@@ -20,78 +21,47 @@ enum PlayerUIState: Equatable {
 
 final class BreathingPlayerViewModel: ObservableObject {
 
-    // MARK: - Published
+    // MARK: - Published (UI-facing)
+    @Published private(set) var uiState: PlayerUIState = .idle
     @Published private(set) var currentPhase: BreathingPhase?
     @Published private(set) var phaseDuration: TimeInterval = 0
-    @Published private(set) var isPlaying = false
-    @Published var isMuted: Bool = false
-    @Published private(set) var isPaused: Bool = false
-    @Published private(set) var uiState: PlayerUIState = .idle
-    private let preparationSeconds = 3
-
-
-
-    
-
+    @Published private(set) var remainingSeconds: Int = 0
     @Published private(set) var currentCycle: Int = 0
 
-    // MARK: - Private
+    @Published private(set) var isPlaying = false
+    @Published private(set) var isPaused = false
+    @Published var isMuted = false
+
+    // MARK: - Configuration
+    private let preparationSeconds = 3
     private let phases: [BreathingPhase] = [.inhale, .holdIn, .exhale, .holdOut]
+
+    // MARK: - Time / Engine
+    private var sessionStartDate: Date?
     private var phaseIndex = 0
 
+    // MARK: - Timers
     private var phaseTimer: Timer?
-    private var debugTimer: Timer?
+    private var secondTimer: Timer?
+
+    // MARK: - Audio
     private var audioPlayer: AVAudioPlayer?
 
-    @Published private(set) var remainingSeconds: Int = 0
-
-
+    // MARK: - Dependencies
     private let libraryVM: LibraryViewModel
-    
+
     var totalCycles: Int {
         libraryVM.cycleCount
     }
 
+    // MARK: - Init
     init(libraryViewModel: LibraryViewModel) {
         self.libraryVM = libraryViewModel
+        configureAudioSession()
     }
 
-    // MARK: - Public
-  
-    func toggleMute() {
-        isMuted.toggle()
+    // MARK: - Public Controls
 
-        if isMuted {
-            stopAudio()
-        } else if isPlaying && !isPaused {
-            startAudio()
-        }
-    }
-    
-//    func toggleMute() {
-//        isMuted.toggle()
-//
-//        if isMuted {
-//            stopAudio()
-//        } else if isPlaying {
-//            startAudio()
-//        }
-//    }
-//    
-//    func play() {
-//        guard !isPlaying else { return }
-//
-//        isPlaying = true
-//        isPaused = false
-//
-//        startAudio()
-//
-//        currentCycle = 1
-//        phaseIndex = 0
-//        startPhase()
-//    }
-    
-    
     func play() {
         guard !isPlaying else { return }
 
@@ -102,12 +72,54 @@ final class BreathingPlayerViewModel: ObservableObject {
         startPreparationCountdown()
     }
 
+    func stop() {
+        invalidateTimers()
+        stopAudio()
+
+        currentPhase = nil
+        remainingSeconds = 0
+        currentCycle = 0
+        isPlaying = false
+        isPaused = false
+        uiState = .idle
+    }
+
+    func pause() {
+        guard isPlaying, !isPaused else { return }
+
+        isPaused = true
+        invalidateTimers()
+        audioPlayer?.pause()
+    }
+
+    func resume() {
+        guard isPlaying, isPaused else { return }
+
+        isPaused = false
+        resumeCurrentPhase()
+
+        if !isMuted {
+            audioPlayer?.play()
+        }
+    }
+
+    func toggleMute() {
+        isMuted.toggle()
+
+        if isMuted {
+            stopAudio()
+        } else if isPlaying && !isPaused {
+            startAudio()
+        }
+    }
+
+    // MARK: - Preparation
+
     private func startPreparationCountdown() {
         remainingSeconds = preparationSeconds
-
         invalidateTimers()
 
-        debugTimer = Timer.scheduledTimer(
+        secondTimer = Timer.scheduledTimer(
             withTimeInterval: 1,
             repeats: true
         ) { [weak self] timer in
@@ -122,78 +134,27 @@ final class BreathingPlayerViewModel: ObservableObject {
             }
         }
     }
-    
+
+    // MARK: - Breathing Session
+
     private func startBreathingSession() {
         uiState = .breathing
 
+        sessionStartDate = Date()
         startAudio()
 
         currentCycle = 1
         phaseIndex = 0
         startPhase()
     }
-    
-//    func stop() {
-//        phaseTimer?.invalidate()
-//        debugTimer?.invalidate()
-//        phaseTimer = nil
-//        debugTimer = nil
-//        
-//        stopAudio()
-//
-//        currentPhase = nil
-//        remainingSeconds = 0
-//        isPlaying = false
-//        isPaused = false
-//        currentCycle = 0
-//    }
-    func stop() {
-        invalidateTimers()
-        stopAudio()
 
-        currentPhase = nil
-        remainingSeconds = 0
-        isPlaying = false
-        isPaused = false
-        currentCycle = 0
-        uiState = .idle
-    }
-
-    
-    func pause() {
+    private func startPhase() {
         guard isPlaying, !isPaused else { return }
 
-        isPaused = true
-        pauseTimers()
-        audioPlayer?.pause()
-    }
-
-    func resume() {
-        guard isPlaying, isPaused else { return }
-
-        isPaused = false
-        resumePhase()
-
-        if !isMuted {
-            audioPlayer?.play()
-        }
-    }
-
-    
-    // MARK: - Engine
-    private func startPhase() {
-        guard isPlaying else { return }
-
-        // Finished all phases in one cycle
         if phaseIndex >= phases.count {
             phaseIndex = 0
             currentCycle += 1
 
-//            if currentCycle > libraryVM.cycleCount {
-//                stop()
-//                return
-//            }
-            
             if currentCycle > libraryVM.cycleCount {
                 finishSession()
                 return
@@ -207,54 +168,68 @@ final class BreathingPlayerViewModel: ObservableObject {
         phaseDuration = duration
         remainingSeconds = Int(duration)
 
-        // 🔍 Debug
-        print("🔁 Cycle \(currentCycle)/\(libraryVM.$cycleCount) — \(phase) (\(Int(duration))s)")
+        invalidateTimers()
 
-        // Phase timer
-        phaseTimer?.invalidate()
         phaseTimer = Timer.scheduledTimer(
             withTimeInterval: duration,
             repeats: false
         ) { [weak self] _ in
             guard let self else { return }
-            self.debugTimer?.invalidate()
             self.phaseIndex += 1
             self.startPhase()
         }
 
-        // Debug seconds timer
-        debugTimer?.invalidate()
-        debugTimer = Timer.scheduledTimer(
+        secondTimer = Timer.scheduledTimer(
             withTimeInterval: 1,
             repeats: true
         ) { [weak self] _ in
             guard let self else { return }
-            self.remainingSeconds -= 1
             if self.remainingSeconds > 0 {
-                print("⏱ \(phase): \(self.remainingSeconds)s remaining")
+                self.remainingSeconds -= 1
             }
         }
     }
 
-    // MARK: - Helpers
-    
-    private func finishSession() {
-        stopAudio()
+    private func resumeCurrentPhase() {
+        guard let phase = currentPhase else { return }
+
+        let remaining = TimeInterval(remainingSeconds)
         invalidateTimers()
+
+        phaseTimer = Timer.scheduledTimer(
+            withTimeInterval: remaining,
+            repeats: false
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.phaseIndex += 1
+            self.startPhase()
+        }
+
+        secondTimer = Timer.scheduledTimer(
+            withTimeInterval: 1,
+            repeats: true
+        ) { [weak self] _ in
+            guard let self else { return }
+            if self.remainingSeconds > 0 {
+                self.remainingSeconds -= 1
+            }
+        }
+    }
+
+    // MARK: - Completion
+
+    private func finishSession() {
+        invalidateTimers()
+        stopAudio()
 
         currentPhase = nil
         isPlaying = false
         isPaused = false
         uiState = .completed
     }
-    
-    private func invalidateTimers() {
-        phaseTimer?.invalidate()
-        debugTimer?.invalidate()
-        phaseTimer = nil
-        debugTimer = nil
-    }
-    
+
+    // MARK: - Helpers
+
     private func durationForPhase(_ phase: BreathingPhase) -> TimeInterval {
         let s = libraryVM.settings
         switch phase {
@@ -264,8 +239,30 @@ final class BreathingPlayerViewModel: ObservableObject {
         case .holdOut: return s.holdOut
         }
     }
-    
-    
+
+    private func invalidateTimers() {
+        phaseTimer?.invalidate()
+        secondTimer?.invalidate()
+        phaseTimer = nil
+        secondTimer = nil
+    }
+
+    // MARK: - Audio
+
+    private func configureAudioSession() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(
+                .playback,
+                mode: .default,
+                options: [.mixWithOthers]
+            )
+            try session.setActive(true)
+        } catch {
+            print("Audio session error:", error)
+        }
+    }
+
     private func startAudio() {
         guard !isMuted else { return }
 
@@ -287,36 +284,4 @@ final class BreathingPlayerViewModel: ObservableObject {
         audioPlayer?.stop()
         audioPlayer = nil
     }
-    
-    private func pauseTimers() {
-        phaseTimer?.invalidate()
-        debugTimer?.invalidate()
-        phaseTimer = nil
-        debugTimer = nil
-    }
-
-    private func resumePhase() {
-        guard let phase = currentPhase else { return }
-
-        // Resume phase timer with remaining time
-        phaseTimer = Timer.scheduledTimer(
-            withTimeInterval: TimeInterval(remainingSeconds),
-            repeats: false
-        ) { [weak self] _ in
-            guard let self else { return }
-            self.debugTimer?.invalidate()
-            self.phaseIndex += 1
-            self.startPhase()
-        }
-
-        // Resume second countdown
-        debugTimer = Timer.scheduledTimer(
-            withTimeInterval: 1,
-            repeats: true
-        ) { [weak self] _ in
-            guard let self else { return }
-            self.remainingSeconds -= 1
-        }
-    }
-
 }

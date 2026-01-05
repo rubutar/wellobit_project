@@ -64,6 +64,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9B6875682F0BB82900DA3A98 /* Exceptions for "Wellobit" folder in "Wellobit" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9B9DD6342EE154A70031C316 /* Wellobit */;
+		};
 		9B9DD66F2EE1749B0031C316 /* Exceptions for "WellobitComplication" folder in "WellobitComplicationExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -76,6 +83,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9B9DD6372EE154A70031C316 /* Wellobit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9B6875682F0BB82900DA3A98 /* Exceptions for "Wellobit" folder in "Wellobit" target */,
+			);
 			path = Wellobit;
 			sourceTree = "<group>";
 		};
@@ -460,6 +470,7 @@
 				DEVELOPMENT_TEAM = W7D3GH6GQF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wellobit/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wellobit reads your heart rate and HRV to support guided breathing and recovery insights.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Wellobit writes guided breathing workouts to your Health data.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -496,6 +507,7 @@
 				DEVELOPMENT_TEAM = W7D3GH6GQF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wellobit/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wellobit reads your heart rate and HRV to support guided breathing and recovery insights.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Wellobit writes guided breathing workouts to your Health data.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
