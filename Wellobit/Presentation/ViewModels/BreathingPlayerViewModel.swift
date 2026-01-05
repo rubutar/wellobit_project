@@ -31,6 +31,8 @@ final class BreathingPlayerViewModel: ObservableObject {
     @Published private(set) var isPlaying = false
     @Published private(set) var isPaused = false
     @Published var isMuted = false
+    private var cancellables = Set<AnyCancellable>()
+
 
     // MARK: - Configuration
     private let preparationSeconds = 3
@@ -58,10 +60,37 @@ final class BreathingPlayerViewModel: ObservableObject {
     init(libraryViewModel: LibraryViewModel) {
         self.libraryVM = libraryViewModel
         configureAudioSession()
+        bindConfigurationChanges()
     }
 
     // MARK: - Public Controls
 
+    private func bindConfigurationChanges() {
+
+        // Observe breathing phase values
+        libraryVM.$settings
+            .dropFirst()              // ignore initial value
+            .sink { [weak self] _ in
+                self?.handleConfigurationChange()
+            }
+            .store(in: &cancellables)
+
+        // Observe cycle count
+        libraryVM.$cycleCount
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.handleConfigurationChange()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func handleConfigurationChange() {
+        guard isPlaying || uiState != .idle else { return }
+
+        // Reset session because configuration is no longer valid
+        stop()
+    }
+    
     func play() {
         guard !isPlaying else { return }
 
