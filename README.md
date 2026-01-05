@@ -1,5 +1,6 @@
 # Wellobit – Breathing Session Workout  
 
+```
 BreathingSession
 ├── Application
 │   └── WellobitApp.swift
@@ -44,7 +45,7 @@ BreathingSession
     │
     └── Assets
         └── river.xcassets
-
+```
 
 **Date:** 5 January 2026
 ## What has been completed on this screen
