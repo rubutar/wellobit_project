@@ -18,14 +18,17 @@
 - Audio continues playing when the phone screen is locked
 - Mute / unmute control for background audio (just apply when the player is active)
 - Session completion state (“Well done”)
+- When the value of the phase and cycle changed, the session should be back inactive (active session should be cancelled).
 
 ## Notes
-- The items above describe the **logic and behavior** of the breathing session, not final visual design.
+- The items above describe the **logic and behavior** of the breathing session, not the final visual design.
 - The breathing flow, timing, background handling, and audio behavior are implemented using **Clean Architecture**, separating logic from UI design.
 - Because of this separation:
   - The **background visuals** (colors, images, animations) can be changed later without affecting the breathing logic.
   - The **sound or audio style** (e.g. birds, silence, different ambience) can be easily replaced or adjusted without reworking the session flow.
 - The current implementation prioritizes **correct behavior, background support, and stability**.
-- Once the design direction is finalized, visual and audio refinements can be applied safely and quickly.
-
-
+- **The breathing session is not yet connected to Apple Health / Mindfulness (HealthKit)**.
+  - This can be added later once the breathing experience and session rules are finalized.
+- **iOS version targeting, glass-style visual effects, and Dark Mode styling are not configured yet**.
+  - These will be addressed after the final design direction is confirmed.
+- Once the design, platform targets, and HealthKit direction are confirmed, visual, audio, and system integrations can be applied safely and quickly.
