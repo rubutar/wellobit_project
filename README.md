@@ -20,8 +20,12 @@
 - Session completion state (“Well done”)
 
 ## Notes
-- The items above describe the **logic and behavior** of the breathing session.
-- The feature is implemented using **Clean Architecture**, separating logic from UI design.
-- This makes future design or UI changes easier to apply without rewriting the core breathing logic.
-- The current implementation focuses on correctness, stability, and background behavior; visual refinements can be iterated on safely in later phases.
+- The items above describe the **logic and behavior** of the breathing session, not final visual design.
+- The breathing flow, timing, background handling, and audio behavior are implemented using **Clean Architecture**, separating logic from UI design.
+- Because of this separation:
+  - The **background visuals** (colors, images, animations) can be changed later without affecting the breathing logic.
+  - The **sound or audio style** (e.g. birds, silence, different ambience) can be easily replaced or adjusted without reworking the session flow.
+- The current implementation prioritizes **correct behavior, background support, and stability**.
+- Once the design direction is finalized, visual and audio refinements can be applied safely and quickly.
+
 
