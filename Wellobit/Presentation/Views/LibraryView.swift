@@ -12,10 +12,8 @@ struct LibraryView: View {
 
     var body: some View {
         ZStack {
-
             Image("river")
                 .resizable()
-                .scaledToFill()
                 .ignoresSafeArea()
 
             Color.black.opacity(0.25)
@@ -30,7 +28,6 @@ struct LibraryView: View {
                 Spacer()
                 
                 BreathingPhaseSelector(viewModel: viewModel)
-
             }
             .padding(.horizontal)
         }
