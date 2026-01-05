@@ -35,7 +35,7 @@ struct BreathingPhaseSelector: View {
                     // Cycle selector
                     Menu {
                         Picker("Cycle", selection: $viewModel.cycleCount) {
-                            ForEach(1...5, id: \.self) { count in
+                            ForEach(1...10, id: \.self) { count in
                                 Text("\(count)")
                                     .tag(count)
                             }
@@ -139,8 +139,8 @@ private extension BreathingPhaseSelector {
                     get: { value },
                     set: { viewModel.update(phase: phase, value: $0) }
                 ),
-                in: 1...10,
-                step: 0.2
+                in: sliderRange(for: phase),
+                step: 1
             )
             
             HStack {
@@ -173,6 +173,16 @@ private extension BreathingPhaseSelector {
     }
     
     // MARK: Helpers
+    
+    func sliderRange(for phase: BreathingPhase) -> ClosedRange<Double> {
+        switch phase {
+        case .inhale, .exhale:
+            return 1...10
+        case .holdIn, .holdOut:
+            return 0...10
+        }
+    }
+    
     func valueForPhase(_ phase: BreathingPhase) -> Double {
         switch phase {
         case .inhale: return viewModel.settings.inhale
