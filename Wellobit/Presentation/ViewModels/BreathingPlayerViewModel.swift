@@ -27,6 +27,7 @@ final class BreathingPlayerViewModel: ObservableObject {
     @Published private(set) var phaseDuration: TimeInterval = 0
     @Published private(set) var remainingSeconds: Int = 0
     @Published private(set) var currentCycle: Int = 0
+    
 
     @Published private(set) var isPlaying = false
     @Published private(set) var isPaused = false
@@ -48,6 +49,8 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Audio
     private var audioPlayer: AVAudioPlayer?
+    private var cuePlayer: AVAudioPlayer?
+
 
     // MARK: - Dependencies
     private let libraryVM: LibraryViewModel
@@ -192,6 +195,7 @@ final class BreathingPlayerViewModel: ObservableObject {
 
         let phase = phases[phaseIndex]
         currentPhase = phase
+        playCue(for: phase)
 
         let duration = durationForPhase(phase)
         phaseDuration = duration
@@ -308,7 +312,35 @@ final class BreathingPlayerViewModel: ObservableObject {
             print("Audio error:", error)
         }
     }
+    
+    private func playCue(for phase: BreathingPhase) {
+        guard !isMuted else { return }
 
+        guard let name = cueSoundName(for: phase),
+              let url = Bundle.main.url(forResource: name, withExtension: "mpeg") else {
+            return
+        }
+
+        do {
+            cuePlayer = try AVAudioPlayer(contentsOf: url)
+            cuePlayer?.volume = 1.0
+            cuePlayer?.play()
+        } catch {
+            print("Cue sound error:", error)
+        }
+    }
+
+    private func cueSoundName(for phase: BreathingPhase) -> String? {
+        switch phase {
+        case .inhale:
+            return "inhale"
+        case .exhale:
+            return "exhale"
+        case .holdIn, .holdOut:
+            return "hold"
+        }
+    }
+    
     private func stopAudio() {
         audioPlayer?.stop()
         audioPlayer = nil

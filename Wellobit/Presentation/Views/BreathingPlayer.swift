@@ -63,7 +63,6 @@ private extension BreathingPlayer {
         }
     }
 
-    // ⏳ Preparing
     func preparingView(seconds: Int) -> some View {
         VStack(spacing: 24) {
             Spacer()
@@ -80,7 +79,6 @@ private extension BreathingPlayer {
         }
     }
 
-    // 🌬 Breathing (your original UI, unchanged)
     var breathingView: some View {
         VStack {
 
@@ -119,7 +117,6 @@ private extension BreathingPlayer {
                 .font(.title2.bold())
                 .foregroundColor(.white)
 
-            // 🔇 Mute + ❌ Cancel (fixed position, no layout jump)
             VStack {
                 HStack {
                     Spacer()
@@ -158,7 +155,6 @@ private extension BreathingPlayer {
         }
     }
 
-    // 🎉 Completed
     var completedView: some View {
         VStack(spacing: 24) {
             Spacer()

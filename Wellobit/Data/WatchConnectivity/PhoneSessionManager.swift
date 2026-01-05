@@ -24,7 +24,6 @@ final class PhoneSessionManager: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
 
-    // Call this to send a dummy HRV value
     func sendDummyHRV() {
         let dummyHRV = Int.random(in: 30...110)
         lastSentHRV = dummyHRV

@@ -27,7 +27,6 @@ final class BreathingViewModel: ObservableObject {
     }
     
     func stopButtonTapped() {
-        // later: call StopBreathingSessionUseCase
         isBreathing = false
     }
 }
