@@ -1,6 +1,53 @@
 # Wellobit – Breathing Session Workout  
-**Date:** 5 January 2026
 
+```
+BreathingSession
+├── Application
+│   └── WellobitApp.swift
+│
+├── Domain
+│   ├── Entities
+│   │   ├── BreathingPhase.swift
+│   │   ├── BreathingSettings.swift
+│   │   └── BreathingPreset.swift
+│   │
+│   └── UseCases
+│       ├── StartBreathingSessionUseCase.swift
+│       └── UpdateBreathingSettingUseCase.swift
+│
+├── Data
+│   ├── Repositories
+│   │   ├── BreathingRepository.swift
+│   │   └── LocalBreathingRepository.swift
+│
+├── Presentation
+│   ├── ViewModels
+│   │   ├── BreathingPlayerViewModel.swift
+│   │   ├── LibraryViewModel.swift
+│   │   └── BreathingViewModel.swift
+│   │
+│   ├── Views
+│   │   ├── BreathingPlayer.swift
+│   │   ├── BreathingCircle.swift
+│   │   ├── BreathingPhaseSelector.swift
+│   │   ├── HomeView.swift
+│   │   └── LibraryView.swift
+│   │
+│   └── Router
+│       └── TabRouter.swift
+│
+└── Resources
+    ├── Audio
+    │   ├── birds.mp3
+    │   ├── inhale.mpeg
+    │   ├── exhale.mpeg
+    │   └── hold.mpeg
+    │
+    └── Assets
+        └── river.xcassets
+```
+
+**Date:** 5 January 2026
 ## What has been completed on this screen
 - Guided breathing session with:
   - Inhale
