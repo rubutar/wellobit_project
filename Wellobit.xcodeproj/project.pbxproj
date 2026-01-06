@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9B6875792F0CB20400DA3A98 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B9DD6602EE174990031C316 /* WidgetKit.framework */; };
+		9B68757A2F0CB20400DA3A98 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B9DD6622EE174990031C316 /* SwiftUI.framework */; };
+		9B6875852F0CB20600DA3A98 /* WellobitWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9B6875782F0CB20400DA3A98 /* WellobitWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9B9DD6512EE154EA0031C316 /* WellobitWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9B9DD6472EE154E80031C316 /* WellobitWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9B9DD6612EE174990031C316 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B9DD6602EE174990031C316 /* WidgetKit.framework */; };
 		9B9DD6632EE174990031C316 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B9DD6622EE174990031C316 /* SwiftUI.framework */; };
@@ -14,6 +17,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		9B6875832F0CB20600DA3A98 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B9DD62D2EE154A70031C316 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9B6875772F0CB20400DA3A98;
+			remoteInfo = WellobitWidgetExtensionExtension;
+		};
 		9B9DD64F2EE154EA0031C316 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9B9DD62D2EE154A70031C316 /* Project object */;
@@ -31,6 +41,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		9B68758A2F0CB20600DA3A98 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9B6875852F0CB20600DA3A98 /* WellobitWidgetExtensionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B9DD6552EE154EA0031C316 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -56,6 +77,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9B6875782F0CB20400DA3A98 /* WellobitWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WellobitWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B9DD6352EE154A70031C316 /* Wellobit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wellobit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B9DD6472EE154E80031C316 /* WellobitWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WellobitWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B9DD65E2EE174990031C316 /* WellobitComplicationExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WellobitComplicationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -71,6 +93,20 @@
 			);
 			target = 9B9DD6342EE154A70031C316 /* Wellobit */;
 		};
+		9B6875892F0CB20600DA3A98 /* Exceptions for "WellobitWidgetExtension" folder in "WellobitWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */;
+		};
+		9B6875902F0CB63A00DA3A98 /* Exceptions for "Wellobit" folder in "WellobitWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Data/LiveActivity/BreathingLiveActivityAttributes.swift,
+			);
+			target = 9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */;
+		};
 		9B9DD66F2EE1749B0031C316 /* Exceptions for "WellobitComplication" folder in "WellobitComplicationExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -81,10 +117,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		9B68757B2F0CB20400DA3A98 /* WellobitWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9B6875892F0CB20600DA3A98 /* Exceptions for "WellobitWidgetExtension" folder in "WellobitWidgetExtensionExtension" target */,
+			);
+			path = WellobitWidgetExtension;
+			sourceTree = "<group>";
+		};
 		9B9DD6372EE154A70031C316 /* Wellobit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				9B6875682F0BB82900DA3A98 /* Exceptions for "Wellobit" folder in "Wellobit" target */,
+				9B6875902F0CB63A00DA3A98 /* Exceptions for "Wellobit" folder in "WellobitWidgetExtensionExtension" target */,
 			);
 			path = Wellobit;
 			sourceTree = "<group>";
@@ -105,6 +150,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9B6875752F0CB20400DA3A98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9B68757A2F0CB20400DA3A98 /* SwiftUI.framework in Frameworks */,
+				9B6875792F0CB20400DA3A98 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B9DD6322EE154A70031C316 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,6 +191,7 @@
 				9B9DD6372EE154A70031C316 /* Wellobit */,
 				9B9DD6482EE154E80031C316 /* WellobitWatch Watch App */,
 				9B9DD6642EE174990031C316 /* WellobitComplication */,
+				9B68757B2F0CB20400DA3A98 /* WellobitWidgetExtension */,
 				9B9DD65F2EE174990031C316 /* Frameworks */,
 				9B9DD6362EE154A70031C316 /* Products */,
 			);
@@ -148,6 +203,7 @@
 				9B9DD6352EE154A70031C316 /* Wellobit.app */,
 				9B9DD6472EE154E80031C316 /* WellobitWatch Watch App.app */,
 				9B9DD65E2EE174990031C316 /* WellobitComplicationExtension.appex */,
+				9B6875782F0CB20400DA3A98 /* WellobitWidgetExtensionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -164,6 +220,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9B6875862F0CB20600DA3A98 /* Build configuration list for PBXNativeTarget "WellobitWidgetExtensionExtension" */;
+			buildPhases = (
+				9B6875742F0CB20400DA3A98 /* Sources */,
+				9B6875752F0CB20400DA3A98 /* Frameworks */,
+				9B6875762F0CB20400DA3A98 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9B68757B2F0CB20400DA3A98 /* WellobitWidgetExtension */,
+			);
+			name = WellobitWidgetExtensionExtension;
+			packageProductDependencies = (
+			);
+			productName = WellobitWidgetExtensionExtension;
+			productReference = 9B6875782F0CB20400DA3A98 /* WellobitWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9B9DD6342EE154A70031C316 /* Wellobit */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9B9DD6402EE154A80031C316 /* Build configuration list for PBXNativeTarget "Wellobit" */;
@@ -172,11 +250,13 @@
 				9B9DD6322EE154A70031C316 /* Frameworks */,
 				9B9DD6332EE154A70031C316 /* Resources */,
 				9B9DD6552EE154EA0031C316 /* Embed Watch Content */,
+				9B68758A2F0CB20600DA3A98 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				9B9DD6502EE154EA0031C316 /* PBXTargetDependency */,
+				9B6875842F0CB20600DA3A98 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9B9DD6372EE154A70031C316 /* Wellobit */,
@@ -244,6 +324,9 @@
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					9B6875772F0CB20400DA3A98 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 					9B9DD6342EE154A70031C316 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
@@ -272,11 +355,19 @@
 				9B9DD6342EE154A70031C316 /* Wellobit */,
 				9B9DD6462EE154E80031C316 /* WellobitWatch Watch App */,
 				9B9DD65D2EE174990031C316 /* WellobitComplicationExtension */,
+				9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9B6875762F0CB20400DA3A98 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B9DD6332EE154A70031C316 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -301,6 +392,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9B6875742F0CB20400DA3A98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B9DD6312EE154A70031C316 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -325,6 +423,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		9B6875842F0CB20600DA3A98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */;
+			targetProxy = 9B6875832F0CB20600DA3A98 /* PBXContainerItemProxy */;
+		};
 		9B9DD6502EE154EA0031C316 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9B9DD6462EE154E80031C316 /* WellobitWatch Watch App */;
@@ -338,6 +441,66 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		9B6875872F0CB20600DA3A98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W7D3GH6GQF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WellobitWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WellobitWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Challenge.Wellobit.WellobitWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9B6875882F0CB20600DA3A98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W7D3GH6GQF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WellobitWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WellobitWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Challenge.Wellobit.WellobitWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		9B9DD63E2EE154A80031C316 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -473,12 +636,13 @@
 				INFOPLIST_FILE = Wellobit/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wellobit reads your heart rate and HRV to support guided breathing and recovery insights.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Wellobit writes guided breathing workouts to your Health data.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -487,6 +651,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Challenge.Wellobit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -510,12 +677,13 @@
 				INFOPLIST_FILE = Wellobit/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wellobit reads your heart rate and HRV to support guided breathing and recovery insights.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Wellobit writes guided breathing workouts to your Health data.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -524,6 +692,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Challenge.Wellobit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -674,6 +845,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9B6875862F0CB20600DA3A98 /* Build configuration list for PBXNativeTarget "WellobitWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9B6875872F0CB20600DA3A98 /* Debug */,
+				9B6875882F0CB20600DA3A98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9B9DD6302EE154A70031C316 /* Build configuration list for PBXProject "Wellobit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

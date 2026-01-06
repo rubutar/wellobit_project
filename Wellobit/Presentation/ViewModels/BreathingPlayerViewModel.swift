@@ -51,6 +51,9 @@ final class BreathingPlayerViewModel: ObservableObject {
     private var audioPlayer: AVAudioPlayer?
     private var cuePlayer: AVAudioPlayer?
 
+    // MARK: - Live Activity
+    private var liveActivityController = BreathingLiveActivityController()
+    
 
     // MARK: - Dependencies
     private let libraryVM: LibraryViewModel
@@ -67,7 +70,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Public Controls
-
     private func bindConfigurationChanges() {
 
         // Observe breathing phase values
@@ -105,6 +107,8 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     func stop() {
+        liveActivityController.end()
+        
         invalidateTimers()
         stopAudio()
 
@@ -178,6 +182,16 @@ final class BreathingPlayerViewModel: ObservableObject {
         currentCycle = 1
         phaseIndex = 0
         startPhase()
+        
+        if let phase = currentPhase {
+            liveActivityController.start(
+                totalCycles: totalCycles,
+                phase: phase.rawValue.capitalized,
+                remainingSeconds: remainingSeconds,
+                phaseTotalSeconds: Int(phaseDuration)
+
+            )
+        }
     }
 
     private func startPhase() {
@@ -211,18 +225,43 @@ final class BreathingPlayerViewModel: ObservableObject {
             self.phaseIndex += 1
             self.startPhase()
         }
+        
+        liveActivityController.update(
+            phase: phase.rawValue.capitalized,
+            remainingSeconds: remainingSeconds,
+            phaseTotalSeconds: Int(phaseDuration)
+        )
 
-        secondTimer = Timer.scheduledTimer(
-            withTimeInterval: 1,
-            repeats: true
-        ) { [weak self] _ in
+//        secondTimer = Timer.scheduledTimer(
+//            withTimeInterval: 1,
+//            repeats: true
+//        ) { [weak self] _ in
+//            guard let self else { return }
+//            if self.remainingSeconds > 0 {
+//                self.remainingSeconds -= 1
+//            }
+//        }
+        
+        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self else { return }
+
             if self.remainingSeconds > 0 {
                 self.remainingSeconds -= 1
+
+                if let phase = self.currentPhase {
+                    self.liveActivityController.update(
+                        phase: phase.rawValue.capitalized,
+                        remainingSeconds: self.remainingSeconds,
+                        phaseTotalSeconds: Int(self.phaseDuration)
+
+                    )
+                }
             }
         }
+
     }
 
+    
     private func resumeCurrentPhase() {
         guard let phase = currentPhase else { return }
 
@@ -252,6 +291,8 @@ final class BreathingPlayerViewModel: ObservableObject {
     // MARK: - Completion
 
     private func finishSession() {
+        liveActivityController.end()
+
         invalidateTimers()
         stopAudio()
 
