@@ -1,7 +1,7 @@
 # Wellobit – Breathing Session Workout  
 
 ```
-BreathingSession
+Wellobit
 ├── Application
 │   └── WellobitApp.swift
 │
@@ -81,3 +81,46 @@ BreathingSession
 - **iOS version targeting, glass-style visual effects, and Dark Mode styling are not configured yet**.
   - These will be addressed after the final design direction is confirmed.
 - Once the design, platform targets, and HealthKit direction are confirmed, visual, audio, and system integrations can be applied safely and quickly.
+
+
+
+# Wellobit – Live Activity
+
+```
+Wellobit
+├── Data
+│   ├── LiveActivity
+│   │   ├── BreathingLiveActivityAttributes.swift
+│   │   └── BreathingLiveActivityController.swift
+│   ├── Presentation
+│   │   └── ViewModels
+│   │   │   └── BreathingPlayerViewModel.swift
+
+WellobitWidgetExtension
+├── WellobitActivity
+│   └── BreathingLiveActivityWidget.swift
+├── Assets
+├── Info
+└── WellobitWidgetExtensionBundle.swift
+
+```
+
+**Date:** 6 January 2026
+## What has been completed on this screen
+- Implemented Live Activity support for the breathing session using ActivityKit.
+- Added Dynamic Island UI:
+  - Compact state: icon on the left, remaining time on the right.
+  - Expanded state: breathing phase (Inhale / Hold / Exhale) and countdown timer.
+  - Minimal state: icon-only display.
+- Added Lock Screen Live Activity UI showing:
+  - Current breathing phase.
+  - Remaining seconds.
+- Implemented a dedicated Live Activity controller in the main app to:
+  - Start the Live Activity when the breathing session begins.
+  - Update phase and remaining time during the session.
+  - End the Live Activity when the session completes or is cancelled.
+- Properly separated logic (app target) and UI (widget extension target) following Apple’s Live Activity architecture.
+- Ensured the breathing session can continue and remain visible via Live Activity when the app is backgrounded or the screen is locked.
+
+Notes
+- This implementation focuses on the logic flow and system behavior, not final visual design.
