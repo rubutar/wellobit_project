@@ -8,14 +8,40 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @StateObject var viewModel: LibraryViewModel
+
+    // MARK: - ViewModels (owned here)
+    @StateObject private var libraryViewModel: LibraryViewModel
+    @StateObject private var sceneSettingsViewModel: SceneSettingsViewModel
+    @StateObject private var playerViewModel: BreathingPlayerViewModel
+
     private let router = LibraryRouter()
 
+    // MARK: - Init
+    init(viewModel: LibraryViewModel) {
+        _libraryViewModel = StateObject(wrappedValue: viewModel)
+
+        let sceneVM = SceneSettingsViewModel(
+            repository: LocalBreathingSceneRepository()
+        )
+        _sceneSettingsViewModel = StateObject(wrappedValue: sceneVM)
+
+        _playerViewModel = StateObject(
+            wrappedValue: BreathingPlayerViewModel(
+                libraryViewModel: viewModel,
+                sceneSettingsViewModel: sceneVM
+            )
+        )
+    }
+
+    // MARK: - Body
     var body: some View {
-        NavigationStack(path: $viewModel.navigationPath) {
+        NavigationStack(path: $libraryViewModel.navigationPath) {
             ZStack {
-                Image("river")
+                Image(sceneSettingsViewModel.selectedScene.imageName)
                     .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
                     .ignoresSafeArea()
 
                 Color.black.opacity(0.25)
@@ -23,19 +49,18 @@ struct LibraryView: View {
 
                 VStack {
                     Spacer()
-
-                    BreathingPlayer(libraryViewModel: viewModel)
-
+                    BreathingPlayer(viewModel: playerViewModel)
+                    BreathingPhaseSelector(viewModel: libraryViewModel)
                     Spacer()
-
-                    BreathingPhaseSelector(viewModel: viewModel)
                 }
                 .padding(.horizontal)
+                .padding(.bottom, 24)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        viewModel.openScenes()
+                        playerViewModel.stop()
+                        libraryViewModel.openScenes()
                     } label: {
                         Image(systemName: "rectangle.on.rectangle.badge.gearshape")
                             .foregroundColor(.white)
@@ -43,8 +68,21 @@ struct LibraryView: View {
                 }
             }
             .navigationDestination(for: LibraryDestination.self) { destination in
-                router.makeDestination(destination)
+                router.makeDestination(
+                    destination,
+                    sceneSettingsVM: sceneSettingsViewModel
+                )
             }
         }
     }
+}
+
+#Preview {
+    let repo = LocalBreathingRepository()
+    let initialSettings = repo.load()
+    let libraryVM = LibraryViewModel(
+        repository: repo,
+        initial: initialSettings
+    )
+    LibraryView(viewModel: libraryVM)
 }

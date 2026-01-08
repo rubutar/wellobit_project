@@ -26,7 +26,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     @Published private(set) var phaseDuration: TimeInterval = 0
     @Published private(set) var remainingSeconds: Int = 0
     @Published private(set) var currentCycle: Int = 0
-
     @Published private(set) var isPlaying = false
     @Published private(set) var isPaused = false
     @Published var isMuted = false
@@ -57,21 +56,46 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Dependencies
     private let libraryVM: LibraryViewModel
+    private let sceneSettingsVM: SceneSettingsViewModel
 
     var totalCycles: Int {
         libraryVM.cycleCount
     }
 
     // MARK: - Init
-    init(libraryViewModel: LibraryViewModel) {
+    init(
+        libraryViewModel: LibraryViewModel,
+        sceneSettingsViewModel: SceneSettingsViewModel
+    ) {
         self.libraryVM = libraryViewModel
+        self.sceneSettingsVM = sceneSettingsViewModel
+
         configureAudioSession()
         bindConfigurationChanges()
+        bindSceneChanges()
+    }
+
+    // MARK: - Scene Binding (🔥 THIS IS THE IMPORTANT PART)
+    private func bindSceneChanges() {
+        sceneSettingsVM.$selectedScene
+            .dropFirst()
+            .sink { [weak self] _ in
+                guard let self else { return }
+
+                if self.isPlaying && !self.isMuted {
+                    self.stopAudio()
+                    self.startAudio()
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    var currentScene: BreathingScene {
+        sceneSettingsVM.selectedScene
     }
 
     // MARK: - Configuration Observing
     private func bindConfigurationChanges() {
-
         libraryVM.$settings
             .dropFirst()
             .sink { [weak self] _ in
@@ -151,10 +175,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         remainingSeconds = preparationSeconds
         invalidateTimers()
 
-        secondTimer = Timer.scheduledTimer(
-            withTimeInterval: 1,
-            repeats: true
-        ) { [weak self] timer in
+        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return }
 
             if self.remainingSeconds <= 1 {
@@ -170,14 +191,13 @@ final class BreathingPlayerViewModel: ObservableObject {
     // MARK: - Breathing Session
     private func startBreathingSession() {
         uiState = .breathing
-
         sessionStartDate = Date()
         startAudio()
 
         currentCycle = 1
         phaseIndex = 0
         startPhase()
-
+        
         if let phase = currentPhase {
             liveActivityController.start(
                 totalCycles: totalCycles,
@@ -210,7 +230,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         remainingSeconds = Int(duration)
 
         invalidateTimers()
-
+        
         phaseTimer = Timer.scheduledTimer(
             withTimeInterval: duration,
             repeats: false
@@ -219,13 +239,7 @@ final class BreathingPlayerViewModel: ObservableObject {
             self.phaseIndex += 1
             self.startPhase()
         }
-
-        liveActivityController.update(
-            phase: phase.rawValue.capitalized,
-            remainingSeconds: remainingSeconds,
-            phaseTotalSeconds: Int(phaseDuration)
-        )
-
+        
         secondTimer = Timer.scheduledTimer(
             withTimeInterval: 1,
             repeats: true
@@ -246,43 +260,44 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
     }
 
+    
     private func resumeCurrentPhase() {
-        guard let _ = currentPhase else { return }
-
         let remaining = TimeInterval(remainingSeconds)
         invalidateTimers()
 
-        phaseTimer = Timer.scheduledTimer(
-            withTimeInterval: remaining,
-            repeats: false
-        ) { [weak self] _ in
+        phaseTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
             guard let self else { return }
             self.phaseIndex += 1
             self.startPhase()
         }
 
-        secondTimer = Timer.scheduledTimer(
-            withTimeInterval: 1,
-            repeats: true
-        ) { [weak self] _ in
+        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self else { return }
+
             if self.remainingSeconds > 0 {
                 self.remainingSeconds -= 1
+
+                if let phase = self.currentPhase {
+                    self.liveActivityController.update(
+                        phase: phase.rawValue.capitalized,
+                        remainingSeconds: self.remainingSeconds,
+                        phaseTotalSeconds: Int(self.phaseDuration)
+                    )
+                }
             }
         }
     }
 
+
     // MARK: - Completion
     private func finishSession() {
         liveActivityController.end()
-
         invalidateTimers()
         stopAudio()
-
-        currentPhase = nil
+        uiState = .completed
         isPlaying = false
         isPaused = false
-        uiState = .completed
+        currentPhase = nil
     }
 
     // MARK: - Phase Helpers
@@ -311,61 +326,40 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Audio
     private func configureAudioSession() {
-        do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(
-                .playback,
-                mode: .default,
-                options: [.mixWithOthers]
-            )
-            try session.setActive(true)
-        } catch {
-            print("Audio session error:", error)
-        }
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+        try? session.setActive(true)
     }
 
     private func startAudio() {
         guard !isMuted else { return }
 
-        guard let url = Bundle.main.url(forResource: "birds", withExtension: "mp3") else {
-            print("birds.mp3 not found")
-            return
-        }
+        guard let url = Bundle.main.url(
+            forResource: currentScene.soundName,
+            withExtension: "mp3"
+        ) else { return }
 
-        do {
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
-            audioPlayer?.numberOfLoops = -1
-            audioPlayer?.play()
-        } catch {
-            print("Audio error:", error)
-        }
+        audioPlayer = try? AVAudioPlayer(contentsOf: url)
+        audioPlayer?.numberOfLoops = -1
+        audioPlayer?.play()
     }
 
     private func playCue(for phase: BreathingPhase) {
         guard !isMuted else { return }
 
         guard let name = cueSoundName(for: phase),
-              let url = Bundle.main.url(forResource: name, withExtension: "mpeg") else {
-            return
-        }
+              let url = Bundle.main.url(forResource: name, withExtension: "mpeg")
+        else { return }
 
-        do {
-            cuePlayer = try AVAudioPlayer(contentsOf: url)
-            cuePlayer?.volume = 1.0
-            cuePlayer?.play()
-        } catch {
-            print("Cue sound error:", error)
-        }
+        cuePlayer = try? AVAudioPlayer(contentsOf: url)
+        cuePlayer?.play()
     }
 
     private func cueSoundName(for phase: BreathingPhase) -> String? {
         switch phase {
-        case .inhale:
-            return "inhale"
-        case .exhale:
-            return "exhale"
-        case .holdIn, .holdOut:
-            return "hold"
+        case .inhale: return "inhale"
+        case .exhale: return "exhale"
+        case .holdIn, .holdOut: return "hold"
         }
     }
 

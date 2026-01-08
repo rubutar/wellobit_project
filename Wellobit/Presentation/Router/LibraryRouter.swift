@@ -13,12 +13,16 @@ enum LibraryDestination: Hashable {
 
 
 final class LibraryRouter {
-    
+
     @ViewBuilder
-    func makeDestination(_ destination: LibraryDestination) -> some View {
+    func makeDestination(
+        _ destination: LibraryDestination,
+        sceneSettingsVM: SceneSettingsViewModel
+    ) -> some View {
+
         switch destination {
         case .scenes:
-            SceneListView()
+            SceneListView(sceneSettingsVM: sceneSettingsVM)
         }
     }
 }

@@ -19,34 +19,34 @@ struct HomeView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("HRV Starter – iPhone")
+            Text("Wellobit App")
                 .font(.title)
                 .bold()
 
-            if let value = sessionManager.lastSentHRV {
-                Text("Last sent HRV: \(value) ms")
-            } else {
-                Text("No HRV sent yet")
-                    .foregroundStyle(.secondary)
-            }
-
-            Button("Send Dummy HRV to Watch") {
-                sessionManager.sendDummyHRV()
-            }
-            .buttonStyle(.borderedProminent)
-            Spacer()
-            Button(
-                breathingViewModel.isBreathing
-                ? "Stop Workout Session"
-                : "Start Workout Session"
-            ) {
-                if breathingViewModel.isBreathing {
-                    breathingViewModel.stopButtonTapped()
-                } else {
-                    breathingViewModel.startButtonTapped()
-                }
-            }
-            .buttonStyle(.borderedProminent)
+//            if let value = sessionManager.lastSentHRV {
+//                Text("Last sent HRV: \(value) ms")
+//            } else {
+//                Text("No HRV sent yet")
+//                    .foregroundStyle(.secondary)
+//            }
+//
+//            Button("Send Dummy HRV to Watch") {
+//                sessionManager.sendDummyHRV()
+//            }
+//            .buttonStyle(.borderedProminent)
+//            Spacer()
+//            Button(
+//                breathingViewModel.isBreathing
+//                ? "Stop Workout Session"
+//                : "Start Workout Session"
+//            ) {
+//                if breathingViewModel.isBreathing {
+//                    breathingViewModel.stopButtonTapped()
+//                } else {
+//                    breathingViewModel.startButtonTapped()
+//                }
+//            }
+//            .buttonStyle(.borderedProminent)
         }
         .padding()
     }

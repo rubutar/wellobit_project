@@ -8,13 +8,15 @@
 
 import Foundation
 import Combine
-import SwiftUI 
+import SwiftUI
 
+@MainActor
 final class LibraryViewModel: ObservableObject {
 
     // MARK: - Published
     @Published var settings: BreathingSettings
     @Published var selectedPhase: BreathingPhase? = nil
+
     @Published var selectedPreset: BreathingPreset = .custom {
         didSet {
             applyPresetIfNeeded()
@@ -23,6 +25,7 @@ final class LibraryViewModel: ObservableObject {
 
     @Published var cycleCount: Int = 4
 
+    // Navigation state is owned here, rendered by LibraryView
     @Published var navigationPath = NavigationPath()
 
     // MARK: - Dependencies
@@ -41,6 +44,7 @@ final class LibraryViewModel: ObservableObject {
     }
 
     func closeCurrentScreen() {
+        guard !navigationPath.isEmpty else { return }
         navigationPath.removeLast()
     }
 
@@ -56,6 +60,7 @@ final class LibraryViewModel: ObservableObject {
     func update(phase: BreathingPhase, value: Double) {
         let stepped = Double(Int(round(value)))
 
+        // Manual edit → Custom preset
         if selectedPreset != .custom {
             selectedPreset = .custom
         }
