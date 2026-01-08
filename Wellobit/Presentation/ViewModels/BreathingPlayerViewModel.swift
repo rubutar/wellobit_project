@@ -5,7 +5,6 @@
 //  Created by Rudi Butarbutar on 02/01/26.
 //
 
-
 import Foundation
 import Combine
 import AVFoundation
@@ -27,13 +26,12 @@ final class BreathingPlayerViewModel: ObservableObject {
     @Published private(set) var phaseDuration: TimeInterval = 0
     @Published private(set) var remainingSeconds: Int = 0
     @Published private(set) var currentCycle: Int = 0
-    
 
     @Published private(set) var isPlaying = false
     @Published private(set) var isPaused = false
     @Published var isMuted = false
-    private var cancellables = Set<AnyCancellable>()
 
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Configuration
     private let preparationSeconds = 3
@@ -53,7 +51,9 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Live Activity
     private var liveActivityController = BreathingLiveActivityController()
-    
+
+    // MARK: - Haptics
+    private let haptics = DefaultBreathingHaptics()
 
     // MARK: - Dependencies
     private let libraryVM: LibraryViewModel
@@ -69,18 +69,16 @@ final class BreathingPlayerViewModel: ObservableObject {
         bindConfigurationChanges()
     }
 
-    // MARK: - Public Controls
+    // MARK: - Configuration Observing
     private func bindConfigurationChanges() {
 
-        // Observe breathing phase values
         libraryVM.$settings
-            .dropFirst()              // ignore initial value
+            .dropFirst()
             .sink { [weak self] _ in
                 self?.handleConfigurationChange()
             }
             .store(in: &cancellables)
 
-        // Observe cycle count
         libraryVM.$cycleCount
             .dropFirst()
             .sink { [weak self] _ in
@@ -91,11 +89,10 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     private func handleConfigurationChange() {
         guard isPlaying || uiState != .idle else { return }
-
-        // Reset session because configuration is no longer valid
         stop()
     }
-    
+
+    // MARK: - Public Controls
     func play() {
         guard !isPlaying else { return }
 
@@ -108,7 +105,7 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     func stop() {
         liveActivityController.end()
-        
+
         invalidateTimers()
         stopAudio()
 
@@ -150,7 +147,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Preparation
-
     private func startPreparationCountdown() {
         remainingSeconds = preparationSeconds
         invalidateTimers()
@@ -172,7 +168,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Breathing Session
-
     private func startBreathingSession() {
         uiState = .breathing
 
@@ -182,14 +177,13 @@ final class BreathingPlayerViewModel: ObservableObject {
         currentCycle = 1
         phaseIndex = 0
         startPhase()
-        
+
         if let phase = currentPhase {
             liveActivityController.start(
                 totalCycles: totalCycles,
                 phase: phase.rawValue.capitalized,
                 remainingSeconds: remainingSeconds,
                 phaseTotalSeconds: Int(phaseDuration)
-
             )
         }
     }
@@ -208,7 +202,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
 
         let phase = phases[phaseIndex]
-        currentPhase = phase
+        setPhase(phase)
         playCue(for: phase)
 
         let duration = durationForPhase(phase)
@@ -225,24 +219,17 @@ final class BreathingPlayerViewModel: ObservableObject {
             self.phaseIndex += 1
             self.startPhase()
         }
-        
+
         liveActivityController.update(
             phase: phase.rawValue.capitalized,
             remainingSeconds: remainingSeconds,
             phaseTotalSeconds: Int(phaseDuration)
         )
 
-//        secondTimer = Timer.scheduledTimer(
-//            withTimeInterval: 1,
-//            repeats: true
-//        ) { [weak self] _ in
-//            guard let self else { return }
-//            if self.remainingSeconds > 0 {
-//                self.remainingSeconds -= 1
-//            }
-//        }
-        
-        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+        secondTimer = Timer.scheduledTimer(
+            withTimeInterval: 1,
+            repeats: true
+        ) { [weak self] _ in
             guard let self else { return }
 
             if self.remainingSeconds > 0 {
@@ -253,17 +240,14 @@ final class BreathingPlayerViewModel: ObservableObject {
                         phase: phase.rawValue.capitalized,
                         remainingSeconds: self.remainingSeconds,
                         phaseTotalSeconds: Int(self.phaseDuration)
-
                     )
                 }
             }
         }
-
     }
 
-    
     private func resumeCurrentPhase() {
-        guard let phase = currentPhase else { return }
+        guard let _ = currentPhase else { return }
 
         let remaining = TimeInterval(remainingSeconds)
         invalidateTimers()
@@ -289,7 +273,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Completion
-
     private func finishSession() {
         liveActivityController.end()
 
@@ -302,7 +285,12 @@ final class BreathingPlayerViewModel: ObservableObject {
         uiState = .completed
     }
 
-    // MARK: - Helpers
+    // MARK: - Phase Helpers
+    private func setPhase(_ newPhase: BreathingPhase) {
+        guard currentPhase != newPhase else { return }
+        currentPhase = newPhase
+        haptics.play(for: newPhase)
+    }
 
     private func durationForPhase(_ phase: BreathingPhase) -> TimeInterval {
         let s = libraryVM.settings
@@ -322,7 +310,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Audio
-
     private func configureAudioSession() {
         do {
             let session = AVAudioSession.sharedInstance()
@@ -353,7 +340,7 @@ final class BreathingPlayerViewModel: ObservableObject {
             print("Audio error:", error)
         }
     }
-    
+
     private func playCue(for phase: BreathingPhase) {
         guard !isMuted else { return }
 
@@ -381,7 +368,7 @@ final class BreathingPlayerViewModel: ObservableObject {
             return "hold"
         }
     }
-    
+
     private func stopAudio() {
         audioPlayer?.stop()
         audioPlayer = nil

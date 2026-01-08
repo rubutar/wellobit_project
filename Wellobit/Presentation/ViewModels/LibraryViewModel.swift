@@ -8,14 +8,13 @@
 
 import Foundation
 import Combine
+import SwiftUI 
 
 final class LibraryViewModel: ObservableObject {
 
     // MARK: - Published
     @Published var settings: BreathingSettings
     @Published var selectedPhase: BreathingPhase? = nil
-
-    // ✅ Default preset is Custom
     @Published var selectedPreset: BreathingPreset = .custom {
         didSet {
             applyPresetIfNeeded()
@@ -23,6 +22,8 @@ final class LibraryViewModel: ObservableObject {
     }
 
     @Published var cycleCount: Int = 4
+
+    @Published var navigationPath = NavigationPath()
 
     // MARK: - Dependencies
     private let updateUseCase = UpdateBreathingSettingUseCase()
@@ -32,6 +33,15 @@ final class LibraryViewModel: ObservableObject {
     init(repository: BreathingRepository, initial: BreathingSettings) {
         self.repository = repository
         self.settings = initial
+    }
+
+    // MARK: - Navigation Intents
+    func openScenes() {
+        navigationPath.append(LibraryDestination.scenes)
+    }
+
+    func closeCurrentScreen() {
+        navigationPath.removeLast()
     }
 
     // MARK: - UI Actions
@@ -46,7 +56,6 @@ final class LibraryViewModel: ObservableObject {
     func update(phase: BreathingPhase, value: Double) {
         let stepped = Double(Int(round(value)))
 
-        // ✅ If user edits manually, switch to Custom
         if selectedPreset != .custom {
             selectedPreset = .custom
         }
@@ -63,7 +72,7 @@ final class LibraryViewModel: ObservableObject {
     // MARK: - Preset Logic
     private func applyPresetIfNeeded() {
         guard let presetSettings = selectedPreset.settings else {
-            return // Custom → do nothing
+            return
         }
 
         settings = presetSettings

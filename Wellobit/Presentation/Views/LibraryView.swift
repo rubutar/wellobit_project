@@ -9,27 +9,42 @@ import SwiftUI
 
 struct LibraryView: View {
     @StateObject var viewModel: LibraryViewModel
+    private let router = LibraryRouter()
 
     var body: some View {
-        ZStack {
-            Image("river")
-                .resizable()
-                .ignoresSafeArea()
+        NavigationStack(path: $viewModel.navigationPath) {
+            ZStack {
+                Image("river")
+                    .resizable()
+                    .ignoresSafeArea()
 
-            Color.black.opacity(0.25)
-                .ignoresSafeArea()
+                Color.black.opacity(0.25)
+                    .ignoresSafeArea()
 
-            VStack {
-                Spacer()
+                VStack {
+                    Spacer()
 
-                BreathingPlayer(libraryViewModel: viewModel)
+                    BreathingPlayer(libraryViewModel: viewModel)
 
-                
-                Spacer()
-                
-                BreathingPhaseSelector(viewModel: viewModel)
+                    Spacer()
+
+                    BreathingPhaseSelector(viewModel: viewModel)
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        viewModel.openScenes()
+                    } label: {
+                        Image(systemName: "rectangle.on.rectangle.badge.gearshape")
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            .navigationDestination(for: LibraryDestination.self) { destination in
+                router.makeDestination(destination)
+            }
         }
     }
 }

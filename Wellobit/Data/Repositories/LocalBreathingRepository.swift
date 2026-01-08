@@ -11,6 +11,8 @@ import Foundation
 final class LocalBreathingRepository: BreathingRepository {
     
     private let key = "breathing_settings"
+    private let settingsKey = "breathing_settings"
+    private let sceneKey = "breathing_scene"
     
     func save(settings: BreathingSettings) {
         let data = [
