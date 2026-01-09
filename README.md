@@ -88,7 +88,7 @@ Wellobit
   - Audio restarts with the newly selected scene
   - Playback respects mute state
 
-**Date:** 8 January 2026
+**Date:** 9 January 2026
 - - Cycle configuration improvements:
   - Cycle count expanded from 1–10 to 1–60
   - Cycle duration dynamically calculated based on phase settings
