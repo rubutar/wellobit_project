@@ -27,6 +27,10 @@ final class LibraryViewModel: ObservableObject {
 
     // Navigation state is owned here, rendered by LibraryView
     @Published var navigationPath = NavigationPath()
+    
+    // Presession Modal
+    @Published var showPreSessionModal = false
+
 
     // MARK: - Dependencies
     private let updateUseCase = UpdateBreathingSettingUseCase()
@@ -82,5 +86,28 @@ final class LibraryViewModel: ObservableObject {
 
         settings = presetSettings
         repository.save(settings: settings)
+    }
+    func durationString(for cycles: Int) -> String {
+        let phaseTotal =
+            settings.inhale +
+            settings.holdIn +
+            settings.exhale +
+            settings.holdOut
+
+        let totalSeconds = Int(Double(cycles) * phaseTotal)
+
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+
+        return "\(minutes)m \(seconds)s"
+    }
+    var totalDurationSeconds: Int {
+        let phaseTotal =
+            settings.inhale +
+            settings.holdIn +
+            settings.exhale +
+            settings.holdOut
+
+        return Int(Double(cycleCount) * phaseTotal)
     }
 }

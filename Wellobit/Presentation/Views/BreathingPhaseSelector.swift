@@ -34,16 +34,22 @@ struct BreathingPhaseSelector: View {
                     
                     // Cycle selector
                     Menu {
+//                        Picker("Cycle", selection: $viewModel.cycleCount) {
+//                            ForEach(1...10, id: \.self) { count in
+//                                Text("\(count)")
+//                                    .tag(count)
+//                            }
+//                        }
                         Picker("Cycle", selection: $viewModel.cycleCount) {
-                            ForEach(1...10, id: \.self) { count in
-                                Text("\(count)")
+                            ForEach(1...60, id: \.self) { count in
+                                Text("\(count) cycles (\(viewModel.durationString(for: count)))")
                                     .tag(count)
                             }
                         }
                     } label: {
                         dropdownLabel(
                             title: "Cycle",
-                            value: "\(viewModel.cycleCount)"
+                            value: "\(viewModel.cycleCount) (\(viewModel.durationString(for: viewModel.cycleCount)))"
                         )
                     }
                 }

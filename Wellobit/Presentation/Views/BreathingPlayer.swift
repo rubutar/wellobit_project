@@ -434,33 +434,35 @@ private extension BreathingPlayer {
         }
     }
 
-    // 🎯 Breathing core (center button fixed)
+    // Breathing core (center button fixed)
     var breathingCore: some View {
         ZStack {
-
+            
             BreathingCircle(
                 phase: viewModel.currentPhase,
                 progress: viewModel.phaseProgress
             )
             .opacity(viewModel.uiState == .breathing ? 1 : 0)
-
-            Button {
-                handleMainButtonTap()
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(Color.blue.opacity(0.3))
-                        .frame(width: 120, height: 120)
-
-                    Image(systemName: buttonIcon)
-                        .font(.system(size: 36))
-                        .foregroundColor(.white)
+            
+            if !viewModel.isPreparing {
+                Button {
+                    handleMainButtonTap()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(Color.blue.opacity(0.3))
+                            .frame(width: 120, height: 120)
+                        
+                        Image(systemName: buttonIcon)
+                            .font(.system(size: 36))
+                            .foregroundColor(.white)
+                    }
                 }
             }
         }
     }
 
-    // 🔽 Bottom phase text
+    // Bottom phase text
     var bottomText: some View {
         Text(phaseLabel)
             .font(.title2.bold())
@@ -495,7 +497,7 @@ private extension BreathingPlayer {
             }
         }
         .padding(.trailing, 16)
-        .padding(.bottom, 80) // 👈 lifts it up so it sits mid-right
+        .padding(.bottom, 80)
         .opacity(viewModel.isPlaying ? 1 : 0)
         .allowsHitTesting(viewModel.isPlaying)
     }
@@ -550,5 +552,5 @@ private extension BreathingPlayer {
 
     BreathingPlayer(viewModel: playerVM)
         .preferredColorScheme(.dark)
-        .background(Color.black) // helps visibility in preview
+        .background(Color.black)
 }

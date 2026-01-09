@@ -412,4 +412,11 @@ final class BreathingPlayerViewModel: ObservableObject {
         audioPlayer?.stop()
         audioPlayer = nil
     }
+    
+    var isPreparing: Bool {
+        if case .preparing = uiState {
+            return true
+        }
+        return false
+    }
 }
