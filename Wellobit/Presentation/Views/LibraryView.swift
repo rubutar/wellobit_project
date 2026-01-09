@@ -51,20 +51,35 @@ struct LibraryView: View {
                     Spacer()
                     BreathingPlayer(viewModel: playerViewModel)
                     BreathingPhaseSelector(viewModel: libraryViewModel)
+                        .opacity(playerViewModel.isPlaying ? 0 : 1)
+                        .allowsHitTesting(!playerViewModel.isPlaying)
+                    
                     Spacer()
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 24)
             }
+//            .toolbar {
+//                ToolbarItem(placement: .topBarTrailing) {
+//                    Button {
+////                        playerViewModel.stop()
+//                        libraryViewModel.openScenes()
+//                    } label: {
+//                        Image(systemName: "rectangle.on.rectangle.badge.gearshape")
+//                            .foregroundColor(.white)
+//                    }
+//                }
+//            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        playerViewModel.stop()
                         libraryViewModel.openScenes()
                     } label: {
                         Image(systemName: "rectangle.on.rectangle.badge.gearshape")
                             .foregroundColor(.white)
+                            .opacity(playerViewModel.isPlaying ? 0 : 1)
                     }
+                    .allowsHitTesting(!playerViewModel.isPlaying)
                 }
             }
             .navigationDestination(for: LibraryDestination.self) { destination in

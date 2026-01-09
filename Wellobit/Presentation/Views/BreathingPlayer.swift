@@ -440,7 +440,7 @@ private extension BreathingPlayer {
 
             BreathingCircle(
                 phase: viewModel.currentPhase,
-                duration: viewModel.phaseDuration
+                progress: viewModel.phaseProgress
             )
             .opacity(viewModel.uiState == .breathing ? 1 : 0)
 
@@ -531,28 +531,23 @@ private extension BreathingPlayer {
 
 
 #Preview {
-    // 1️⃣ Breathing settings repository
     let breathingRepo = LocalBreathingRepository()
     let initialSettings = breathingRepo.load()
 
-    // 2️⃣ Library ViewModel
     let libraryVM = LibraryViewModel(
         repository: breathingRepo,
         initial: initialSettings
     )
 
-    // 3️⃣ Scene settings ViewModel
     let sceneVM = SceneSettingsViewModel(
         repository: LocalBreathingSceneRepository()
     )
 
-    // 4️⃣ Player ViewModel
     let playerVM = BreathingPlayerViewModel(
         libraryViewModel: libraryVM,
         sceneSettingsViewModel: sceneVM
     )
 
-    // 5️⃣ Preview the view
     BreathingPlayer(viewModel: playerVM)
         .preferredColorScheme(.dark)
         .background(Color.black) // helps visibility in preview
