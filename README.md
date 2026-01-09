@@ -88,6 +88,27 @@ Wellobit
   - Audio restarts with the newly selected scene
   - Playback respects mute state
 
+**Date:** 8 January 2026
+- - Cycle configuration improvements:
+  - Cycle count expanded from 1–10 to 1–60
+  - Cycle duration dynamically calculated based on phase settings
+  - UI now displays both cycle count and total estimated duration
+- Cycle selector UI refactor:
+  - Replaced cycle dropdown menu with an inline slider
+  - Slider placed below phase configuration for better discoverability
+  - Live duration text updates as the slider moves
+- Breathing player layout stabilization:
+  - Phase selector hidden during active breathing session
+  - Scene settings toolbar button hidden while session is active
+- Breathing animation improvements:
+  - Smooth breathing animation driven by elapsed time
+  - Animation correctly pauses and resumes without restarting phases
+- Pre-session user guidance:
+  - Pre-session warning shown before starting breathing
+- Apple Watch communication:
+  - Pre-session message sent from iOS to Apple Watch
+  - Watch receives cycle count and total duration
+  - Watch pre-session reminder view implemented
 
 ## Notes
 - The items above describe the **logic and behavior** of the breathing session, not the final visual design.
