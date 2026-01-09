@@ -69,6 +69,26 @@ Wellobit
 - Add cues for each phase (inhale, exhale, hold)
 - Add preset library and hold in/hold out value can be zero/skipped.
 
+**Date:** 8 January 2026
+- Haptics added to breathing phases:
+  - Distinct haptic feedback for inhale, exhale, and hold phases
+  - Haptics triggered on phase transitions
+  - Consistent behavior across pause / resume
+- Scene system added for guided breathing sessions
+  - Waterfall, River, and Beach scenes
+- Scene selection screen with horizontal scrollable cards
+- Persistent scene selection using local repository (UserDefaults)
+- Scene settings navigation:
+  - Settings button added to the breathing screen
+  - Navigates to scene selection screen
+  - Active breathing session is cancelled when entering scene settings
+- Background image dynamically updates based on selected scene
+- Background ambient audio dynamically updates based on selected scene
+- Seamless scene switching while session is active:
+  - Audio restarts with the newly selected scene
+  - Playback respects mute state
+
+
 ## Notes
 - The items above describe the **logic and behavior** of the breathing session, not the final visual design.
 - The breathing flow, timing, background handling, and audio behavior are implemented using **Clean Architecture**, separating logic from UI design.
