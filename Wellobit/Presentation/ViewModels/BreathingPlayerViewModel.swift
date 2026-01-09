@@ -31,6 +31,9 @@ final class BreathingPlayerViewModel: ObservableObject {
     @Published var isMuted = false
     
     @Published private(set) var phaseProgress: Double = 0.0
+    
+    // Presession Modal
+    @Published var showPreSessionModal = false
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -56,10 +59,13 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Haptics
     private let haptics = DefaultBreathingHaptics()
+    private var liveActivityTimer: Timer?
 
     // MARK: - Dependencies
     private let libraryVM: LibraryViewModel
     private let sceneSettingsVM: SceneSettingsViewModel
+    
+    
 
     var totalCycles: Int {
         libraryVM.cycleCount
@@ -211,6 +217,8 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
     }
 
+    
+    
     private func startPhase() {
         guard isPlaying, !isPaused else { return }
 
@@ -234,10 +242,6 @@ final class BreathingPlayerViewModel: ObservableObject {
         
         playCue(for: phase)
         invalidateTimers()
-
-//        let duration = durationForPhase(phase)
-//        phaseDuration = duration
-//        remainingSeconds = Int(duration)
         
         phaseTimer = Timer.scheduledTimer(
             withTimeInterval: phaseDuration,
@@ -247,25 +251,6 @@ final class BreathingPlayerViewModel: ObservableObject {
             self.phaseIndex += 1
             self.startPhase()
         }
-        
-//        secondTimer = Timer.scheduledTimer(
-//            withTimeInterval: 1,
-//            repeats: true
-//        ) { [weak self] _ in
-//            guard let self else { return }
-//
-//            if self.remainingSeconds > 0 {
-//                self.remainingSeconds -= 1
-//
-//                if let phase = self.currentPhase {
-//                    self.liveActivityController.update(
-//                        phase: phase.rawValue.capitalized,
-//                        remainingSeconds: self.remainingSeconds,
-//                        phaseTotalSeconds: Int(self.phaseDuration)
-//                    )
-//                }
-//            }
-//        }
         
         secondTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
             guard let self,
@@ -277,14 +262,34 @@ final class BreathingPlayerViewModel: ObservableObject {
             if self.remainingSeconds > 0 {
                 self.remainingSeconds = Int(self.phaseDuration - elapsed)
                 
-                if let phase = self.currentPhase {
-                    self.liveActivityController.update(
-                        phase: phase.rawValue.capitalized,
-                        remainingSeconds: self.remainingSeconds,
-                        phaseTotalSeconds: Int(self.phaseDuration)
-                    )
-                }
+//                if let phase = self.currentPhase {
+//                    self.liveActivityController.update(
+//                        phase: phase.rawValue.capitalized,
+//                        remainingSeconds: self.remainingSeconds,
+//                        phaseTotalSeconds: Int(self.phaseDuration)
+//                    )
+//                }
             }
+        }
+        
+        liveActivityTimer = Timer.scheduledTimer(
+            withTimeInterval: 1.0,
+            repeats: true
+        ) { [weak self] _ in
+            guard let self,
+                  let start = self.phaseStartDate,
+                  let phase = self.currentPhase else { return }
+
+            let elapsed = Date().timeIntervalSince(start)
+            let remaining = max(Int(self.phaseDuration - elapsed), 0)
+
+            self.remainingSeconds = remaining
+
+            self.liveActivityController.update(
+                phase: phase.rawValue.capitalized,
+                remainingSeconds: remaining,
+                phaseTotalSeconds: Int(self.phaseDuration)
+            )
         }
     }
 
@@ -316,17 +321,39 @@ final class BreathingPlayerViewModel: ObservableObject {
             let elapsed = Date().timeIntervalSince(start)
             self.phaseProgress = min(elapsed / self.phaseDuration, 1.0)
 
-            if self.remainingSeconds > 0 {
-                self.remainingSeconds -= 1
+//            if self.remainingSeconds > 0 {
+//                self.remainingSeconds -= 1
+//
+//                if let phase = self.currentPhase {
+//                    self.liveActivityController.update(
+//                        phase: phase.rawValue.capitalized,
+//                        remainingSeconds: self.remainingSeconds,
+//                        phaseTotalSeconds: Int(self.phaseDuration)
+//                    )
+//                }
+//            }
+            
+            // 🔧 Restart Live Activity timer on resume
+            liveActivityTimer = Timer.scheduledTimer(
+                withTimeInterval: 1.0,
+                repeats: true
+            ) { [weak self] _ in
+                guard let self,
+                      let start = self.phaseStartDate,
+                      let phase = self.currentPhase else { return }
 
-                if let phase = self.currentPhase {
-                    self.liveActivityController.update(
-                        phase: phase.rawValue.capitalized,
-                        remainingSeconds: self.remainingSeconds,
-                        phaseTotalSeconds: Int(self.phaseDuration)
-                    )
-                }
+                let elapsed = Date().timeIntervalSince(start)
+                let remaining = max(Int(self.phaseDuration - elapsed), 0)
+
+                self.remainingSeconds = remaining
+
+                self.liveActivityController.update(
+                    phase: phase.rawValue.capitalized,
+                    remainingSeconds: remaining,
+                    phaseTotalSeconds: Int(self.phaseDuration)
+                )
             }
+
         }
     }
     
@@ -365,8 +392,11 @@ final class BreathingPlayerViewModel: ObservableObject {
     private func invalidateTimers() {
         phaseTimer?.invalidate()
         secondTimer?.invalidate()
+        liveActivityTimer?.invalidate()
+
         phaseTimer = nil
         secondTimer = nil
+        liveActivityTimer = nil
     }
 
     // MARK: - Audio

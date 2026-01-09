@@ -27,9 +27,6 @@ final class LibraryViewModel: ObservableObject {
 
     // Navigation state is owned here, rendered by LibraryView
     @Published var navigationPath = NavigationPath()
-    
-    // Presession Modal
-    @Published var showPreSessionModal = false
 
 
     // MARK: - Dependencies
@@ -110,4 +107,5 @@ final class LibraryViewModel: ObservableObject {
 
         return Int(Double(cycleCount) * phaseTotal)
     }
+    
 }

@@ -382,13 +382,13 @@ import SwiftUI
 struct BreathingPlayer: View {
 
     @ObservedObject var viewModel: BreathingPlayerViewModel
+    @ObservedObject var libraryViewModel: LibraryViewModel
 
     var body: some View {
-        VStack(spacing: 24) {
-
+        VStack() {
             // MARK: - Top Text (reserved space)
             topText
-                .frame(height: 50)
+                .frame(height: 20)
 
             // MARK: - Core Breathing Area (button NEVER moves)
             breathingCore
@@ -414,6 +414,9 @@ private extension BreathingPlayer {
 
             case .preparing(let seconds):
                 VStack(spacing: 8) {
+                    Text(" ")
+                        .font(.title.bold())
+                        .foregroundColor(.white.opacity(0.8))
                     Text("Get Ready")
                         .font(.title.bold())
                         .foregroundColor(.white.opacity(0.8))
@@ -506,7 +509,12 @@ private extension BreathingPlayer {
     // MARK: - Helpers
     func handleMainButtonTap() {
         if !viewModel.isPlaying {
-            viewModel.play()
+//            viewModel.play()
+            WatchSessionManager.shared.sendPreSession(
+                cycles: libraryViewModel.cycleCount,
+                totalSeconds: libraryViewModel.totalDurationSeconds
+            )
+            viewModel.showPreSessionModal = true
         } else if viewModel.isPaused {
             viewModel.resume()
         } else {
@@ -550,7 +558,7 @@ private extension BreathingPlayer {
         sceneSettingsViewModel: sceneVM
     )
 
-    BreathingPlayer(viewModel: playerVM)
+    BreathingPlayer(viewModel: playerVM, libraryViewModel: libraryVM)
         .preferredColorScheme(.dark)
         .background(Color.black)
 }

@@ -32,26 +32,28 @@ struct BreathingPhaseSelector: View {
                         )
                     }
                     
+                    Spacer()
+                    
                     // Cycle selector
-                    Menu {
+//                    Menu {
+////                        Picker("Cycle", selection: $viewModel.cycleCount) {
+////                            ForEach(1...10, id: \.self) { count in
+////                                Text("\(count)")
+////                                    .tag(count)
+////                            }
+////                        }
 //                        Picker("Cycle", selection: $viewModel.cycleCount) {
-//                            ForEach(1...10, id: \.self) { count in
-//                                Text("\(count)")
+//                            ForEach(1...60, id: \.self) { count in
+//                                Text("\(count) cycles (\(viewModel.durationString(for: count)))")
 //                                    .tag(count)
 //                            }
 //                        }
-                        Picker("Cycle", selection: $viewModel.cycleCount) {
-                            ForEach(1...60, id: \.self) { count in
-                                Text("\(count) cycles (\(viewModel.durationString(for: count)))")
-                                    .tag(count)
-                            }
-                        }
-                    } label: {
-                        dropdownLabel(
-                            title: "Cycle",
-                            value: "\(viewModel.cycleCount) (\(viewModel.durationString(for: viewModel.cycleCount)))"
-                        )
-                    }
+//                    } label: {
+//                        dropdownLabel(
+//                            title: "Cycle",
+//                            value: "\(viewModel.cycleCount) (\(viewModel.durationString(for: viewModel.cycleCount)))"
+//                        )
+//                    }
                 }
                 
                 // -----------------------------
@@ -70,6 +72,35 @@ struct BreathingPhaseSelector: View {
                     collapsedBox(title: "Hold out", value: viewModel.settings.holdOut)
                         .onTapGesture { viewModel.select(.holdOut) }
                 }
+                
+                // -----------------------------
+                // CYCLE SLIDER
+                // -----------------------------
+                VStack(spacing: 8) {
+
+                    Text(
+                        "\(viewModel.cycleCount) Breathing Cycles"
+                    )
+                    .font(.callout.bold())
+                    .foregroundColor(.white)
+                    
+                    Text(
+                        "\(viewModel.durationString(for: viewModel.cycleCount))"
+                    )
+                    .font(.callout)
+                    .foregroundColor(.white)
+                    
+                    Slider(
+                        value: Binding(
+                            get: { Double(viewModel.cycleCount) },
+                            set: { viewModel.cycleCount = Int($0.rounded()) }
+                        ),
+                        in: 1...60,
+                        step: 1
+                    )
+                    .tint(.white)
+                }
+                .padding(.top, 4)
             }
             
             // -----------------------------

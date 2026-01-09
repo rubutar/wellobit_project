@@ -9,9 +9,17 @@ import SwiftUI
 
 @main
 struct WellobitWatch_Watch_AppApp: App {
+
     @WKExtensionDelegateAdaptor(ExtensionDelegate.self)
     var extensionDelegate
-    
+
+    init() {
+        // 🔗 Bind WatchConnectivity → ViewModel
+        WatchSessionManager.shared.bind(
+            to: extensionDelegate.workoutViewModel
+        )
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -19,8 +27,8 @@ struct WellobitWatch_Watch_AppApp: App {
                 .onAppear {
                     extensionDelegate.workoutViewModel.requestAuthorization()
                 }
-
         }
     }
 }
+
 

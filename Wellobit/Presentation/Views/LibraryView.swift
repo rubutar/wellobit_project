@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WatchConnectivity
 
 struct LibraryView: View {
 
@@ -49,15 +50,29 @@ struct LibraryView: View {
 
                 VStack {
                     Spacer()
-                    BreathingPlayer(viewModel: playerViewModel)
+                    BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel)
+                        .alert(
+                            "Breathing Session Starting",
+                            isPresented: $playerViewModel.showPreSessionModal
+                        ) {
+                            Button("Continue") {
+                                playerViewModel.play()
+                                
+                            }
+
+                            Button("Cancel", role: .cancel) { }
+                        } message: {
+                            Text(alertMessage)
+                        }
                     BreathingPhaseSelector(viewModel: libraryViewModel)
                         .opacity(playerViewModel.isPlaying ? 0 : 1)
                         .allowsHitTesting(!playerViewModel.isPlaying)
                     
                     Spacer()
+                    Spacer()
                 }
                 .padding(.horizontal)
-                .padding(.bottom, 24)
+                .padding(.bottom, 32)
             }
 //            .toolbar {
 //                ToolbarItem(placement: .topBarTrailing) {
@@ -89,6 +104,19 @@ struct LibraryView: View {
                 )
             }
         }
+    }
+    private var alertMessage: String {
+        let cycles = libraryViewModel.cycleCount
+        let totalSeconds = libraryViewModel.totalDurationSeconds
+
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+
+        return """
+        You’re about to begin \(cycles) breathing cycles (~\(minutes)m \(seconds)s).
+
+        For better HRV accuracy, please start a Mindfulness-style session on your Apple Watch.
+        """
     }
 }
 
