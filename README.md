@@ -88,6 +88,27 @@ Wellobit
   - Audio restarts with the newly selected scene
   - Playback respects mute state
 
+**Date:** 9 January 2026
+- - Cycle configuration improvements:
+  - Cycle count expanded from 1–10 to 1–60
+  - Cycle duration dynamically calculated based on phase settings
+  - UI now displays both cycle count and total estimated duration
+- Cycle selector UI refactor:
+  - Replaced cycle dropdown menu with an inline slider
+  - Slider placed below phase configuration for better discoverability
+  - Live duration text updates as the slider moves
+- Breathing player layout stabilization:
+  - Phase selector hidden during active breathing session
+  - Scene settings toolbar button hidden while session is active
+- Breathing animation improvements:
+  - Smooth breathing animation driven by elapsed time
+  - Animation correctly pauses and resumes without restarting phases
+- Pre-session user guidance:
+  - Pre-session warning shown before starting breathing
+- Apple Watch communication:
+  - Pre-session message sent from iOS to Apple Watch
+  - Watch receives cycle count and total duration
+  - Watch pre-session reminder view implemented
 
 ## Notes
 - The items above describe the **logic and behavior** of the breathing session, not the final visual design.
@@ -144,3 +165,41 @@ WellobitWidgetExtension
 
 Notes
 - This implementation focuses on the logic flow and system behavior, not final visual design.
+
+
+
+# Wellobit – Sleep tracking
+
+<img width="117" height="255" alt="image" src="https://github.com/user-attachments/assets/808aa3f0-0e78-442e-8c13-120ea9ad46f6" />
+
+**Date:** 10 January 2026
+## What has been completed on this screen
+- Implemented **HealthKit sleep permission flow**
+  - Requested read access for:
+    - Sleep Analysis
+    - Heart Rate
+    - HRV (SDNN)
+    - Respiratory Rate
+- Implemented **latest sleep session fetching**
+  - Retrieved last night’s sleep window from HealthKit
+  - Corrected sleep grouping logic to use **wake-up date (endDate)** instead of startDate
+  - Displayed:
+    - Total sleep duration
+    - Sleep time range (start → end)
+- Implemented **sleep stage breakdown**
+  - Parsed sleep stages (Awake, REM, Core, Deep)
+  - Aggregated duration per stage
+  - Displayed stage durations in the Sleep Details section
+- Implemented **historical sleep data fetching**
+  - Fetched daily sleep summaries for:
+    - 1 Week
+    - 2 Weeks
+    - 1 Month
+    - 3 Months
+  - Ensured missing days are handled gracefully (no data → 0 duration)
+- Implemented **average metrics calculation per timeframe**
+  - Average sleep duration
+  - Average heart rate
+  - Average HRV
+  - Average respiratory rate
+  - Designed averages to remain visible even if optional metrics are unavailable
