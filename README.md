@@ -168,7 +168,7 @@ Notes
 
 
 
-- # Wellobit – Sleep tracking
+# Wellobit – Sleep tracking
 **Date:** 10 January 2026
 ## What has been completed on this screen
 - Implemented **HealthKit sleep permission flow**
