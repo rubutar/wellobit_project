@@ -165,3 +165,38 @@ WellobitWidgetExtension
 
 Notes
 - This implementation focuses on the logic flow and system behavior, not final visual design.
+
+
+
+- # Wellobit – Sleep tracking
+**Date:** 10 January 2026
+## What has been completed on this screen
+- Implemented **HealthKit sleep permission flow**
+  - Requested read access for:
+    - Sleep Analysis
+    - Heart Rate
+    - HRV (SDNN)
+    - Respiratory Rate
+- Implemented **latest sleep session fetching**
+  - Retrieved last night’s sleep window from HealthKit
+  - Corrected sleep grouping logic to use **wake-up date (endDate)** instead of startDate
+  - Displayed:
+    - Total sleep duration
+    - Sleep time range (start → end)
+- Implemented **sleep stage breakdown**
+  - Parsed sleep stages (Awake, REM, Core, Deep)
+  - Aggregated duration per stage
+  - Displayed stage durations in the Sleep Details section
+- Implemented **historical sleep data fetching**
+  - Fetched daily sleep summaries for:
+    - 1 Week
+    - 2 Weeks
+    - 1 Month
+    - 3 Months
+  - Ensured missing days are handled gracefully (no data → 0 duration)
+- Implemented **average metrics calculation per timeframe**
+  - Average sleep duration
+  - Average heart rate
+  - Average HRV
+  - Average respiratory rate
+  - Designed averages to remain visible even if optional metrics are unavailable
