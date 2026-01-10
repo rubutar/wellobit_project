@@ -24,4 +24,35 @@ final class TabRouter {
         )
         return LibraryView(viewModel: vm)
     }
+    
+    func makeSleep() -> some View {
+
+        let repository = HealthKitSleepRepository()
+
+        let fetchSleepUseCase = FetchLatestSleepSession(
+            repository: repository
+        )
+
+        let fetchSleepStagesUseCase = FetchSleepStages(
+            repository: repository
+        )
+
+        let fetchSleepHistoryUseCase = FetchSleepHistory(
+            repository: repository
+        )
+        
+        let fetchSleepAveragesUseCase = FetchSleepAverages(
+            repository: repository
+        )
+
+        let viewModel = SleepViewModel(
+            fetchSleepUseCase: fetchSleepUseCase,
+            fetchSleepStagesUseCase: fetchSleepStagesUseCase,
+            fetchSleepHistoryUseCase: fetchSleepHistoryUseCase,
+            fetchSleepAveragesUseCase: fetchSleepAveragesUseCase
+        )
+
+        return SleepView(viewModel: viewModel)
+    }
+
 }

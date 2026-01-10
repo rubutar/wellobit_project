@@ -52,15 +52,15 @@ struct SceneListView: View {
                 Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                }
-            }
+//            .toolbar {
+//                ToolbarItem(placement: .topBarLeading) {
+//                    Button {
+//                        dismiss()
+//                    } label: {
+//                        Image(systemName: "xmark")
+//                    }
+//                }
+//            }
         }
     }
 }

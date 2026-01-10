@@ -1,0 +1,182 @@
+//
+//  SleepView.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 10/01/26.
+//
+
+import SwiftUI
+
+struct SleepView: View {
+    @StateObject var viewModel: SleepViewModel
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                VStack(spacing: 8) {
+                    Text("Sleep Duration")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text(viewModel.durationText)
+                        .font(.largeTitle.bold())
+                    
+                    Text(viewModel.timeRangeText)
+                        .foregroundColor(.secondary)
+                }
+                
+                Divider()
+                
+                VStack(spacing: 12) {
+                    Text("Sleep Details")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    ForEach(viewModel.sleepStages, id: \.type) { stage in
+                        HStack {
+                            Text(stageLabel(stage.type))
+                                .font(.subheadline)
+                            
+                            Spacer()
+                            
+                            Text(formatDuration(stage.duration))
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Historical Data")
+                        .font(.headline)
+                    
+                    historyRangeSelector
+//                    SleepHistory3MonthChart(
+//                        data: viewModel.sleepHistory
+//                    )
+
+                    
+
+                    if viewModel.sleepHistory.isEmpty {
+                        Text("No historical sleep data")
+                            .foregroundColor(.secondary)
+                    } else {
+                        SleepHistoryTimelineChart(
+                            data: viewModel.sleepHistory,
+                            style: viewModel.selectedHistoryRange.timelineStyle
+                        )
+                    }
+                    if let averages = viewModel.sleepAverages {
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ],
+                            spacing: 12
+                        ) {
+                            SleepAverageCard(
+                                title: "Avg Sleep",
+                                value: formatSleep(averages.averageSleepDuration)
+                            )
+                            
+                            SleepAverageCard(
+                                title: "Avg HR",
+                                value: formatOptional(averages.averageHeartRate, suffix: " bpm")
+                            )
+                            
+                            SleepAverageCard(
+                                title: "Avg HRV",
+                                value: formatOptional(averages.averageHRV, suffix: " ms")
+                            )
+                            
+                            SleepAverageCard(
+                                title: "Avg Breath",
+                                value: formatOptional(
+                                    averages.averageRespiratoryRate,
+                                    suffix: " /min",
+                                    decimals: 1
+                                )
+                            )
+                        }
+                    }
+                }
+                
+            }
+        }
+        .task {
+            await viewModel.onAppear()
+        }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let hours = Int(duration) / 3600
+        let minutes = (Int(duration) % 3600) / 60
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    private func stageLabel(_ type: SleepStageType) -> String {
+        switch type {
+        case .awake:
+            return "Awake"
+        case .rem:
+            return "REM"
+        case .core:
+            return "Core"
+        case .deep:
+            return "Deep"
+        }
+    }
+    private var historyRangeSelector: some View {
+        HStack(spacing: 12) {
+            rangeButton(.week, title: "1W")
+            rangeButton(.twoWeeks, title: "2W")
+            rangeButton(.month, title: "1M")
+            rangeButton(.threeMonths, title: "3M")
+        }
+    }
+    private func rangeButton(
+        _ range: SleepHistoryRange,
+        title: String
+    ) -> some View {
+        Button {
+            Task {
+                await viewModel.selectHistoryRange(range)
+            }
+        } label: {
+            Text(title)
+                .font(.caption.bold())
+                .foregroundColor(
+                    viewModel.selectedHistoryRange == range
+                    ? .white
+                    : .secondary
+                )
+                .padding(.vertical, 6)
+                .padding(.horizontal, 10)
+                .background(
+                    viewModel.selectedHistoryRange == range
+                    ? Color.purple
+                    : Color.clear
+                )
+                .clipShape(Capsule())
+        }
+    }
+    private func formatSleep(_ duration: TimeInterval) -> String {
+        let hours = Int(duration) / 3600
+        let minutes = (Int(duration) % 3600) / 60
+        return "\(hours)h \(minutes)m"
+    }
+    
+    private func formatOptional(
+        _ value: Double?,
+        suffix: String,
+        decimals: Int = 0
+    ) -> String {
+        guard let value else { return "--" }
+        return String(format: "%.\(decimals)f%@", value, suffix)
+    }
+    
+}

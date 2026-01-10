@@ -386,16 +386,13 @@ struct BreathingPlayer: View {
 
     var body: some View {
         VStack() {
-            // MARK: - Top Text (reserved space)
             topText
-                .frame(height: 20)
+                .frame(height: 10)
 
-            // MARK: - Core Breathing Area (button NEVER moves)
             breathingCore
 
-            // MARK: - Bottom Text (reserved space)
             bottomText
-                .frame(height: 40)
+                .frame(height: 10)
         }
         .overlay(alignment: .bottomTrailing) {
             controlButtons
@@ -414,13 +411,9 @@ private extension BreathingPlayer {
 
             case .preparing(let seconds):
                 VStack(spacing: 8) {
-                    Text(" ")
-                        .font(.title.bold())
-                        .foregroundColor(.white.opacity(0.8))
                     Text("Get Ready")
                         .font(.title.bold())
                         .foregroundColor(.white.opacity(0.8))
-
                     Text("\(seconds)")
                         .font(.system(size: 64, weight: .bold))
                         .foregroundColor(.white)
@@ -560,5 +553,5 @@ private extension BreathingPlayer {
 
     BreathingPlayer(viewModel: playerVM, libraryViewModel: libraryVM)
         .preferredColorScheme(.dark)
-        .background(Color.black)
+        .background(Color.white)
 }

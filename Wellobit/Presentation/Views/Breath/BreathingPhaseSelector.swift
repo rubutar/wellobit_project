@@ -12,11 +12,11 @@ struct BreathingPhaseSelector: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            VStack(spacing: 16) {
+            VStack(spacing: 8) {
                 // ---------------------------------
                 // DROPDOWNS
                 // ---------------------------------
-                HStack(spacing: 12) {
+                HStack(spacing: 8) {
                     // Preset selector
                     Menu {
                         Picker("Breathing Library", selection: $viewModel.selectedPreset) {
@@ -76,18 +76,18 @@ struct BreathingPhaseSelector: View {
                 // -----------------------------
                 // CYCLE SLIDER
                 // -----------------------------
-                VStack(spacing: 8) {
+                VStack(spacing: 4) {
 
                     Text(
                         "\(viewModel.cycleCount) Breathing Cycles"
                     )
-                    .font(.callout.bold())
+                    .font(.caption.bold())
                     .foregroundColor(.white)
                     
                     Text(
                         "\(viewModel.durationString(for: viewModel.cycleCount))"
                     )
-                    .font(.callout)
+                    .font(.caption)
                     .foregroundColor(.white)
                     
                     Slider(

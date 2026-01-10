@@ -16,11 +16,15 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-
             router.makeLibrary()
                 .tabItem {
                     Label("Breath", systemImage: "play.circle.fill")
                 }
+            router.makeSleep()
+                .tabItem {
+                    Label("Sleep", systemImage: "powersleep")
+                }
         }
     }
 }
+

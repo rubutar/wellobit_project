@@ -50,6 +50,7 @@ struct LibraryView: View {
 
                 VStack {
                     Spacer()
+                    Spacer()
                     BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel)
                         .alert(
                             "Breathing Session Starting",
