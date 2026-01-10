@@ -170,6 +170,7 @@ Notes
 
 # Wellobit – Sleep tracking
 **Date:** 10 January 2026
+<img width="1179" height="2556" alt="image" src="https://github.com/user-attachments/assets/808aa3f0-0e78-442e-8c13-120ea9ad46f6" />
 ## What has been completed on this screen
 - Implemented **HealthKit sleep permission flow**
   - Requested read access for:
