@@ -26,8 +26,19 @@ final class SleepViewModel: ObservableObject {
     @Published var sleepHistory: [DailySleepSummary] = []
     @Published var selectedHistoryRange: SleepHistoryRange = .week
     @Published var sleepAverages: SleepAverages?
+    @Published var sleepSession: SleepSession?
+
     
     @Published private(set) var selectedDate: Date
+    
+    var stressAnchorDate: Date {
+        Calendar.current.date(
+            bySettingHour: 23,
+            minute: 59,
+            second: 59,
+            of: selectedDate
+        ) ?? selectedDate
+    }
 
 
     private let fetchSleepUseCase: FetchSleepSessionUseCase
@@ -35,6 +46,7 @@ final class SleepViewModel: ObservableObject {
     private let permissionManager = HealthKitPermissionManager()
     private let fetchSleepHistoryUseCase: FetchSleepHistoryUseCase
     private let fetchSleepAveragesUseCase: FetchSleepAveragesUseCase
+
 
 
     init(
@@ -92,14 +104,15 @@ final class SleepViewModel: ObservableObject {
             guard let session = try await fetchSleepUseCase.execute(
                 for: selectedDate
             ) else {
-                // ✅ CLEAR stale UI state
                 durationText = "No data"
                 timeRangeText = "--"
                 sleepStages = []
+                sleepSession = nil
                 state = .noData
                 return
             }
 
+            sleepSession = session
             durationText = format(duration: session.duration)
             timeRangeText = format(range: session)
 

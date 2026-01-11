@@ -12,3 +12,4 @@ struct SleepSession {
     let endDate: Date
     let duration: TimeInterval
 }
+

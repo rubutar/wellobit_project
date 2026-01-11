@@ -10,6 +10,8 @@ import SwiftUI
 struct SleepView: View {
     @StateObject var viewModel: SleepViewModel
     @StateObject private var sleepScoreVM: SleepScoreViewModel
+    @StateObject private var stressViewModel = StressViewModel()
+
 
     init(
         viewModel: SleepViewModel,
@@ -20,6 +22,20 @@ struct SleepView: View {
     }
     
     var body: some View {
+        
+        let endDate = Calendar.current.date(
+            bySettingHour: 23,
+            minute: 59,
+            second: 59,
+            of: viewModel.selectedDate
+        ) ?? viewModel.selectedDate
+
+        let startDate = Calendar.current.date(
+            byAdding: .hour,
+            value: -24,
+            to: endDate
+        )!
+        
         ScrollView {
             
             HStack(spacing: 12) {
@@ -91,17 +107,11 @@ struct SleepView: View {
                 }
                 
                 Divider()
-                
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Historical Data")
                         .font(.headline)
                     
                     historyRangeSelector
-//                    SleepHistory3MonthChart(
-//                        data: viewModel.sleepHistory
-//                    )
-
-                    
 
                     if viewModel.sleepHistory.isEmpty {
                         Text("No historical sleep data")
@@ -146,11 +156,27 @@ struct SleepView: View {
                         }
                     }
                 }
-                
+                Divider()
+                VStack(alignment: .leading, spacing: 12) {
+
+                    Text("Stress (Last 24 Hours)")
+                        .font(.headline)
+
+                    StressChartView(
+                        timeline: stressViewModel.stressTimeline,
+                        sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
+                        startDate: startDate,
+                        endDate: endDate
+                    )
+
+                }
             }
         }
         .task(id: viewModel.selectedDate) {
             await viewModel.onAppear()
+            stressViewModel.load(for: viewModel.selectedDate)
+            
+            
         }
     }
     
