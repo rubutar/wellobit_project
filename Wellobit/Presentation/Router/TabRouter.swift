@@ -27,32 +27,50 @@ final class TabRouter {
     
     func makeSleep() -> some View {
 
-        let repository = HealthKitSleepRepository()
+        // Repositories
+        let sleepRepository = HealthKitSleepRepository()
+        let vitalsRepository = HealthKitVitalsRepository()
 
-        let fetchSleepUseCase = FetchLatestSleepSession(
-            repository: repository
+        // Sleep use cases
+        let fetchSleepUseCase = FetchSleepSession(
+            repository: sleepRepository
         )
 
         let fetchSleepStagesUseCase = FetchSleepStages(
-            repository: repository
+            repository: sleepRepository
         )
 
         let fetchSleepHistoryUseCase = FetchSleepHistory(
-            repository: repository
-        )
-        
-        let fetchSleepAveragesUseCase = FetchSleepAverages(
-            repository: repository
+            repository: sleepRepository
         )
 
-        let viewModel = SleepViewModel(
+        let fetchSleepAveragesUseCase = FetchSleepAverages(
+            repository: sleepRepository
+        )
+
+        // Sleep ViewModel
+        let sleepViewModel = SleepViewModel(
             fetchSleepUseCase: fetchSleepUseCase,
             fetchSleepStagesUseCase: fetchSleepStagesUseCase,
             fetchSleepHistoryUseCase: fetchSleepHistoryUseCase,
             fetchSleepAveragesUseCase: fetchSleepAveragesUseCase
         )
 
-        return SleepView(viewModel: viewModel)
+        // Sleep score wiring
+        let sleepScoreInputBuilder = SleepScoreInputBuilder(
+            sleepRepository: sleepRepository,
+            vitalsRepository: vitalsRepository
+        )
+
+        let sleepScoreViewModel = SleepScoreViewModel(
+            inputBuilder: sleepScoreInputBuilder
+        )
+
+        return SleepView(
+            viewModel: sleepViewModel,
+            sleepScoreVM: sleepScoreViewModel
+        )
     }
+
 
 }

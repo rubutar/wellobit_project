@@ -5,6 +5,10 @@
 //  Created by Rudi Butarbutar on 10/01/26.
 //
 
+protocol FetchSleepHistoryUseCase {
+    func execute(range: SleepHistoryRange) async throws -> [DailySleepSummary]
+}
+
 
 final class FetchSleepHistory: FetchSleepHistoryUseCase {
 

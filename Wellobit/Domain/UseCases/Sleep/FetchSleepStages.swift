@@ -5,17 +5,23 @@
 //  Created by Rudi Butarbutar on 10/01/26.
 //
 
+import Foundation
+
+protocol FetchSleepStagesUseCase {
+    func execute(for date: Date) async throws -> [SleepStage]
+}
+
 
 final class FetchSleepStages: FetchSleepStagesUseCase {
 
-    private let repository: HealthKitSleepRepository
+    private let repository: SleepRepository
 
-    init(repository: HealthKitSleepRepository) {
+    init(repository: SleepRepository) {
         self.repository = repository
     }
 
-    func execute() async throws -> [SleepStage] {
-        let samples = try await repository.fetchRawSleepStageSamples()
-        return SleepStageAggregator.aggregate(from: samples)
+    func execute(for date: Date) async throws -> [SleepStage] {
+        let samples = try await repository.fetchSleepStages(for: date)
+        return samples
     }
 }

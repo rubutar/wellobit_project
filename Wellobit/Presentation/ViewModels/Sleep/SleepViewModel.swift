@@ -26,19 +26,19 @@ final class SleepViewModel: ObservableObject {
     @Published var sleepHistory: [DailySleepSummary] = []
     @Published var selectedHistoryRange: SleepHistoryRange = .week
     @Published var sleepAverages: SleepAverages?
+    
+    @Published private(set) var selectedDate: Date
 
 
-
-    private let fetchSleepUseCase: FetchLatestSleepSessionUseCase
+    private let fetchSleepUseCase: FetchSleepSessionUseCase
     private let fetchSleepStagesUseCase: FetchSleepStagesUseCase
     private let permissionManager = HealthKitPermissionManager()
     private let fetchSleepHistoryUseCase: FetchSleepHistoryUseCase
     private let fetchSleepAveragesUseCase: FetchSleepAveragesUseCase
-    private var hasLoadedOnce = false
 
 
     init(
-        fetchSleepUseCase: FetchLatestSleepSessionUseCase,
+        fetchSleepUseCase: FetchSleepSessionUseCase,
         fetchSleepStagesUseCase: FetchSleepStagesUseCase,
         fetchSleepHistoryUseCase: FetchSleepHistoryUseCase,
         fetchSleepAveragesUseCase: FetchSleepAveragesUseCase
@@ -47,23 +47,66 @@ final class SleepViewModel: ObservableObject {
         self.fetchSleepStagesUseCase = fetchSleepStagesUseCase
         self.fetchSleepHistoryUseCase = fetchSleepHistoryUseCase
         self.fetchSleepAveragesUseCase = fetchSleepAveragesUseCase
+        
+//        self.selectedDate = Calendar.current.date(
+//            byAdding: .day,
+//            value: -1,
+//            to: Date()
+//        ) ?? Date()
+        
+        self.selectedDate = Calendar.current.startOfDay(for: Date())
+
 
     }
-
+    
     func onAppear() async {
-        guard !hasLoadedOnce else { return }
-        hasLoadedOnce = true
+        await loadForSelectedDate()
+    }
+    
+    func goToPreviousDay() {
+        selectedDate = Calendar.current.date(
+            byAdding: .day,
+            value: -1,
+            to: selectedDate
+        ) ?? selectedDate
+    }
 
+    func goToNextDay() {
+        let next = Calendar.current.date(
+            byAdding: .day,
+            value: 1,
+            to: selectedDate
+        ) ?? selectedDate
+
+        guard next <= Date() else { return }
+        selectedDate = next
+    }
+
+
+    private func loadForSelectedDate() async {
         state = .loading
 
         do {
             try await permissionManager.requestSleepPermission()
 
-            await loadSleep()
+            guard let session = try await fetchSleepUseCase.execute(
+                for: selectedDate
+            ) else {
+                // ✅ CLEAR stale UI state
+                durationText = "No data"
+                timeRangeText = "--"
+                sleepStages = []
+                state = .noData
+                return
+            }
 
-            let stages = try await fetchSleepStagesUseCase.execute()
-            sleepStages = stages
+            durationText = format(duration: session.duration)
+            timeRangeText = format(range: session)
 
+
+            sleepStages = try await fetchSleepStagesUseCase.execute(
+                for: selectedDate
+            )
             await loadSleepHistory()
 
             state = .loaded
@@ -73,19 +116,21 @@ final class SleepViewModel: ObservableObject {
     }
 
 
-    private func loadSleep() async {
-        do {
-            if let session = try await fetchSleepUseCase.execute() {
-                durationText = format(duration: session.duration)
-                timeRangeText = format(range: session)
-                state = .loaded
-            } else {
-                state = .noData
-            }
-        } catch {
-            state = .noData
-        }
-    }
+
+
+//    private func loadSleep() async {
+//        do {
+//            if let session = try await fetchSleepUseCase.execute() {
+//                durationText = format(duration: session.duration)
+//                timeRangeText = format(range: session)
+//                state = .loaded
+//            } else {
+//                state = .noData
+//            }
+//        } catch {
+//            state = .noData
+//        }
+//    }
     
     func loadSleepHistory() async {
         do {
@@ -147,6 +192,28 @@ final class SleepViewModel: ObservableObject {
         guard let value else { return "--" }
         return String(format: "%.\(decimals)f%@", value, suffix)
     }
+    
+//    func debugLoadSleepForSelectedDate() async {
+//        print("🔍 DEBUG: loading sleep for", selectedDate)
+//
+//        do {
+//            try await permissionManager.requestSleepPermission()
+//
+//            let session = try await fetchSleepUseCase.execute(for: selectedDate)
+//
+//            if let session {
+//                print("🛌 Sleep session FOUND")
+//                print("   Start:", session.startDate)
+//                print("   End:", session.endDate)
+//                print("   Duration:", session.duration / 3600, "hours")
+//            } else {
+//                print("⚠️ No sleep session found")
+//            }
+//
+//        } catch {
+//            print("❌ Error fetching sleep:", error)
+//        }
+//    }
 
 
 }

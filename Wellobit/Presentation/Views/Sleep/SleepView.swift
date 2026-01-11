@@ -9,8 +9,53 @@ import SwiftUI
 
 struct SleepView: View {
     @StateObject var viewModel: SleepViewModel
+    @StateObject private var sleepScoreVM: SleepScoreViewModel
+
+    init(
+        viewModel: SleepViewModel,
+        sleepScoreVM: SleepScoreViewModel
+    ) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        _sleepScoreVM = StateObject(wrappedValue: sleepScoreVM)
+    }
+    
     var body: some View {
         ScrollView {
+            
+            HStack(spacing: 12) {
+
+                Button {
+                    Task { viewModel.goToPreviousDay() }
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.headline)
+                }
+                
+                Text(formattedDate(viewModel.selectedDate))
+                    .font(.headline)
+                    .frame(minWidth: 120)
+
+                Button {
+                    Task { viewModel.goToNextDay() }
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.headline)
+                }
+            }
+            .padding(.vertical, 8)
+            
+            Divider()
+
+
+
+            SleepScoreContainerView(
+                viewModel: sleepScoreVM,
+                date: viewModel.selectedDate
+            )
+            
+            Divider()
+
+            
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
                     Text("Sleep Duration")
@@ -104,7 +149,7 @@ struct SleepView: View {
                 
             }
         }
-        .task {
+        .task(id: viewModel.selectedDate) {
             await viewModel.onAppear()
         }
     }
@@ -178,5 +223,12 @@ struct SleepView: View {
         guard let value else { return "--" }
         return String(format: "%.\(decimals)f%@", value, suffix)
     }
+    
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, dd MMM"
+        return formatter.string(from: date)
+    }
+
     
 }

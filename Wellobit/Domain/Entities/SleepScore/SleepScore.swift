@@ -1,3 +1,11 @@
+//
+//  SleepScore.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 11/01/26.
+//
+
+
 import Foundation
 
 struct SleepScore {

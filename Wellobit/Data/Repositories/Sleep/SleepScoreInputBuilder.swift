@@ -1,3 +1,11 @@
+//
+//  SleepScoreInputBuilder.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 11/01/26.
+//
+
+
 import Foundation
 
 final class SleepScoreInputBuilder {
@@ -13,9 +21,9 @@ final class SleepScoreInputBuilder {
         self.vitalsRepository = vitalsRepository
     }
 
-    func build() async throws -> SleepScoreInput? {
+    func build(for date: Date) async throws -> SleepScoreInput? {
 
-        guard let session = try await sleepRepository.fetchLatestSleepSession()
+        guard let session = try await sleepRepository.fetchSleepSession(for: date)
         else {
             return nil
         }

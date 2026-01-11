@@ -86,6 +86,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9B13FD3B2F13B4480011C6A6 /* Exceptions for "Wellobit" folder in "WellobitWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Data/LiveActivity/BreathingLiveActivityAttributes.swift,
+			);
+			target = 9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */;
+		};
 		9B6875682F0BB82900DA3A98 /* Exceptions for "Wellobit" folder in "Wellobit" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -97,13 +104,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-			);
-			target = 9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */;
-		};
-		9B6875902F0CB63A00DA3A98 /* Exceptions for "Wellobit" folder in "WellobitWidgetExtensionExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Data/LiveActivity/BreathingLiveActivityAttributes.swift,
 			);
 			target = 9B6875772F0CB20400DA3A98 /* WellobitWidgetExtensionExtension */;
 		};
@@ -129,7 +129,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				9B6875682F0BB82900DA3A98 /* Exceptions for "Wellobit" folder in "Wellobit" target */,
-				9B6875902F0CB63A00DA3A98 /* Exceptions for "Wellobit" folder in "WellobitWidgetExtensionExtension" target */,
+				9B13FD3B2F13B4480011C6A6 /* Exceptions for "Wellobit" folder in "WellobitWidgetExtensionExtension" target */,
 			);
 			path = Wellobit;
 			sourceTree = "<group>";
