@@ -203,3 +203,16 @@ Notes
   - Average HRV
   - Average respiratory rate
   - Designed averages to remain visible even if optional metrics are unavailable
+
+**Date:** 11 January 2026
+- Implemented **Sleep Score system**
+  - Designed sleep score input pipeline using:
+    - Sleep duration
+    - Bedtime consistency
+    - Sleep heart rate vs baseline
+    - Sleep HRV vs baseline
+  - Built a dedicated **SleepScoreInputBuilder** to aggregate sleep + vitals data
+  - Implemented **SleepScoreCalculator**
+  - Validated score alignment with **Apple Health Sleep Score**
+- Implemented **date-based sleep navigation**
+  - Added previous / next day navigation
