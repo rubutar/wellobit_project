@@ -106,6 +106,22 @@ struct SleepView: View {
                     
                     Divider()
                     VStack(alignment: .leading, spacing: 12) {
+                        
+                        Text("Stress (Last 24 Hours)")
+                            .font(.headline)
+                        
+                        StressChartView(
+                            timeline: stressViewModel.modeledStressTimeline,
+                            rhrTimeline: stressViewModel.rhrStressTimeline,
+                            sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
+                            startDate: startDate,
+                            endDate: endDate
+                        )
+                        
+                    }
+                    
+                    Divider()
+                    VStack(alignment: .leading, spacing: 12) {
                         Text("Historical Data")
                             .font(.headline)
                         
