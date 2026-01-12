@@ -11,7 +11,8 @@ import Charts
 
 struct StressChartView: View {
     
-    let timeline: [StressTimelinePoint]
+//    let timeline: [StressTimelinePoint]
+    let timeline: [StressState]
     let rhrTimeline: [RHRStressPoint]
     let sleepSessions: [SleepSession]
     let startDate: Date
@@ -52,9 +53,9 @@ struct StressChartView: View {
                 ForEach(timeline) { point in
                     LineMark(
                         x: .value("Time", point.date),
-                        y: .value("Value", point.stressScore)
+                        y: .value("Value", point.value)
                     )
-                    .foregroundStyle(by: .value("Series", "HRV"))
+                    .foregroundStyle(by: .value("Series", "Stress Score"))
 //                    .interpolationMethod(.catmullRom)
                     .lineStyle(.init(lineWidth: 2.5))
                 }

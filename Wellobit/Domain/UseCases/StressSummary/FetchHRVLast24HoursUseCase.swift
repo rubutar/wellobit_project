@@ -16,36 +16,6 @@ final class FetchHRVLast24HoursUseCase {
     init(healthKit: HealthKitManager = .shared) {
         self.healthKit = healthKit
     }
-    
-    //    func execute(
-    //        for date: Date,
-    //        completion: @escaping ([HRVSample]) -> Void
-    //    ) {
-    //        let endDate = Date()
-    //        let startDate = Calendar.current.date(
-    //            byAdding: .hour,
-    //            value: -24,
-    //            to: endDate
-    //        )!
-    //
-    //        healthKit.fetchHRV(
-    //            startDate: startDate,
-    //            endDate: endDate
-    //        ) { samples in
-    //
-    //            let mapped = samples.map {
-    //                HRVSample(
-    //                    date: $0.startDate,
-    //                    value: $0.quantity.doubleValue(
-    //                        for: HKUnit.secondUnit(with: .milli)
-    //                    )
-    //                )
-    //            }
-    //
-    //            completion(mapped)
-    //        }
-    //    }
-    
     func execute(
         for date: Date,
         completion: @escaping ([HRVSample]) -> Void

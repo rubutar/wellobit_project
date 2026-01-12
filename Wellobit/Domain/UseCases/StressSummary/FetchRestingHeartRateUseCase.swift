@@ -39,9 +39,39 @@ final class FetchRestingHeartRateUseCase {
             sortDescriptors: [sort]
         ) { _, samples, _ in
             completion(samples as? [HKQuantitySample] ?? [])
-            print("🫀 Raw RHR samples:", samples?.count ?? 0)
         }
 
         healthStore.execute(query)
     }
+    
+    func execute(
+        for date: Date,
+        completion: @escaping ([(Date, Double)]) -> Void
+    ) {
+        let endDate = Calendar.current.date(
+            bySettingHour: 23,
+            minute: 59,
+            second: 59,
+            of: date
+        ) ?? date
+
+        let startDate = Calendar.current.date(
+            byAdding: .hour,
+            value: -24,
+            to: endDate
+        )!
+
+        execute(startDate: startDate, endDate: endDate) { samples in
+            let mapped = samples.map {
+                (
+                    $0.startDate,
+                    $0.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+                )
+            }
+
+            print("❤️ HR mapped samples:", mapped.count)
+            completion(mapped)
+        }
+    }
+
 }

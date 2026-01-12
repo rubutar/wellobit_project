@@ -12,7 +12,6 @@ struct SleepView: View {
     @StateObject private var sleepScoreVM: SleepScoreViewModel
     @StateObject private var stressViewModel = StressViewModel()
     
-    
     init(
         viewModel: SleepViewModel,
         sleepScoreVM: SleepScoreViewModel
@@ -162,7 +161,7 @@ struct SleepView: View {
                             .font(.headline)
                         
                         StressChartView(
-                            timeline: stressViewModel.stressTimeline,
+                            timeline: stressViewModel.modeledStressTimeline,
                             rhrTimeline: stressViewModel.rhrStressTimeline,
                             sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
                             startDate: startDate,
@@ -170,14 +169,30 @@ struct SleepView: View {
                         )
                         
                     }
+                    
+//                    ModeledStressChartView(
+//                        states: stressViewModel.modeledStressTimeline,
+//                        sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
+//                        startDate: startDate,
+//                        endDate: endDate
+//                    )
+                    
                 }
             }
         }
         .task(id: viewModel.selectedDate) {
+
             await viewModel.onAppear()
-            stressViewModel.load(for: viewModel.selectedDate)
-            
-            
+
+            await stressViewModel.load(for: viewModel.selectedDate)
+            print("✅ load(for:) finished — calling loadModeledStress")
+
+
+            await stressViewModel.loadModeledStress(
+                startDate: startDate,
+                endDate: endDate,
+                sleepSessions: viewModel.sleepSession.map { [$0] } ?? []
+            )
         }
     }
     
