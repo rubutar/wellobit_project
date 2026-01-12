@@ -216,3 +216,18 @@ Notes
   - Validated score alignment with **Apple Health Sleep Score**
 - Implemented **date-based sleep navigation**
   - Added previous / next day navigation
+  - 
+**Date:** January 12, 2026
+## Daily Progress Update
+
+### 📅 January 12, 2026
+- Implemented **Stress Score modeling**
+  - Built stress scoring pipeline using raw **Sleep**, **Heart Rate** and **HRV** data
+  - Ensured accurate stress computation by separating raw physiological data from derived metrics
+- Stabilized **stress and modeled stress data flow**
+  - Fixed async dependency issues between HR, HRV, and stress calculations
+- Improved **date-based data refresh**
+  - Stress and sleep data now update reliably when navigating between dates
+- Refined **stress visualizations**
+  - Eliminated misleading zero / flatline values
+  - Improved accuracy and reliability of 24-hour stress charts
