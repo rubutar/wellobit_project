@@ -11,7 +11,6 @@ enum LibraryDestination: Hashable {
     case scenes
 }
 
-
 final class LibraryRouter {
 
     @ViewBuilder

@@ -59,13 +59,6 @@ final class SleepViewModel: ObservableObject {
         self.fetchSleepStagesUseCase = fetchSleepStagesUseCase
         self.fetchSleepHistoryUseCase = fetchSleepHistoryUseCase
         self.fetchSleepAveragesUseCase = fetchSleepAveragesUseCase
-        
-//        self.selectedDate = Calendar.current.date(
-//            byAdding: .day,
-//            value: -1,
-//            to: Date()
-//        ) ?? Date()
-        
         self.selectedDate = Calendar.current.startOfDay(for: Date())
 
 
@@ -127,23 +120,6 @@ final class SleepViewModel: ObservableObject {
             state = .noData
         }
     }
-
-
-
-
-//    private func loadSleep() async {
-//        do {
-//            if let session = try await fetchSleepUseCase.execute() {
-//                durationText = format(duration: session.duration)
-//                timeRangeText = format(range: session)
-//                state = .loaded
-//            } else {
-//                state = .noData
-//            }
-//        } catch {
-//            state = .noData
-//        }
-//    }
     
     func loadSleepHistory() async {
         do {
@@ -205,30 +181,6 @@ final class SleepViewModel: ObservableObject {
         guard let value else { return "--" }
         return String(format: "%.\(decimals)f%@", value, suffix)
     }
-    
-//    func debugLoadSleepForSelectedDate() async {
-//        print("🔍 DEBUG: loading sleep for", selectedDate)
-//
-//        do {
-//            try await permissionManager.requestSleepPermission()
-//
-//            let session = try await fetchSleepUseCase.execute(for: selectedDate)
-//
-//            if let session {
-//                print("🛌 Sleep session FOUND")
-//                print("   Start:", session.startDate)
-//                print("   End:", session.endDate)
-//                print("   Duration:", session.duration / 3600, "hours")
-//            } else {
-//                print("⚠️ No sleep session found")
-//            }
-//
-//        } catch {
-//            print("❌ Error fetching sleep:", error)
-//        }
-//    }
-
-
 }
 
 extension SleepHistoryRange {

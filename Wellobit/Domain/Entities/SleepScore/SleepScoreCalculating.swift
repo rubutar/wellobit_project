@@ -5,7 +5,6 @@
 //  Created by Rudi Butarbutar on 11/01/26.
 //
 
-
 import Foundation
 
 protocol SleepScoreCalculating {

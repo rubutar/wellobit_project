@@ -7,16 +7,6 @@
 
 import ActivityKit
 
-//struct BreathingLiveActivityAttributes: ActivityAttributes {
-//    public struct ContentState: Codable, Hashable {
-//        let phase: String
-//        let remainingSeconds: Int
-//    }
-//    
-//    let totalCycles: Int
-//}
-
-
 struct BreathingLiveActivityAttributes: ActivityAttributes {
 
     public struct ContentState: Codable, Hashable {
@@ -24,6 +14,5 @@ struct BreathingLiveActivityAttributes: ActivityAttributes {
         let remainingSeconds: Int
         let phaseTotalSeconds: Int   // ✅ dynamic per phase
     }
-
     let totalCycles: Int
 }

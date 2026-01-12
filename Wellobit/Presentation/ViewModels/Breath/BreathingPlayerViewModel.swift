@@ -321,19 +321,6 @@ final class BreathingPlayerViewModel: ObservableObject {
             let elapsed = Date().timeIntervalSince(start)
             self.phaseProgress = min(elapsed / self.phaseDuration, 1.0)
 
-//            if self.remainingSeconds > 0 {
-//                self.remainingSeconds -= 1
-//
-//                if let phase = self.currentPhase {
-//                    self.liveActivityController.update(
-//                        phase: phase.rawValue.capitalized,
-//                        remainingSeconds: self.remainingSeconds,
-//                        phaseTotalSeconds: Int(self.phaseDuration)
-//                    )
-//                }
-//            }
-            
-            // 🔧 Restart Live Activity timer on resume
             liveActivityTimer = Timer.scheduledTimer(
                 withTimeInterval: 1.0,
                 repeats: true

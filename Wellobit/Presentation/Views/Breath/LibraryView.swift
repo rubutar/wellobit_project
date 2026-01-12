@@ -75,17 +75,6 @@ struct LibraryView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 32)
             }
-//            .toolbar {
-//                ToolbarItem(placement: .topBarTrailing) {
-//                    Button {
-////                        playerViewModel.stop()
-//                        libraryViewModel.openScenes()
-//                    } label: {
-//                        Image(systemName: "rectangle.on.rectangle.badge.gearshape")
-//                            .foregroundColor(.white)
-//                    }
-//                }
-//            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
