@@ -110,12 +110,21 @@ struct SleepView: View {
                         Text("Stress (Last 24 Hours)")
                             .font(.headline)
                         
+//                        StressChartView(
+//                            timeline: stressViewModel.modeledStressTimeline,
+//                            rhrTimeline: stressViewModel.rhrStressTimeline,
+//                            sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
+//                            startDate: startDate,
+//                            endDate: endDate
+//                        )
                         StressChartView(
                             timeline: stressViewModel.modeledStressTimeline,
                             rhrTimeline: stressViewModel.rhrStressTimeline,
                             sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
                             startDate: startDate,
-                            endDate: endDate
+                            endDate: endDate,
+                            peakStress: stressViewModel.peakStress,
+                            peakStressDates: stressViewModel.peakStressDates
                         )
                         
                     }
@@ -181,7 +190,10 @@ struct SleepView: View {
                             rhrTimeline: stressViewModel.rhrStressTimeline,
                             sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
                             startDate: startDate,
-                            endDate: endDate
+                            endDate: endDate,
+                            peakStress: stressViewModel.peakStress,
+                            peakStressDates: stressViewModel.peakStressDates
+
                         )
                         
                     }

@@ -21,8 +21,12 @@ final class StressViewModel: ObservableObject {
     
     @Published private(set) var hrvAnchors: [(Date, Double)] = []
     @Published private(set) var heartRates: [(Date, Double)] = []
+    
+    @Published var peakStress: Double?
+    @Published var peakStressDates: [Date] = []
 
-
+    private let detectPeakPointsUseCase = DetectStressPeakPointsUseCase()
+    private let computePeakStressUseCase = ComputePeakStressScoreUseCase()
 
     private let stressSummaryUseCase: StressSummaryUseCase
     private let zoneBreakdownUseCase: StressZoneBreakdownUseCase
@@ -139,8 +143,6 @@ final class StressViewModel: ObservableObject {
             }
         }
     }
-
-
     
     func loadModeledStress(
         startDate: Date,
@@ -156,9 +158,19 @@ final class StressViewModel: ObservableObject {
             sleepSessions: sleepSessions
         )
 
-        modeledStressTimeline = buildStressTimelineUseCase.execute(
-            input: input
+        modeledStressTimeline = buildStressTimelineUseCase.execute(input: input)
+
+        // 🔴 peak points (red dots)
+        peakStressDates = detectPeakPointsUseCase.execute(
+            states: modeledStressTimeline
         )
+
+        // 🎯 peak stress %
+        peakStress = computePeakStressUseCase.execute(
+            states: modeledStressTimeline
+        )
+
+    
         
         print("""
         🧪 loadModeledStress CALLED
