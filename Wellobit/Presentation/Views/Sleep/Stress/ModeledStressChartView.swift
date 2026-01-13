@@ -5,7 +5,6 @@
 //  Created by Rudi Butarbutar on 12/01/26.
 //
 
-
 import SwiftUI
 import Charts
 
@@ -39,11 +38,11 @@ struct ModeledStressChartView: View {
                     .foregroundStyle(.blue.opacity(0.15))
                 }
 
-                // Modeled stress line
+                // Modeled stress line (AUTOMATIC GAPS ON NIL)
                 ForEach(states) { state in
                     LineMark(
                         x: .value("Time", state.date),
-                        y: .value("Stress", state.value)
+                        y: .value("Stress", state.value ?? Double.nan)
                     )
                     .interpolationMethod(.catmullRom)
                     .foregroundStyle(color(for: state.value))
@@ -56,12 +55,22 @@ struct ModeledStressChartView: View {
         }
     }
 
-    private func color(for value: Double) -> Color {
+    // MARK: - Helpers
+
+    private func color(for value: Double?) -> Color {
+        guard let value else {
+            return .clear   // gaps / no data
+        }
+
         switch value {
-        case 0..<25: return .green
-        case 25..<50: return .yellow
-        case 50..<75: return .orange
-        default: return .red
+        case 0..<25:
+            return .green
+        case 25..<50:
+            return .yellow
+        case 50..<75:
+            return .orange
+        default:
+            return .red
         }
     }
 }

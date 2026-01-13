@@ -64,8 +64,26 @@ final class BuildStressTimelineUseCase {
 
         for date in timeline {
 
-            // 1. Sleep overrides everything
-            if isSleeping(at: date, sessions: input.sleepSessions) {
+            let hasHRV = hrvAnchor(near: date, anchors: input.hrvAnchors) != nil
+            let hasHR  = heartRate(near: date, samples: input.heartRates) != nil
+            let sleeping = isSleeping(at: date, sessions: input.sleepSessions)
+
+            let hasEnoughData = hasHRV || hasHR || sleeping
+
+            // ❌ NO DATA → break the line
+            guard hasEnoughData else {
+                states.append(
+                    StressState(
+                        date: date,
+                        value: nil,              // ← THIS breaks the line
+                        source: .noData
+                    )
+                )
+                continue
+            }
+
+            // 1️⃣ Sleep overrides everything
+            if sleeping {
                 currentStress = max(currentStress - 3, 15)
                 states.append(
                     StressState(
@@ -77,7 +95,7 @@ final class BuildStressTimelineUseCase {
                 continue
             }
 
-            // 2. HRV anchor snaps stress
+            // 2️⃣ HRV anchor snaps stress
             if let hrvValue = hrvAnchor(
                 near: date,
                 anchors: input.hrvAnchors
@@ -93,22 +111,14 @@ final class BuildStressTimelineUseCase {
                 continue
             }
 
-            // 3. HR-based propagation
+            // 3️⃣ HR-based propagation (ONLY if HR exists)
             if let hr = heartRate(
                 near: date,
                 samples: input.heartRates
             ) {
-
-                // TEMP baseline (replace later with personalized baseline)
                 let baselineHR = 60.0
                 let delta = hr - baselineHR
-
-                // Gentle drift
                 currentStress += delta * 0.2
-            } else {
-                // Natural recovery when no signal
-                currentStress -= 0.2
-                currentStress = max(currentStress, 25)
             }
 
             currentStress = clamp(currentStress)
@@ -121,6 +131,67 @@ final class BuildStressTimelineUseCase {
                 )
             )
         }
+
+        
+//        for date in timeline {
+//
+//            // 1. Sleep overrides everything
+//            if isSleeping(at: date, sessions: input.sleepSessions) {
+//                currentStress = max(currentStress - 3, 15)
+//                states.append(
+//                    StressState(
+//                        date: date,
+//                        value: currentStress,
+//                        source: .sleepRecovery
+//                    )
+//                )
+//                continue
+//            }
+//
+//            // 2. HRV anchor snaps stress
+//            if let hrvValue = hrvAnchor(
+//                near: date,
+//                anchors: input.hrvAnchors
+//            ) {
+//                currentStress = hrvValue
+//                states.append(
+//                    StressState(
+//                        date: date,
+//                        value: currentStress,
+//                        source: .hrvAnchor
+//                    )
+//                )
+//                continue
+//            }
+//
+//            // 3. HR-based propagation
+//            if let hr = heartRate(
+//                near: date,
+//                samples: input.heartRates
+//            ) {
+//
+//                // TEMP baseline (replace later with personalized baseline)
+//                let baselineHR = 60.0
+//                let delta = hr - baselineHR
+//
+//                // Gentle drift
+//                currentStress += delta * 0.2
+//            } else {
+//                // Natural recovery when no signal
+//                currentStress -= 0.2
+//                currentStress = max(currentStress, 25)
+//            }
+//
+//            currentStress = clamp(currentStress)
+//
+//            states.append(
+//                StressState(
+//                    date: date,
+//                    value: currentStress,
+//                    source: .hrPropagation
+//                )
+//            )
+//        }
         return smooth(states)
     }
 
@@ -178,25 +249,38 @@ final class BuildStressTimelineUseCase {
         alpha: Double = 0.2
     ) -> [StressState] {
 
-        guard let first = states.first else { return states }
+        var result: [StressState] = []
+        var previousValue: Double?
 
-        var result: [StressState] = [first]
-        var previous = first.value
+        for state in states {
 
-        for state in states.dropFirst() {
-            let smoothedValue = alpha * state.value + (1 - alpha) * previous
-            previous = smoothedValue
+            // Gap → keep nil and reset smoothing
+            guard let value = state.value else {
+                result.append(state)
+                previousValue = nil
+                continue
+            }
 
-            result.append(
-                StressState(
-                    date: state.date,
-                    value: smoothedValue,
-                    source: state.source
+            if let prev = previousValue {
+                let smoothed = alpha * value + (1 - alpha) * prev
+                previousValue = smoothed
+
+                result.append(
+                    StressState(
+                        date: state.date,
+                        value: smoothed,
+                        source: state.source
+                    )
                 )
-            )
+            } else {
+                // Start of a new valid segment
+                previousValue = value
+                result.append(state)
+            }
         }
 
         return result
     }
+
 
 }

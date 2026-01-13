@@ -19,7 +19,7 @@ struct StressState: Identifiable {
     let date: Date
 
     /// Final modeled stress value (0–100)
-    let value: Double
+    let value: Double?
 
     /// Where this value came from (debug / insight)
     let source: Source
@@ -28,5 +28,6 @@ struct StressState: Identifiable {
         case hrvAnchor      // HRV-based recalibration
         case hrPropagation  // HR-based drift
         case sleepRecovery  // Sleep-driven recovery
+        case noData
     }
 }
