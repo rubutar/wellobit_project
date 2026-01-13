@@ -220,7 +220,7 @@ Notes
 **Date:** January 12, 2026
 ## Daily Progress Update
 
-### 📅 January 12, 2026
+### January 12, 2026
 - Implemented **Stress Score modeling**
   - Built stress scoring pipeline using raw **Sleep**, **Heart Rate** and **HRV** data
   - Ensured accurate stress computation by separating raw physiological data from derived metrics
@@ -231,3 +231,18 @@ Notes
 - Refined **stress visualizations**
   - Eliminated misleading zero / flatline values
   - Improved accuracy and reliability of 24-hour stress charts
+ 
+### January 13, 2026
+- Implemented Stress Peak detection logic
+  - Uses a window-based (30-minute) sustained peak model
+  - Detects multiple peak points across the day (not a single max spike)
+  - Marks peak points visually on the stress chart
+- Implemented Peak Stress % calculation
+  - Based on average of window peaks
+  - Normalized the data
+- Added data sufficiency validation
+  - Peak Stress shows -- when there is insufficient real stress data
+  - Avoids misleading values on sparse or empty days
+- Refined Stress Chart rendering
+  - Breaks lines when data is missing
+  - Ensures peak markers align with actual stress values
