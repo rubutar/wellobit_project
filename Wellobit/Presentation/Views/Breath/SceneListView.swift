@@ -51,7 +51,7 @@ struct SceneListView: View {
                 
                 Spacer()
             }
-            .navigationBarTitleDisplayMode(.inline)
+//            .navigationBarTitleDisplayMode(.inline)
 //            .toolbar {
 //                ToolbarItem(placement: .topBarLeading) {
 //                    Button {

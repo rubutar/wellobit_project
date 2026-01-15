@@ -96,7 +96,7 @@ final class LibraryViewModel: ObservableObject {
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
 
-        return "\(minutes)m \(seconds)s"
+        return "\(minutes)min \(seconds)secs"
     }
     var totalDurationSeconds: Int {
         let phaseTotal =

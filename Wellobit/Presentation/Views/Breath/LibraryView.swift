@@ -15,7 +15,6 @@ struct LibraryView: View {
     @StateObject private var sceneSettingsViewModel: SceneSettingsViewModel
     @StateObject private var playerViewModel: BreathingPlayerViewModel
 
-    private let router = LibraryRouter()
 
     // MARK: - Init
     init(viewModel: LibraryViewModel) {
@@ -36,7 +35,6 @@ struct LibraryView: View {
 
     // MARK: - Body
     var body: some View {
-        NavigationStack(path: $libraryViewModel.navigationPath) {
             ZStack {
                 Image(sceneSettingsViewModel.selectedScene.imageName)
                     .resizable()
@@ -51,7 +49,8 @@ struct LibraryView: View {
                 VStack {
                     Spacer()
                     Spacer()
-                    BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel)
+                    BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
+
                         .alert(
                             "Breathing Session Starting",
                             isPresented: $playerViewModel.showPreSessionModal
@@ -75,26 +74,8 @@ struct LibraryView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 32)
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        libraryViewModel.openScenes()
-                    } label: {
-                        Image(systemName: "rectangle.on.rectangle.badge.gearshape")
-                            .foregroundColor(.white)
-                            .opacity(playerViewModel.isPlaying ? 0 : 1)
-                    }
-                    .allowsHitTesting(!playerViewModel.isPlaying)
-                }
-            }
-            .navigationDestination(for: LibraryDestination.self) { destination in
-                router.makeDestination(
-                    destination,
-                    sceneSettingsVM: sceneSettingsViewModel
-                )
-            }
         }
-    }
+    
     private var alertMessage: String {
         let cycles = libraryViewModel.cycleCount
         let totalSeconds = libraryViewModel.totalDurationSeconds

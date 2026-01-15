@@ -13,23 +13,35 @@ final class LocalBreathingSceneRepository: BreathingSceneRepository {
     private let sceneKey = "breathing_scene"
 
     let scenes: [BreathingScene] = [
+//        BreathingScene(
+//            id: "waterfall",
+//            title: "Waterfall",
+//            imageName: "waterfall",
+//            soundName: "waterfall"
+//        ),
         BreathingScene(
-            id: "waterfall",
-            title: "Waterfall",
-            imageName: "waterfall",
-            soundName: "waterfall"
+            id: "sunsetLake",
+            title: "Sunset Lake",
+            imageName: "sunsetLake",
+            soundName: "beach"
+        ),
+        BreathingScene(
+            id: "morningLight",
+            title: "Morning Light",
+            imageName: "morningLight",
+            soundName: "morningLight"
+        ),
+        BreathingScene(
+            id: "meadow",
+            title: "Meadow",
+            imageName: "meadow",
+            soundName: "meadow"
         ),
         BreathingScene(
             id: "river",
             title: "River",
             imageName: "river",
             soundName: "river"
-        ),
-        BreathingScene(
-            id: "beach",
-            title: "Beach",
-            imageName: "beach",
-            soundName: "beach"
         )
     ]
 

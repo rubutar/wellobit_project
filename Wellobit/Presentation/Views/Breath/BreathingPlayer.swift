@@ -8,35 +8,43 @@
 import SwiftUI
 
 struct BreathingPlayer: View {
-
+    
     @ObservedObject var viewModel: BreathingPlayerViewModel
     @ObservedObject var libraryViewModel: LibraryViewModel
+    @StateObject var sceneSettingsViewModel: SceneSettingsViewModel
+    @State private var showSceneList = false
 
+    
     var body: some View {
-        VStack() {
-            topText
-                .frame(height: 10)
-
-            breathingCore
-
-            bottomText
-                .frame(height: 10)
+        ZStack() {
+            VStack() {
+                topText
+                    .frame(height: 10)
+                
+                breathingCore
+                
+                bottomText
+                    .frame(height: 10)
+            }
+            .animation(.easeInOut, value: viewModel.uiState)
+            
+            HStack() {
+                Spacer()
+                controlButtons
+                    .padding(.trailing, 0)
+                    .padding(.bottom, 8)
+                    .offset(y: 100)
+            }
         }
-        .overlay(alignment: .bottomTrailing) {
-            controlButtons
-        }
-        .animation(.easeInOut, value: viewModel.uiState)
     }
 }
 
 // MARK: - Subviews
 private extension BreathingPlayer {
-
-    // 🔝 Top text
     var topText: some View {
         Group {
             switch viewModel.uiState {
-
+                
             case .preparing(let seconds):
                 VStack(spacing: 8) {
                     Text("Get Ready")
@@ -46,140 +54,222 @@ private extension BreathingPlayer {
                         .font(.system(size: 64, weight: .bold))
                         .foregroundColor(.white)
                 }
-
-            case .breathing:
-                Text("\(viewModel.currentCycle)/\(viewModel.totalCycles)")
-                    .font(.title2.bold())
-                    .foregroundColor(.white)
-
             default:
                 Color.clear
             }
         }
     }
-
+    
     // Breathing core (center button fixed)
     var breathingCore: some View {
         ZStack {
-            
             BreathingCircle(
                 phase: viewModel.currentPhase,
                 progress: viewModel.phaseProgress
             )
             .opacity(viewModel.uiState == .breathing ? 1 : 0)
             
-            if !viewModel.isPreparing {
+            if shouldShowCenterPlayButton {
                 Button {
                     handleMainButtonTap()
                 } label: {
                     ZStack {
                         Circle()
-                            .fill(Color.blue.opacity(0.3))
+                            .fill(Color("playButtonColor"))
                             .frame(width: 120, height: 120)
                         
-                        Image(systemName: buttonIcon)
+                        Image(systemName: "play.fill")
                             .font(.system(size: 36))
                             .foregroundColor(.white)
                     }
                 }
+                .transition(.scale)
+            }
+            
+            if viewModel.uiState == .breathing {
+                Text(centerPhaseText)
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundColor(.white)
+                    .transition(.opacity)
             }
         }
     }
-
+    
+    var shouldShowCenterPlayButton: Bool {
+        !viewModel.isPlaying
+    }
+    
+    var centerPhaseText: String {
+        guard let phase = viewModel.currentPhase else { return "" }
+        
+        switch phase {
+        case .inhale:
+            return "Inhale"
+        case .holdIn:
+            return "Hold"
+        case .exhale:
+            return "Exhale"
+        case .holdOut:
+            return "Hold"
+        }
+    }
+    
+    
     // Bottom phase text
     var bottomText: some View {
-        Text(phaseLabel)
+        //        Text(phaseLabel)
+        Text("")
             .font(.title2.bold())
             .foregroundColor(.white)
             .opacity(viewModel.uiState == .breathing ? 1 : 0)
     }
-
-    //  Floating controls (DO NOT affect layout)
+    
+    
+    // Floating controls (DO NOT affect layout)
     var controlButtons: some View {
         VStack(spacing: 12) {
+            
+            if viewModel.isPlaying {
+                activeSessionControls
+            } else {
+                inactiveSessionView
+            }
+        }
+        .padding(.trailing, 16)
+        .padding(.bottom, 80)
+        .opacity(viewModel.isPlaying || showInactiveControls ? 1 : 0)
+        .allowsHitTesting(true)
+    }
+    
+    var inactiveSessionView: some View {
+        Button {
+            showSceneList = true
+        } label: {
+            Image(systemName: "photo.stack")
+                .modifier(ControlButtonStyle())
+        }
+        .sheet(isPresented: $showSceneList) {
+            SceneListView(sceneSettingsVM: sceneSettingsViewModel)
+        }
+    }
 
+    
+    
+    var activeSessionControls: some View {
+        VStack(spacing: 12) {
             Button {
                 viewModel.toggleMute()
             } label: {
                 Image(systemName: viewModel.isMuted
                       ? "speaker.slash.fill"
                       : "speaker.wave.2.fill")
-                    .foregroundColor(.white)
-                    .padding(10)
-                    .background(Color.black.opacity(0.4))
-                    .clipShape(Circle())
+                .modifier(ControlButtonStyle())
             }
-
+            
+            // ⏸ Pause / Resume
+            Button {
+                viewModel.isPaused
+                ? viewModel.resume()
+                : viewModel.pause()
+            } label: {
+                Image(systemName: viewModel.isPaused
+                      ? "play.fill"
+                      : "pause.fill")
+                .modifier(ControlButtonStyle())
+            }
+            
+            // ❌ Cancel
             Button {
                 viewModel.stop()
             } label: {
                 Image(systemName: "xmark")
-                    .foregroundColor(.white)
-                    .padding(10)
-                    .background(Color.black.opacity(0.4))
-                    .clipShape(Circle())
+                    .modifier(ControlButtonStyle())
             }
         }
-        .padding(.trailing, 16)
-        .padding(.bottom, 80)
-        .opacity(viewModel.isPlaying ? 1 : 0)
-        .allowsHitTesting(viewModel.isPlaying)
     }
-
-
+    
+    private var showInactiveControls: Bool {
+        true
+    }
+    
+    
+    
+    struct ControlButtonStyle: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .foregroundColor(.white)
+                .padding(10)
+                .background(Color.black.opacity(0.4))
+                .clipShape(Circle())
+        }
+    }
+    
+    
+    
     // MARK: - Helpers
     func handleMainButtonTap() {
         if !viewModel.isPlaying {
-//            viewModel.play()
+            //            viewModel.play()
             WatchSessionManager.shared.sendPreSession(
                 cycles: libraryViewModel.cycleCount,
                 totalSeconds: libraryViewModel.totalDurationSeconds
             )
             viewModel.showPreSessionModal = true
-        } else if viewModel.isPaused {
-            viewModel.resume()
+            //        } else if viewModel.isPaused {
+            //            viewModel.resume()
         } else {
-            viewModel.pause()
+            //            viewModel.resume()
+            //            viewModel.pause()
         }
     }
-
+    
     var phaseLabel: String {
         guard let phase = viewModel.currentPhase else { return "" }
         return "\(phase.rawValue.capitalized) (\(viewModel.remainingSeconds))"
     }
-
-    var buttonIcon: String {
-        if !viewModel.isPlaying {
-            return "play.fill"
-        } else if viewModel.isPaused {
-            return "play.fill"
-        } else {
-            return "pause.fill"
-        }
-    }
+    
+//    var buttonIcon: String {
+//        if !viewModel.isPlaying {
+//            return "play.fill"
+//        } else if viewModel.isPaused {
+//            return ""
+//        } else {
+//            return ""
+//        }
+//    }
 }
 
 
 
-#Preview {
-    let breathingRepo = LocalBreathingRepository()
-    let initialSettings = breathingRepo.load()
+//#Preview {
+//    let breathingRepo = LocalBreathingRepository()
+//    let initialSettings = breathingRepo.load()
+//
+//    let libraryVM = LibraryViewModel(
+//        repository: breathingRepo,
+//        initial: initialSettings
+//    )
+//
+//    let sceneVM = SceneSettingsViewModel(
+//        repository: LocalBreathingSceneRepository()
+//    )
+//
+//    let playerVM = BreathingPlayerViewModel(
+//        libraryViewModel: libraryVM,
+//        sceneSettingsViewModel: sceneVM
+//    )
+//
+//    BreathingPlayer(viewModel: playerVM, libraryViewModel: libraryVM)
+//        .preferredColorScheme(.dark)
+//        .background(Color.white)
+//}
 
+#Preview {
+    let repo = LocalBreathingRepository()
+    let initialSettings = repo.load()
     let libraryVM = LibraryViewModel(
-        repository: breathingRepo,
+        repository: repo,
         initial: initialSettings
     )
-
-    let sceneVM = SceneSettingsViewModel(
-        repository: LocalBreathingSceneRepository()
-    )
-
-    let playerVM = BreathingPlayerViewModel(
-        libraryViewModel: libraryVM,
-        sceneSettingsViewModel: sceneVM
-    )
-
-    BreathingPlayer(viewModel: playerVM, libraryViewModel: libraryVM)
-        .preferredColorScheme(.dark)
-        .background(Color.white)
+    LibraryView(viewModel: libraryVM)
 }
