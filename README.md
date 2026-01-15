@@ -110,7 +110,7 @@ Wellobit
   - Watch receives cycle count and total duration
   - Watch pre-session reminder view implemented
 
-**Date:** 9 January 2026
+**Date:** 15 January 2026
 - LibraryView & BreathingPhaseSelector stabilization
   - Fixed layout shifting issues caused by overlapping `ZStack` layers
   - Ensured floating overlays (phase editor) no longer push or resize the main layout
