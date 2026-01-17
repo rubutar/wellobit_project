@@ -1,5 +1,5 @@
 //
-//  BuildRHRStressTimelineUseCase.swift
+//  BuildHRStressTimelineUseCase.swift
 //  Wellobit
 //
 //  Created by Rudi Butarbutar on 12/01/26.
@@ -8,19 +8,19 @@
 import Foundation
 import HealthKit
 
-final class BuildRHRStressTimelineUseCase {
+final class BuildHRStressTimelineUseCase {
 
-    private let fetchRHRUseCase = FetchRestingHeartRateUseCase()
+    private let fetchHRUseCase = FetchRestingHeartRateUseCase()
     private let calendar = Calendar.current
 
     func execute(
         startDate: Date,
         endDate: Date,
         baselineRHR: Double,
-        completion: @escaping ([RHRStressPoint]) -> Void
+        completion: @escaping ([HRStressPoint]) -> Void
     ) {
 
-        fetchRHRUseCase.execute(
+        fetchHRUseCase.execute(
             startDate: startDate,
             endDate: endDate
         ) { samples in
@@ -48,7 +48,7 @@ final class BuildRHRStressTimelineUseCase {
             }
 
             // 3. Average BPM per bucket and normalize
-            let points: [RHRStressPoint] = grouped.compactMap { date, samples in
+            let points: [HRStressPoint] = grouped.compactMap { date, samples in
                 let avgHR = samples
                     .map {
                         $0.quantity.doubleValue(
@@ -57,12 +57,12 @@ final class BuildRHRStressTimelineUseCase {
                     }
                     .reduce(0, +) / Double(samples.count)
 
-                let value = RHRStressMapper.normalize(
+                let value = HRStressMapper.normalize(
                     rhr: avgHR,
                     baselineRHR: baselineRHR
                 )
 
-                return RHRStressPoint(
+                return HRStressPoint(
                     date: date,
                     value: value
                 )
