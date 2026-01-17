@@ -16,7 +16,7 @@ final class StressViewModel: ObservableObject {
     @Published var zoneSummary: StressZoneSummary?
     
     @Published var stressTimeline: [StressTimelinePoint] = []
-    @Published var rhrStressTimeline: [RHRStressPoint] = []
+    @Published var hrStressTimeline: [HRStressPoint] = []
     @Published var modeledStressTimeline: [StressState] = []
     
     @Published private(set) var hrvAnchors: [(Date, Double)] = []
@@ -31,10 +31,10 @@ final class StressViewModel: ObservableObject {
     private let stressSummaryUseCase: StressSummaryUseCase
     private let zoneBreakdownUseCase: StressZoneBreakdownUseCase
     private let stressTimelineUseCase: StressTimelineUseCase
-    private let buildRHRStressTimelineUseCase = BuildRHRStressTimelineUseCase()
+    private let buildHRStressTimelineUseCase = BuildHRStressTimelineUseCase()
     private let buildStressTimelineUseCase = BuildStressTimelineUseCase()
     private let fetchHRV = FetchHRVLast24HoursUseCase()
-    private let fetchHR = FetchRestingHeartRateUseCase()
+    private let fetchHR = FetchHeartRateUseCase()
 
 
     init() {
@@ -67,7 +67,7 @@ final class StressViewModel: ObservableObject {
     func load(for date: Date) async {
 
         stressTimeline.removeAll()
-        rhrStressTimeline.removeAll()
+        hrStressTimeline.removeAll()
         modeledStressTimeline.removeAll()
 
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
@@ -110,13 +110,13 @@ final class StressViewModel: ObservableObject {
             )!
 
             group.enter()
-            buildRHRStressTimelineUseCase.execute(
+            buildHRStressTimelineUseCase.execute(
                 startDate: startDate,
                 endDate: endDate,
-                baselineRHR: 60
+                baselineHR: 60
             ) { [weak self] points in
-                print("🧪 buildRHRStressTimelineUseCase FINISHED")
-                self?.rhrStressTimeline = points
+                print("🧪 buildHRStressTimelineUseCase FINISHED")
+                self?.hrStressTimeline = points
                 group.leave()
             }
             

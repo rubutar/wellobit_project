@@ -1,3 +1,16 @@
+//
+//  FetchTodayRMSSDUseCaseImpl.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 17/01/26.
+//
+
+import Foundation
+
+protocol FetchTodayRMSSDUseCase {
+    func execute() async throws -> [HRVPoint]
+}
+
 final class FetchTodayRMSSDUseCaseImpl: FetchTodayRMSSDUseCase {
 
     private let hrvDataSource: HRVDataSource

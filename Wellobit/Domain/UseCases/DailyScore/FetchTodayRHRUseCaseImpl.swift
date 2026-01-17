@@ -1,3 +1,16 @@
+//
+//  FetchTodayRHRUseCaseImpl.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 18/01/26.
+//
+
+import Foundation
+
+protocol FetchTodayRHRUseCase {
+    func execute() async throws -> Double?
+}
+
 final class FetchTodayRHRUseCaseImpl: FetchTodayRHRUseCase {
 
     private let dataSource: HRVDataSource

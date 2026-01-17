@@ -10,8 +10,49 @@ import SwiftUI
 final class TabRouter {
     
     func makeHome() -> some View {
-//        let vm = HomeViewModel()
-        return HomeView()
+
+        // Repositories
+        let sleepRepository = HealthKitSleepRepository()
+        let vitalsRepository = HealthKitVitalsRepository()
+
+        // Sleep use cases
+        let fetchSleepUseCase = FetchSleepSession(
+            repository: sleepRepository
+        )
+
+        let fetchSleepStagesUseCase = FetchSleepStages(
+            repository: sleepRepository
+        )
+
+        let fetchSleepHistoryUseCase = FetchSleepHistory(
+            repository: sleepRepository
+        )
+
+        let fetchSleepAveragesUseCase = FetchSleepAverages(
+            repository: sleepRepository
+        )
+
+        // Sleep ViewModel
+        let sleepViewModel = SleepViewModel(
+            fetchSleepUseCase: fetchSleepUseCase,
+            fetchSleepStagesUseCase: fetchSleepStagesUseCase,
+            fetchSleepHistoryUseCase: fetchSleepHistoryUseCase,
+            fetchSleepAveragesUseCase: fetchSleepAveragesUseCase
+        )
+
+        // Sleep score wiring
+        let sleepScoreInputBuilder = SleepScoreInputBuilder(
+            sleepRepository: sleepRepository,
+            vitalsRepository: vitalsRepository
+        )
+
+        let sleepScoreViewModel = SleepScoreViewModel(
+            inputBuilder: sleepScoreInputBuilder
+        )
+
+        return HomeView(
+            viewModel: sleepViewModel
+        )
     }
 
     func makeLibrary() -> some View {

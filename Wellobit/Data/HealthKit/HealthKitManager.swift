@@ -18,21 +18,44 @@ final class HealthKitManager {
     // MARK: - Authorization
 
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
-        guard HKHealthStore.isHealthDataAvailable(),
-              let hrvType = HKObjectType.quantityType(
-                forIdentifier: .heartRateVariabilitySDNN
-              ) else {
+
+        guard HKHealthStore.isHealthDataAvailable() else {
             completion(false)
             return
         }
 
+        let readTypes: Set<HKObjectType> = [
+            HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
+            HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!,
+            HKSeriesType.heartbeat()
+        ]
+
         healthStore.requestAuthorization(
             toShare: [],
-            read: [hrvType]
+            read: readTypes
         ) { success, _ in
             completion(success)
         }
     }
+
+
+    
+//    func requestAuthorization(completion: @escaping (Bool) -> Void) {
+//        guard HKHealthStore.isHealthDataAvailable(),
+//              let hrvType = HKObjectType.quantityType(
+//                forIdentifier: .heartRateVariabilitySDNN
+//              ) else {
+//            completion(false)
+//            return
+//        }
+//
+//        healthStore.requestAuthorization(
+//            toShare: [],
+//            read: [hrvType]
+//        ) { success, _ in
+//            completion(success)
+//        }
+//    }
 
     // MARK: - HRV Fetch
 

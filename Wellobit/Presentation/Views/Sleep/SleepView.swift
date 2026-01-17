@@ -21,7 +21,6 @@ struct SleepView: View {
     }
     
     var body: some View {
-        
         let endDate = Calendar.current.date(
             bySettingHour: 23,
             minute: 59,
@@ -58,17 +57,12 @@ struct SleepView: View {
             .padding(.vertical, 8)
             
             ScrollView {
-                
                 Divider()
-                
-                
                 SleepScoreContainerView(
                     viewModel: sleepScoreVM,
                     date: viewModel.selectedDate
                 )
-                
                 Divider()
-                
                 
                 VStack(spacing: 16) {
                     VStack(spacing: 8) {
@@ -119,14 +113,13 @@ struct SleepView: View {
 //                        )
                         StressChartView(
                             timeline: stressViewModel.modeledStressTimeline,
-                            rhrTimeline: stressViewModel.rhrStressTimeline,
+                            hrTimeline: stressViewModel.hrStressTimeline,
                             sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
                             startDate: startDate,
                             endDate: endDate,
                             peakStress: stressViewModel.peakStress,
                             peakStressDates: stressViewModel.peakStressDates
                         )
-                        
                     }
                     
                     Divider()
@@ -187,7 +180,7 @@ struct SleepView: View {
                         
                         StressChartView(
                             timeline: stressViewModel.modeledStressTimeline,
-                            rhrTimeline: stressViewModel.rhrStressTimeline,
+                            hrTimeline: stressViewModel.hrStressTimeline,
                             sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
                             startDate: startDate,
                             endDate: endDate,

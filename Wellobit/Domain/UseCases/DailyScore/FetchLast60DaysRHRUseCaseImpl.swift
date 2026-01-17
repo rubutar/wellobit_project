@@ -1,5 +1,5 @@
 //
-//  FetchLast30DaysRMSSDUseCase.swift
+//  FetchLast60DaysRHRUseCaseImpl.swift
 //  Wellobit
 //
 //  Created by Rudi Butarbutar on 18/01/26.
@@ -7,12 +7,12 @@
 
 import Foundation
 
-
-protocol FetchLast30DaysRMSSDUseCase {
-    func execute() async throws -> [HRVPoint]
+protocol FetchLast60DaysRHRUseCase {
+    func execute() async throws -> [Double]
 }
 
-final class FetchLast30DaysRMSSDUseCaseImpl: FetchLast30DaysRMSSDUseCase {
+
+final class FetchLast60DaysRHRUseCaseImpl: FetchLast60DaysRHRUseCase {
 
     private let dataSource: HRVDataSource
     private let calendar: Calendar
@@ -22,11 +22,11 @@ final class FetchLast30DaysRMSSDUseCaseImpl: FetchLast30DaysRMSSDUseCase {
         self.calendar = calendar
     }
 
-    func execute() async throws -> [HRVPoint] {
+    func execute() async throws -> [Double] {
         let end = Date()
-        let start = calendar.date(byAdding: .day, value: -30, to: end)!
+        let start = calendar.date(byAdding: .day, value: -60, to: end)!
 
-        return try await dataSource.fetchRMSSDRange(
+        return try await dataSource.fetchRHRRange(
             startDate: start,
             endDate: end
         )

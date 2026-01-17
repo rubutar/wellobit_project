@@ -21,7 +21,8 @@ final class HealthKitPermissionManager {
             HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
             HKObjectType.quantityType(forIdentifier: .heartRate)!,
             HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
-            HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
+            HKObjectType.quantityType(forIdentifier: .respiratoryRate)!,
+            HKSeriesType.heartbeat()
         ]
 
         try await withCheckedThrowingContinuation {

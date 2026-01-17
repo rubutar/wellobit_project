@@ -1,5 +1,5 @@
 //
-//  RHRStressMapper.swift
+//  HRStressMapper.swift
 //  Wellobit
 //
 //  Created by Rudi Butarbutar on 12/01/26.
@@ -8,15 +8,15 @@
 
 import Foundation
 
-struct RHRStressMapper {
+struct HRStressMapper {
 
     /// Normalize Resting Heart Rate into a 0–100 stress-like value
     static func normalize(
-        rhr: Double,
-        baselineRHR: Double
+        hr: Double,
+        baselineHR: Double
     ) -> Double {
 
-        let value = (rhr - baselineRHR) * 3 + 50
+        let value = (hr - baselineHR) * 3 + 50
         return min(max(value, 0), 100)
     }
 }

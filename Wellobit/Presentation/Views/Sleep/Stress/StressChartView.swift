@@ -80,7 +80,7 @@ import Charts
 struct StressChartView: View {
 
     let timeline: [StressState]
-    let rhrTimeline: [RHRStressPoint]
+    let hrTimeline: [HRStressPoint]
     let sleepSessions: [SleepSession]
     let startDate: Date
     let endDate: Date
@@ -114,7 +114,7 @@ struct StressChartView: View {
                     }
 
                     // RHR stress
-                    ForEach(rhrTimeline) { point in
+                    ForEach(hrTimeline) { point in
                         LineMark(
                             x: .value("Time", point.date),
                             y: .value("Value", point.value)

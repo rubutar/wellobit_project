@@ -8,7 +8,7 @@
 import Foundation
 import HealthKit
 
-final class FetchRestingHeartRateUseCase {
+final class FetchHeartRateUseCase {
 
     private let healthStore = HKHealthStore()
 

@@ -23,14 +23,14 @@ struct StressScoreMapper {
     static func stressScore(
         hrv: Double,
         baselineHRV: Double,
-        rhr: Double?,
-        baselineRHR: Double?
+        hr: Double?,
+        baselineHR: Double?
     ) -> Double {
 
         var stress = stressScore(hrv: hrv, baselineHRV: baselineHRV)
 
-        if let rhr, let baselineRHR {
-            let delta = rhr - baselineRHR
+        if let hr, let baselineHR {
+            let delta = hr - baselineHR
             stress += min(max(delta * 6, -15), 20)
         }
 

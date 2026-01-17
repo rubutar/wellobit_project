@@ -10,13 +10,13 @@ import HealthKit
 
 final class BuildHRStressTimelineUseCase {
 
-    private let fetchHRUseCase = FetchRestingHeartRateUseCase()
+    private let fetchHRUseCase = FetchHeartRateUseCase()
     private let calendar = Calendar.current
 
     func execute(
         startDate: Date,
         endDate: Date,
-        baselineRHR: Double,
+        baselineHR: Double,
         completion: @escaping ([HRStressPoint]) -> Void
     ) {
 
@@ -58,8 +58,8 @@ final class BuildHRStressTimelineUseCase {
                     .reduce(0, +) / Double(samples.count)
 
                 let value = HRStressMapper.normalize(
-                    rhr: avgHR,
-                    baselineRHR: baselineRHR
+                    hr: avgHR,
+                    baselineHR: baselineHR
                 )
 
                 return HRStressPoint(

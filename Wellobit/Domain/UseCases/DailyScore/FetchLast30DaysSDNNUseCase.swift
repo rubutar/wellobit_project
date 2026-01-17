@@ -1,3 +1,13 @@
+//
+//  FetchLast30DaysSDNNUseCase.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 18/01/26.
+//
+
+import Foundation
+
+
 protocol FetchLast30DaysSDNNUseCase {
     func execute() async throws -> [HRVPoint]
 }
