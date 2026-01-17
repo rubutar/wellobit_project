@@ -110,6 +110,50 @@ Wellobit
   - Watch receives cycle count and total duration
   - Watch pre-session reminder view implemented
 
+**Date:** 15 January 2026
+- LibraryView & BreathingPhaseSelector stabilization
+  - Fixed layout shifting issues caused by overlapping `ZStack` layers
+  - Ensured floating overlays (phase editor) no longer push or resize the main layout
+  - Phase editor now correctly overlays the phase selector instead of affecting screen height
+  -  Improved layout consistency between inactive and active session states
+
+- Breathing phase editor UX improvements
+  - Refined expanded phase editor visual style for better readability in light mode
+  - Improved contrast for text, sliders, and controls using adaptive system colors
+  - Updated phase editor header hierarchy (title, value, close action)
+  - Close button visually highlighted with clear affordance and larger tap target
+
+- Interaction & behavior fixes
+  - Ensured expanded phase editor dismisses cleanly without layout jump
+  - Phase selection state properly resets after closing editor
+  - Reduced accidental interaction conflicts between cycle editor and phase selector
+  - Improved overall touch hit-testing reliability for overlay controls
+
+- Code structure & maintainability
+  - Simplified overlay logic to use a single, stable `ZStack` root
+  - Improved separation between selector content and overlay content for future extensibility
+
+- Floating controls & navigation behavior updates
+  - Refactored floating control layout in `BreathingPlayer` to use proper `ZStack` layering
+  - Floating buttons are now visually anchored to the bottom-right corner of the player area
+  - Removed layout side effects caused by `Spacer` usage in overlay containers
+  - Ensured floating controls no longer affect surrounding views (phase selector, player layout)
+
+- Navigation simplification (NavigationStack → Modal)
+  - Removed nested `NavigationStack` usage inside the breathing flow
+  - Replaced scene navigation with modal presentation (`sheet`)
+  - Scene selection now opens as a modal overlay instead of a pushed navigation screen
+  - Modal presentation prevents layout conflicts and unexpected navigation state resets
+  - Active breathing session is safely cancelled before presenting scene selection modal
+
+- UX improvements from modal-based navigation
+  - Scene selection feels lighter and more contextual to the breathing session
+  - Users can dismiss scene selection via swipe-down without breaking navigation state
+  - Reduced cognitive load by avoiding deep navigation for quick configuration tasks
+  - Improved consistency between inactive and active session flows
+
+
+
 ## Notes
 - The items above describe the **logic and behavior** of the breathing session, not the final visual design.
 - The breathing flow, timing, background handling, and audio behavior are implemented using **Clean Architecture**, separating logic from UI design.
