@@ -11,6 +11,10 @@ struct HRVChartView: View {
     let endDate: Date
 
     var body: some View {
+        let avgRMSSD = dailyAverage(of: rmssdPoints)
+        let avgSDNN = dailyAverage(of: sdnnPoints)
+        
+        
         if rmssdPoints.isEmpty && sdnnPoints.isEmpty {
             Text("No HRV data today")
                 .font(.caption)
@@ -50,29 +54,58 @@ struct HRVChartView: View {
                     )
                     .foregroundStyle(.blue)
                 }
+                
+                // Avg RMSSD line
+                if avgRMSSD > 0 {
+                    RuleMark(
+                        y: .value("Avg RMSSD", avgRMSSD)
+                    )
+                    .foregroundStyle(.green)
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    .annotation(position: .topLeading) {
+                        Text("Avg RMSSD")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                    }
+                }
+
+                // Avg SDNN line
+                if avgSDNN > 0 {
+                    RuleMark(
+                        y: .value("Avg SDNN", avgSDNN)
+                    )
+                    .foregroundStyle(.blue)
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    .annotation(position: .topLeading) {
+                        Text("Avg SDNN")
+                            .font(.caption2)
+                            .foregroundColor(.blue)
+                    }
+                }
+                
             }
             .chartXScale(domain: startDate ... endDate)
             .chartYScale(domain: 0...maxHRV)
             .frame(height: 180)
             
-            VStack(alignment: .leading, spacing: 6) {
-
-                Text("HRV Summary")
-                    .font(.headline)
-
-                let avgRMSSD = dailyAverage(of: rmssdPoints)
-                let avgSDNN = dailyAverage(of: sdnnPoints)
-
-//                let baselineAvgRMSSD = dailyAverage(of: hrvViewModel.baselineRMSSD)
-//                let baselineAvgSDNN = dailyAverage(of: hrvViewModel.baselineSDNN)
-
-                Text("Daily Average RMSSD: \(Int(avgRMSSD)) ms")
-//                Text("Baseline 30 days RMSSD: \(Int(baselineAvgRMSSD)) ms")
-
-                Text("Daily Average SDNN: \(Int(avgSDNN)) ms")
-//                Text("Baseline 30 days SDNN: \(Int(baselineAvgSDNN)) ms")
-            }
-            .padding(.bottom, 8)
+//            VStack(alignment: .leading, spacing: 6) {
+//
+//                Text("HRV Summary")
+//                    .font(.headline)
+//
+//                let avgRMSSD = dailyAverage(of: rmssdPoints)
+//                let avgSDNN = dailyAverage(of: sdnnPoints)
+//
+////                let baselineAvgRMSSD = dailyAverage(of: hrvViewModel.baselineRMSSD)
+////                let baselineAvgSDNN = dailyAverage(of: hrvViewModel.baselineSDNN)
+//
+//                Text("Daily Average RMSSD: \(Int(avgRMSSD)) ms")
+////                Text("Baseline 30 days RMSSD: \(Int(baselineAvgRMSSD)) ms")
+//
+//                Text("Daily Average SDNN: \(Int(avgSDNN)) ms")
+////                Text("Baseline 30 days SDNN: \(Int(baselineAvgSDNN)) ms")
+//            }
+//            .padding(.bottom, 8)
         }
     }
 

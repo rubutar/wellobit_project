@@ -34,6 +34,8 @@ final class BreathingPlayerViewModel: ObservableObject {
     
     // Presession Modal
     @Published var showPreSessionModal = false
+    @Published var isHapticsEnabled = true
+
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -360,11 +362,20 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Phase Helpers
+//    private func setPhase(_ newPhase: BreathingPhase) {
+//        guard currentPhase != newPhase else { return }
+//        currentPhase = newPhase
+//        haptics.play(for: newPhase)
+//    }
     private func setPhase(_ newPhase: BreathingPhase) {
         guard currentPhase != newPhase else { return }
         currentPhase = newPhase
-        haptics.play(for: newPhase)
+
+        if isHapticsEnabled {
+            haptics.play(for: newPhase)
+        }
     }
+
 
     private func durationForPhase(_ phase: BreathingPhase) -> TimeInterval {
         let s = libraryVM.settings
@@ -436,4 +447,8 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
         return false
     }
+    func toggleHaptics() {
+        isHapticsEnabled.toggle()
+    }
+
 }

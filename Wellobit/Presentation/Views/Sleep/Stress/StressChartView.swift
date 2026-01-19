@@ -113,7 +113,7 @@ struct StressChartView: View {
                         .opacity(0.15)
                     }
 
-                    // RHR stress
+                    // HR stress
                     ForEach(hrTimeline) { point in
                         LineMark(
                             x: .value("Time", point.date),

@@ -1,65 +1,28 @@
 //
-//  SleepView.swift
+//  PreviewHomeView.swift
 //  Wellobit
 //
-//  Created by Rudi Butarbutar on 10/01/26.
+//  Created by Rudi Butarbutar on 19/01/26.
 //
+
+
 import SwiftUI
 import HealthKit
 
-struct HomeView: View {
+struct PreviewHomeView: View {
+
     @StateObject var viewModel: SleepViewModel
     @StateObject private var stressViewModel = StressViewModel()
     @StateObject private var hrvViewModel: HRVChartViewModel
 
-    init(viewModel: SleepViewModel) {
+    init(
+        viewModel: SleepViewModel,
+        hrvViewModel: HRVChartViewModel
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
-
-        let dataSource = HealthKitHRVDataSource(
-            healthStore: HKHealthStore()
-        )
-
-        let sdnnUseCase = FetchTodayHRVUseCaseImpl(
-            hrvDataSource: dataSource
-        )
-
-        let rmssdUseCase = FetchTodayRMSSDUseCaseImpl(
-            hrvDataSource: dataSource
-        )
-        
-        let hrDataSource = HealthKitHeartRateDataSource(
-            healthStore: HKHealthStore()
-        )
-
-        let fetchHRUseCase = FetchTodayHeartRateSamplesUseCaseImpl(
-            dataSource: hrDataSource
-        )
-
-        
-        let sdnn30 = FetchLast30DaysSDNNUseCaseImpl(dataSource: dataSource)
-        let rmssd30 = FetchLast30DaysRMSSDUseCaseImpl(dataSource: dataSource)
-        let rhrUseCase = FetchTodayRHRUseCaseImpl(dataSource: dataSource)
-        let rhr60 = FetchLast60DaysRHRUseCaseImpl(dataSource: dataSource)
-        let calculateScoreUseCase = CalculateDailyScoreUseCaseImpl()
-        let interpretScoreUseCase = InterpretDailyScoreUseCaseImpl()
-        let interpretHRVUseCase = InterpretHRVUseCaseImpl()
-
-        _hrvViewModel = StateObject(
-            wrappedValue: HRVChartViewModel(
-                fetchSDNNUseCase: sdnnUseCase,
-                fetchRMSSDUseCase: rmssdUseCase,
-                fetch30DaySDNNUseCase: sdnn30,
-                fetch30DayRMSSDUseCase: rmssd30,
-                fetchRHRUseCase: rhrUseCase,
-                fetch60DayRHRUseCase: rhr60,
-                fetchHeartRateUseCase: fetchHRUseCase,
-                calculateScoreUseCase: calculateScoreUseCase,
-                interpretScoreUseCase: interpretScoreUseCase,
-                interpretHRVUseCase: interpretHRVUseCase
-            )
-
-        )
+        _hrvViewModel = StateObject(wrappedValue: hrvViewModel)
     }
+
 
     var body: some View {
         let endDate = Calendar.current.date(
@@ -77,32 +40,44 @@ struct HomeView: View {
 
         VStack(spacing: 0) {
             // MARK: - Date Navigation (Same as SleepView)
-            HStack(spacing: 12) {
-                Button {
-                    Task { await viewModel.goToPreviousDay() }
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.headline)
-                }
-
-                Text(formattedDate(viewModel.selectedDate))
-                    .font(.headline)
-                    .frame(minWidth: 120)
-
-                Button {
-                    Task { await viewModel.goToNextDay() }
-                } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.headline)
-                }
-            }
-            .padding(.vertical, 8)
+//            HStack(spacing: 12) {
+//                Button {
+//                    Task { await viewModel.goToPreviousDay() }
+//                } label: {
+//                    Image(systemName: "chevron.left")
+//                        .font(.headline)
+//                }
+//
+//                Text(formattedDate(viewModel.selectedDate))
+//                    .font(.headline)
+//                    .frame(minWidth: 120)
+//
+//                Button {
+//                    Task { await viewModel.goToNextDay() }
+//                } label: {
+//                    Image(systemName: "chevron.right")
+//                        .font(.headline)
+//                }
+//            }
+//            .padding(.vertical, 8)
             
             ScrollView {
 
-                Text("Hi, Here is your daily score")
+//                Text("Hi, Here is your daily score")
                 Text(hrvViewModel.scoreMessage)
-                    .font(.caption)
+                    .font(.body)
+                if let interpretation = hrvViewModel.interpretation {
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("HRV State: \(interpretation.state)")
+                            .font(.caption2)
+
+                        Text("HR Context: \(interpretation.context)")
+                            .font(.caption2)
+                    }
+                }
                 Text("Daily Score: \(hrvViewModel.dailyScore)")
                 Divider()
 
@@ -184,25 +159,25 @@ struct HomeView: View {
 //                await hrvViewModel.load()
 //                await stressViewModel.load(for: viewModel.selectedDate)
 //            }
-            .task(id: viewModel.selectedDate) {
-
-                await viewModel.onAppear()
-
-                HealthKitManager.shared.requestAuthorization { success in
-                    if success {
-                        Task {
-//                            await hrvViewModel.load()
-                            await hrvViewModel.load(
-                                startDate: startDate,
-                                endDate: endDate
-                            )
-                            await stressViewModel.load(for: viewModel.selectedDate)
-                        }
-                    } else {
-                        print("HealthKit authorization failed")
-                    }
-                }
-            }
+//            .task(id: viewModel.selectedDate) {
+//
+//                await viewModel.onAppear()
+//
+//                HealthKitManager.shared.requestAuthorization { success in
+//                    if success {
+//                        Task {
+////                            await hrvViewModel.load()
+//                            await hrvViewModel.load(
+//                                startDate: startDate,
+//                                endDate: endDate
+//                            )
+//                            await stressViewModel.load(for: viewModel.selectedDate)
+//                        }
+//                    } else {
+//                        print("HealthKit authorization failed")
+//                    }
+//                }
+//            }
 
 
             
@@ -233,5 +208,12 @@ struct HomeView: View {
         return formatter.string(from: date)
     }
 
+}
+
+#Preview {
+    PreviewHomeView(
+        viewModel: SleepViewModel.mock(),
+        hrvViewModel: HRVChartViewModel.mock()
+    )
 }
 

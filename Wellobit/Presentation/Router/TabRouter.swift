@@ -8,9 +8,7 @@
 import SwiftUI
 
 final class TabRouter {
-    
     func makeHome() -> some View {
-
         // Repositories
         let sleepRepository = HealthKitSleepRepository()
         let vitalsRepository = HealthKitVitalsRepository()

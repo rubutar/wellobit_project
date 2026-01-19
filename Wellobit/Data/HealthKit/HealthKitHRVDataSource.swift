@@ -303,8 +303,8 @@ final class HealthKitHRVDataSource: HRVDataSource {
         )!
 
         let predicate = HKQuery.predicateForSamples(
-            withStart: startDate,
-            end: endDate,
+            withStart: startDate - 1,
+            end: endDate - 1,
             options: .strictStartDate
         )
 

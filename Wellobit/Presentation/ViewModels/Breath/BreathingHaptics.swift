@@ -11,8 +11,6 @@ protocol BreathingHaptics {
     func play(for phase: BreathingPhase)
 }
 
-import UIKit
-
 final class DefaultBreathingHaptics: BreathingHaptics {
 
     private let softImpact = UIImpactFeedbackGenerator(style: .soft)

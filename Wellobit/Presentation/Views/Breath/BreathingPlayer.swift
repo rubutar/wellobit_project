@@ -142,14 +142,25 @@ private extension BreathingPlayer {
     }
     
     var inactiveSessionView: some View {
-        Button {
-            showSceneList = true
-        } label: {
-            Image(systemName: "photo.stack")
+        VStack(spacing: 12) {
+            Button {
+                viewModel.toggleHaptics()
+            } label: {
+                Image(systemName: viewModel.isHapticsEnabled
+                      ? "iphone.radiowaves.left.and.right"
+                      : "iphone.slash")
                 .modifier(ControlButtonStyle())
-        }
-        .sheet(isPresented: $showSceneList) {
-            SceneListView(sceneSettingsVM: sceneSettingsViewModel)
+            }
+            
+            Button {
+                showSceneList = true
+            } label: {
+                Image(systemName: "photo.stack")
+                    .modifier(ControlButtonStyle())
+            }
+            .sheet(isPresented: $showSceneList) {
+                SceneListView(sceneSettingsVM: sceneSettingsViewModel)
+            }
         }
     }
 
@@ -157,6 +168,14 @@ private extension BreathingPlayer {
     
     var activeSessionControls: some View {
         VStack(spacing: 12) {
+            Button {
+                viewModel.toggleHaptics()
+            } label: {
+                Image(systemName: viewModel.isHapticsEnabled
+                      ? "iphone.radiowaves.left.and.right"
+                      : "iphone.slash")
+                .modifier(ControlButtonStyle())
+            }
             Button {
                 viewModel.toggleMute()
             } label: {
