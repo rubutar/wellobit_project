@@ -335,116 +335,53 @@ Notes
 ## HRV Pattern Definitions
 
 All patterns are evaluated on a **daily basis** using personal baselines.
-
 ---
-
 ### 1. Undefined — Extreme Value (Safety Guard)
-
 Used to prevent unsafe or unreliable interpretation.
-
 **Condition (daily maximum):**
-- `max(RMSSD_day) ≥ 300 ms`
-- **OR**
-- `max(SDNN_day) ≥ 150 ms`
-
-**Notes:**
-- Uses **maximum value**, not average
-- Evaluated before any baseline comparison
-- Triggers undefined state immediately
-
+- `max(RMSSD_day) ≥ 300 ms` **OR** `max(SDNN_day) ≥ 150 ms`
 ---
 
 ### 2. Undefined — Above Baseline Too Much
-
 Used to detect unusually high HRV relative to personal baseline.
-
 **Condition (daily average):**
-- `avg(RMSSD_day) ≥ 1.5 × avg(RMSSD_baseline)`
-- **OR**
-- `avg(SDNN_day) ≥ 1.5 × avg(SDNN_baseline)`
-
-**Notes:**
-- Uses **average**, not maximum
-- Does not automatically surface to the user
-- Acts as a confidence and filtering layer
-
+- `avg(RMSSD_day) ≥ 1.5 × avg(RMSSD_baseline)` **OR** `avg(SDNN_day) ≥ 1.5 × avg(SDNN_baseline)`
 ---
 
 ### 3. Low HRV — Suppressed Recovery
-
 **Condition:**
 - `avg(RMSSD_day) / avg(RMSSD_baseline) < 0.9`
-
-**Meaning:**
-- Reduced recovery capacity
-- Often associated with fatigue or stress
-
 ---
 
 ### 4. Normal HRV — Stable Recovery
-
 **Condition:**
 - `0.9 ≤ avg(RMSSD_day) / avg(RMSSD_baseline) ≤ 1.1`
-
-**Meaning:**
-- Recovery aligned with personal baseline
-
 ---
 
 ### 5. High HRV — Elevated Recovery
-
 **Condition:**
 - `avg(RMSSD_day) / avg(RMSSD_baseline) > 1.1`
-
-**Meaning:**
-- Enhanced recovery or readiness
-
 ---
 
 ## Heart Rate Context (Modifier)
-
 Heart rate is evaluated independently and modifies HRV interpretation.
+- **Low HR** `avg(RHR_day) / avg(RHR_baseline) < 0.9`
 
-- **Low HR**
-  - `avg(RHR_day) / avg(RHR_baseline) < 0.9`
+- **Normal HR** `0.9 ≤ avg(RHR_day) / avg(RHR_baseline) ≤ 1.1`
 
-- **Normal HR**
-  - `0.9 ≤ avg(RHR_day) / avg(RHR_baseline) ≤ 1.1`
-
-- **High HR**
-  - `avg(RHR_day) / avg(RHR_baseline) > 1.1`
-
+- **High HR** `avg(RHR_day) / avg(RHR_baseline) > 1.1`
 ---
 
 ## Overtraining Pattern (Special Case)
-
 Escalated interpretation shown **only if all conditions are met**:
-
 - HRV state = `aboveBaselineTooMuch`
 - Occurs during sleep
 - `aboveBaselineDaysStreak ≥ 2`
-
-**User-facing copy:**
-> Your recovery signal has been elevated for multiple days during sleep.  
-> Consider prioritizing rest and reducing training intensity for now.
-
 ---
 
 ## Extreme High HRV Pattern (Persistence-Based)
-
 Used to detect persistent, unusually high HRV values.
-
-**Condition:**
 - HRV state = `Extreme Value`
 - `extremeValueDaysStreak ≥ 3` (consecutive days)
-
-**Interpretation:**
-- Indicates persistent autonomic irregularity
-- Requires attention but avoids diagnosis
-
-**User-facing copy:**
-> Your HRV values have been unusually high for several days.  
-> Consider consulting a medical professional.
-
 ---
 
