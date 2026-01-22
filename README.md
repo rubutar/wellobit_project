@@ -290,3 +290,98 @@ Notes
 - Refined Stress Chart rendering
   - Breaks lines when data is missing
   - Ensures peak markers align with actual stress values
+
+
+
+# Wellobit – Home View
+### January 18, 2026
+- Integrated HealthKit data sources for:
+  - RMSSD (HRV)
+  - SDNN (HRV)
+  - Resting Heart Rate (RHR)
+- Implemented use cases for:
+  - Today RMSSD
+  - Today SDNN
+  - Today RHR
+  - 30-day HRV baseline (RMSSD & SDNN)
+  - 60-day RHR baseline
+- Built HRV chart for:
+  - RMSSD and SDNN over a 24-hour window
+  - Hourly granularity aligned to the selected day
+- Built Heart Rate chart for:
+  - 24-hour heart rate samples
+  - 10-minute resolution
+- Highlighted sleep interval on HRV and HR charts for better context
+
+### January 19, 2026
+- Designed HRV interpretation flow based on:
+  - RMSSD & SDNN daily average
+  - RMSSD & SDNN daily maximum (for extreme detection)
+  - Resting HR compared to personal baseline
+- Implemented InterpretHRVUseCase with:
+  - HRV state: Low / Normal / High / Undefined
+  - HR context: Low / Normal / High
+- Extreme HRV Logic
+- Above-Baseline HRV Logic
+- Preview & Mocking
+  - Built full mock pipeline for HomeView:
+  - Hourly RMSSD & SDNN values
+  - 10-minute heart rate samples (24h)
+  - Fixed sleep window (00:30–06:30)
+
+
+<img width="1005" height="627" alt="image" src="https://github.com/user-attachments/assets/60619115-895b-40ab-a0dc-68db9eff0d33" />
+
+## HRV Pattern Definitions
+
+All patterns are evaluated on a **daily basis** using personal baselines.
+---
+### 1. Undefined — Extreme Value (Safety Guard)
+Used to prevent unsafe or unreliable interpretation.
+**Condition (daily maximum):**
+- `max(RMSSD_day) ≥ 300 ms` **OR** `max(SDNN_day) ≥ 150 ms`
+---
+
+### 2. Undefined — Above Baseline Too Much
+Used to detect unusually high HRV relative to personal baseline.
+**Condition (daily average):**
+- `avg(RMSSD_day) ≥ 1.5 × avg(RMSSD_baseline)` **OR** `avg(SDNN_day) ≥ 1.5 × avg(SDNN_baseline)`
+---
+
+### 3. Low HRV — Suppressed Recovery
+**Condition:**
+- `avg(RMSSD_day) / avg(RMSSD_baseline) < 0.9`
+---
+
+### 4. Normal HRV — Stable Recovery
+**Condition:**
+- `0.9 ≤ avg(RMSSD_day) / avg(RMSSD_baseline) ≤ 1.1`
+---
+
+### 5. High HRV — Elevated Recovery
+**Condition:**
+- `avg(RMSSD_day) / avg(RMSSD_baseline) > 1.1`
+---
+
+## Heart Rate Context (Modifier)
+Heart rate is evaluated independently and modifies HRV interpretation.
+- **Low HR** `avg(RHR_day) / avg(RHR_baseline) < 0.9`
+
+- **Normal HR** `0.9 ≤ avg(RHR_day) / avg(RHR_baseline) ≤ 1.1`
+
+- **High HR** `avg(RHR_day) / avg(RHR_baseline) > 1.1`
+---
+
+## Overtraining Pattern (Special Case)
+Escalated interpretation shown **only if all conditions are met**:
+- HRV state = `aboveBaselineTooMuch`
+- Occurs during sleep
+- `aboveBaselineDaysStreak ≥ 2`
+---
+
+## Extreme High HRV Pattern (Persistence-Based)
+Used to detect persistent, unusually high HRV values.
+- HRV state = `Extreme Value`
+- `extremeValueDaysStreak ≥ 3` (consecutive days)
+---
+
