@@ -9,8 +9,11 @@ struct HRVChartView: View {
     let sleepSessions: [SleepSession]
     let startDate: Date
     let endDate: Date
+    
 
     var body: some View {
+        let sortedRMSSD = rmssdPoints.sorted { $0.date < $1.date }
+        let sortedSDNN  = sdnnPoints.sorted { $0.date < $1.date }
         let avgRMSSD = dailyAverage(of: rmssdPoints)
         let avgSDNN = dailyAverage(of: sdnnPoints)
         
@@ -21,12 +24,97 @@ struct HRVChartView: View {
                 .foregroundColor(.secondary)
                 .frame(height: 180)
         } else {
-            Chart {
+//            Chart {
+//                ForEach(sleepSessions.indices, id: \.self) { index in
+//                    let session = sleepSessions[index]
+//
+//                    RectangleMark(
+//                        xStart: .value("Sleep start", session.startDate),
+//                        xEnd: .value("Sleep end", session.endDate),
+//                        yStart: .value("Bottom", 0),
+//                        yEnd: .value("Top", maxHRV)
+//                    )
+//                    .foregroundStyle(by: .value("Series", "Sleep"))
+//                    .opacity(0.15)
+//                }
+//
+//                ForEach(sortedRMSSD) { point in
+//                    LineMark(
+//                        x: .value("Time", point.date),
+//                        y: .value("RMSSD", point.value)
+//                    )
+//                    .foregroundStyle(.green.opacity(0.25))
+////                    .interpolationMethod(.catmullRom)
+//
+//                    // Foreground dots (legend-aware)
+//                    PointMark(
+//                        x: .value("Time", point.date),
+//                        y: .value("RMSSD", point.value)
+//                    )
+//                    .foregroundStyle(by: .value("Metric", "RMSSD"))
+//                    .symbolSize(22)
+//                }
+//                
+//                ForEach(sortedSDNN) { point in
+//                    LineMark(
+//                        x: .value("Time", point.date),
+//                        y: .value("SDNN", point.value)
+//                    )
+//                    .foregroundStyle(.blue.opacity(0.25))
+////                    .interpolationMethod(.catmullRom)
+//
+//                    // Foreground dots (legend-aware)
+//                    PointMark(
+//                        x: .value("Time", point.date),
+//                        y: .value("SDNN", point.value)
+//                    )
+//                    .foregroundStyle(by: .value("Metric", "SDNN"))
+//                    .symbolSize(22)
+//                }
+//                
+//                // Avg RMSSD line
+//                if avgRMSSD > 0 {
+//                    RuleMark(
+//                        y: .value("Avg RMSSD", avgRMSSD)
+//                    )
+//                    .foregroundStyle(.green)
+//                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+//                    .annotation(position: .top) {
+//                        Text("Avg RMSSD")
+//                            .font(.caption2)
+//                            .foregroundColor(.green)
+//                    }
+//                }
+//
+//                // Avg SDNN line
+//                if avgSDNN > 0 {
+//                    RuleMark(
+//                        y: .value("Avg SDNN", avgSDNN)
+//                    )
+//                    .foregroundStyle(.orange)
+//                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+//                    .annotation(position: .bottom) {
+//                        Text("Avg SDNN")
+//                            .font(.caption2)
+//                            .foregroundColor(.orange)
+//                    }
+//                }
+//                
+//            }
+//            .chartXScale(domain: startDate ... endDate)
+//            .chartYScale(domain: 0...maxHRV)
+//            .chartLegend(position: .bottom)
+//            .frame(height: 180)
+            
+            
+            let sortedRMSSD = rmssdPoints.sorted { $0.date < $1.date }
+            let sortedSDNN  = sdnnPoints.sorted { $0.date < $1.date }
 
-                // Sleep overlay
+            Chart {
+                
                 ForEach(sleepSessions.indices, id: \.self) { index in
                     let session = sleepSessions[index]
-
+                    
                     RectangleMark(
                         xStart: .value("Sleep start", session.startDate),
                         xEnd: .value("Sleep end", session.endDate),
@@ -36,23 +124,33 @@ struct HRVChartView: View {
                     .foregroundStyle(by: .value("Series", "Sleep"))
                     .opacity(0.15)
                 }
+                
+                ForEach(sortedRMSSD) { point in
+                    LineMark(
+                        x: .value("Time", point.date),
+                        y: .value("Value", point.value)
+                    )
+                    .foregroundStyle(by: .value("Metric", "RMSSD"))
 
-                // RMSSD points
-                ForEach(rmssdPoints) { point in
                     PointMark(
                         x: .value("Time", point.date),
-                        y: .value("RMSSD", point.value)
+                        y: .value("Value", point.value)
                     )
-                    .foregroundStyle(.green)
+                    .foregroundStyle(by: .value("Metric", "RMSSD"))
                 }
 
-                // SDNN points
-                ForEach(sdnnPoints) { point in
+                ForEach(sortedSDNN) { point in
+                    LineMark(
+                        x: .value("Time", point.date),
+                        y: .value("Value", point.value)
+                    )
+                    .foregroundStyle(by: .value("Metric", "SDNN"))
+
                     PointMark(
                         x: .value("Time", point.date),
-                        y: .value("SDNN", point.value)
+                        y: .value("Value", point.value)
                     )
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(by: .value("Metric", "SDNN"))
                 }
                 
                 // Avg RMSSD line
@@ -62,50 +160,33 @@ struct HRVChartView: View {
                     )
                     .foregroundStyle(.green)
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                    .annotation(position: .topLeading) {
+                    .annotation(position: .top) {
                         Text("Avg RMSSD")
                             .font(.caption2)
                             .foregroundColor(.green)
                     }
                 }
-
+                
                 // Avg SDNN line
                 if avgSDNN > 0 {
                     RuleMark(
                         y: .value("Avg SDNN", avgSDNN)
                     )
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.orange)
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                    .annotation(position: .topLeading) {
+                    .annotation(position: .bottom) {
                         Text("Avg SDNN")
                             .font(.caption2)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.orange)
                     }
                 }
-                
+
             }
-            .chartXScale(domain: startDate ... endDate)
-            .chartYScale(domain: 0...maxHRV)
-            .frame(height: 180)
-            
-//            VStack(alignment: .leading, spacing: 6) {
-//
-//                Text("HRV Summary")
-//                    .font(.headline)
-//
-//                let avgRMSSD = dailyAverage(of: rmssdPoints)
-//                let avgSDNN = dailyAverage(of: sdnnPoints)
-//
-////                let baselineAvgRMSSD = dailyAverage(of: hrvViewModel.baselineRMSSD)
-////                let baselineAvgSDNN = dailyAverage(of: hrvViewModel.baselineSDNN)
-//
-//                Text("Daily Average RMSSD: \(Int(avgRMSSD)) ms")
-////                Text("Baseline 30 days RMSSD: \(Int(baselineAvgRMSSD)) ms")
-//
-//                Text("Daily Average SDNN: \(Int(avgSDNN)) ms")
-////                Text("Baseline 30 days SDNN: \(Int(baselineAvgSDNN)) ms")
-//            }
-//            .padding(.bottom, 8)
+            .chartForegroundStyleScale([
+                "RMSSD": .green,
+                "SDNN": .blue
+            ])
+
         }
     }
 
@@ -123,4 +204,15 @@ struct HRVChartView: View {
         return historical.map { $0.value }.reduce(0, +) / Double(historical.count)
     }
 
+}
+
+
+
+#Preview("More HRV Info Sheet") {
+    MoreHRVInfoSheet(
+        hrvViewModel: HRVChartViewModel.mock(),
+        startDate: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
+        endDate: Date(),
+        sleepSessions: SleepViewModel.mock().sleepSession.map { [$0] } ?? []
+    )
 }

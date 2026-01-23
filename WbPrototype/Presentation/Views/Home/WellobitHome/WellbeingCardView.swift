@@ -90,6 +90,10 @@ struct WellbeingCardView: View {
     let status: String
     let description: String
     let onInfoTap: () -> Void
+    let hrvViewModel: HRVChartViewModel
+    let startDate: Date
+    let endDate: Date
+    let sleepSessions: [SleepSession]
     
     @State private var showInfo = false
     
@@ -111,7 +115,9 @@ struct WellbeingCardView: View {
             CircularGaugeView(score: score)
             
             Text(status)
-                .font(.headline)
+//                .font(.headline)
+                .font(.system(size: 24, weight: .bold))
+
             
             Text(description)
                 .font(.subheadline)
@@ -133,9 +139,12 @@ struct WellbeingCardView: View {
         .cornerRadius(20)
         .shadow(color: .black.opacity(0.05), radius: 10)
         .sheet(isPresented: $showInfo) {
-            PreviewHomeView(
-                viewModel: SleepViewModel.mock(),
-                hrvViewModel: HRVChartViewModel.mock()
+            MoreHRVInfoSheet(
+//                viewModel: SleepViewModel.mock(),
+                hrvViewModel: hrvViewModel,
+                startDate: startDate,
+                endDate: endDate,
+                sleepSessions: sleepSessions
             )
         }
     }
@@ -248,7 +257,7 @@ struct WellbeingInfoPopup: View {
         }
         .transition(.opacity)
         .animation(.easeOut(duration: 0.2), value: isPresented)
-        .frame(maxWidth: .infinity, maxHeight: .infinity) // 👈 CRITICAL
+        .frame(maxWidth: .infinity, maxHeight: .infinity) 
 
     }
     

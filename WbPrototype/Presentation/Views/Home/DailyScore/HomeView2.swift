@@ -163,6 +163,7 @@ struct HomeView2: View {
 
                 HRChartView(
                     hrSamples: hrvViewModel.heartRateSamples,
+                    avgRHR: 0,
                     sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
                     startDate: startDate,
                     endDate: endDate

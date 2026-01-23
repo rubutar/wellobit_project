@@ -14,18 +14,18 @@ struct LibraryView: View {
     @StateObject private var sceneSettingsViewModel: SceneSettingsViewModel
     @StateObject private var playerViewModel: BreathingPlayerViewModel
     @Environment(\.dismiss) private var dismiss
-
-
-
+    
+    
+    
     // MARK: - Init
     init(viewModel: LibraryViewModel) {
         _libraryViewModel = StateObject(wrappedValue: viewModel)
-
+        
         let sceneVM = SceneSettingsViewModel(
             repository: LocalBreathingSceneRepository()
         )
         _sceneSettingsViewModel = StateObject(wrappedValue: sceneVM)
-
+        
         _playerViewModel = StateObject(
             wrappedValue: BreathingPlayerViewModel(
                 libraryViewModel: viewModel,
@@ -33,7 +33,7 @@ struct LibraryView: View {
             )
         )
     }
-
+    
     // MARK: - Body
     var body: some View {
         NavigationStack {
@@ -47,45 +47,50 @@ struct LibraryView: View {
                 
                 Color.black.opacity(0.25)
                     .ignoresSafeArea()
-                
-                VStack {
-                    Spacer()
-                    Spacer()
-                    BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
-//                        .alert(
-//                            "Breathing Session Starting",
-//                            isPresented: $playerViewModel.showPreSessionModal
-//                        ) {
-//                            Button("Continue") {
-//                                playerViewModel.play()
-//
-//                            }
-//
-//                            Button("Cancel", role: .cancel) { }
-//                        } message: {
-//                            Text(alertMessage)
-//                        }
-                    
-                    
-                    BreathingPhaseSelector(viewModel: libraryViewModel)
-                        .opacity(playerViewModel.isPlaying ? 0 : 1)
-                        .allowsHitTesting(!playerViewModel.isPlaying)
-                    Spacer()
-                    Spacer()
+                ZStack {
+                    ControlFloatingButton(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
+                        .padding(.top, 100)
+                    VStack {
+                        Spacer()
+                        Spacer()
+                        BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
+                        //                        .alert(
+                        //                            "Breathing Session Starting",
+                        //                            isPresented: $playerViewModel.showPreSessionModal
+                        //                        ) {
+                        //                            Button("Continue") {
+                        //                                playerViewModel.play()
+                        //
+                        //                            }
+                        //
+                        //                            Button("Cancel", role: .cancel) { }
+                        //                        } message: {
+                        //                            Text(alertMessage)
+                        //                        }
+                        
+                        BreathingPhaseSelector(viewModel: libraryViewModel)
+                            .opacity(playerViewModel.isPlaying ? 0 : 1)
+                            .allowsHitTesting(!playerViewModel.isPlaying)
+                        Spacer()
+                        Spacer()
+                    }
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 32)
                 .navigationBarBackButtonHidden(true)
-//                .toolbar {
-//                    ToolbarItem(placement: .navigationBarLeading) {
-//                        Button {
-//                            dismiss()
-//                        } label: {
-//                            Image(systemName: "chevron.left")
-//                                .foregroundColor(.black)
-//                        }
-//                    }
-//                }
+                //                .toolbar {
+                //                    ToolbarItem(placement: .navigationBarLeading) {
+                //                        Button {
+                //                            dismiss()
+                //                        } label: {
+                //                            Image(systemName: "chevron.left")
+                //                                .foregroundColor(.black)
+                //                        }
+                //                    }
+                //                }
+                
+                
+                
                 if playerViewModel.showPreSessionModal {
                     MindfulnessOverlay(
                         onConfirm: {
@@ -97,25 +102,25 @@ struct LibraryView: View {
                         }
                     )
                 }
-
+                
             }
         }
     }
-
     
-    private var alertMessage: String {
-        let cycles = libraryViewModel.cycleCount
-        let totalSeconds = libraryViewModel.totalDurationSeconds
-
-        let minutes = totalSeconds / 60
-        let seconds = totalSeconds % 60
-
-        return """
-        You’re about to begin \(cycles) breathing cycles (~\(minutes)m \(seconds)s).
-
-        For better HRV accuracy, please start a Mindfulness-style session on your Apple Watch.
-        """
-    }
+    
+    //    private var alertMessage: String {
+    //        let cycles = libraryViewModel.cycleCount
+    //        let totalSeconds = libraryViewModel.totalDurationSeconds
+    //
+    //        let minutes = totalSeconds / 60
+    //        let seconds = totalSeconds % 60
+    //
+    //        return """
+    //        You’re about to begin \(cycles) breathing cycles (~\(minutes)m \(seconds)s).
+    //
+    //        For better HRV accuracy, please start a Mindfulness-style session on your Apple Watch.
+    //        """
+    //    }
 }
 
 #Preview {

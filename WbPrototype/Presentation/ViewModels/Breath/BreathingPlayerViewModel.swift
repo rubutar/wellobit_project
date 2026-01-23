@@ -86,6 +86,15 @@ final class BreathingPlayerViewModel: ObservableObject {
         configureAudioSession()
         bindConfigurationChanges()
         bindSceneChanges()
+        
+        
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.pauseForBackground()
+        }
     }
 
     // MARK: - Scene Binding
@@ -167,6 +176,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
         invalidateTimers()
         stopAudio()
+        haptics.stop()
 
         currentPhase = nil
         phaseProgress = 0
@@ -180,6 +190,7 @@ final class BreathingPlayerViewModel: ObservableObject {
     func pause() {
         guard isPlaying, !isPaused else { return }
         isPaused = true
+        haptics.stop()
         invalidateTimers()
         audioPlayer?.pause()
     }
@@ -198,6 +209,9 @@ final class BreathingPlayerViewModel: ObservableObject {
         if !isMuted {
             audioPlayer?.play()
         }
+        if uiState == .breathing, let phase = currentPhase {
+            haptics.play(for: phase)
+        }
     }
 
     func toggleMute() {
@@ -210,9 +224,28 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Preparation
+//    private func startPreparationCountdown() {
+//        remainingSeconds = preparationSeconds
+//        invalidateTimers()
+
+//        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
+//            guard let self else { return }
+//
+//            if self.remainingSeconds <= 1 {
+//                timer.invalidate()
+//                self.startBreathingSession()
+//            } else {
+//                self.remainingSeconds -= 1
+//                self.uiState = .preparing(seconds: self.remainingSeconds)
+//            }
+        
     private func startPreparationCountdown() {
         remainingSeconds = preparationSeconds
         invalidateTimers()
+
+        if isHapticsEnabled {
+            haptics.playPreparationTick()
+        }
 
         secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return }
@@ -223,9 +256,14 @@ final class BreathingPlayerViewModel: ObservableObject {
             } else {
                 self.remainingSeconds -= 1
                 self.uiState = .preparing(seconds: self.remainingSeconds)
+
+                if self.isHapticsEnabled {
+                    self.haptics.playPreparationTick()
+                }
             }
         }
     }
+
 
     // MARK: - Breathing Session
     private func startBreathingSession() {
@@ -360,6 +398,15 @@ final class BreathingPlayerViewModel: ObservableObject {
 //        }
     }
 
+    private func pauseForBackground() {
+        guard isPlaying, !isPaused else { return }
+
+        isPaused = true
+        haptics.stop()
+        invalidateTimers()
+        audioPlayer?.pause()
+    }
+
     
     private func resumeCurrentPhase() {
         guard let start = phaseStartDate else { return }
@@ -419,8 +466,6 @@ final class BreathingPlayerViewModel: ObservableObject {
 
         }
     }
-    
-
 
 
     // MARK: - Completion
@@ -431,6 +476,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
         invalidateTimers()
         stopAudio()
+        haptics.stop()
         currentPhase = nil
         phaseProgress = 0
         isPlaying = false
@@ -528,6 +574,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         isHapticsEnabled.toggle()
     }
     deinit {
+        NotificationCenter.default.removeObserver(self)
         liveActivityController.end()
     }
 }

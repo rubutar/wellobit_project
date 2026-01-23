@@ -31,10 +31,10 @@ struct BreathingLiveActivityWidget: Widget {
 //                    .progressViewStyle(.circular)
 
             ZStack() {
-                Text(displayEnd, style: .timer)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .monospacedDigit()
+                Text("Let's finish the session.")
+                    .font(.body)
+                    .fontWeight(.regular)
+//                            .monospacedDigit()
                     .foregroundStyle(.primary)
                 
                 Image("zenny")
@@ -59,10 +59,11 @@ struct BreathingLiveActivityWidget: Widget {
                 // MARK: - Expanded View
                 DynamicIslandExpandedRegion(.leading) {
                     ZStack() {
-                        Text(displayEnd, style: .timer)
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .monospacedDigit()
+//                        Text(displayEnd, style: .timer)
+                        Text("Let's finish the session.")
+                            .font(.body)
+                            .fontWeight(.regular)
+//                            .monospacedDigit()
                             .foregroundStyle(.primary)
                     }
                 }

@@ -15,8 +15,8 @@ struct BreathingCircle: View {
     let progress: Double   // 0 → 1
 
     // MARK: - Constants
-    private let smallSize: CGFloat = 120
-    private let bigSize: CGFloat = 220
+    private let smallSize: CGFloat = 140
+    private let bigSize: CGFloat = 280
     private let ringWidth: CGFloat = 6
 
     var body: some View {

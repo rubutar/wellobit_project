@@ -15,7 +15,7 @@ struct HeaderView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
-                Text("Rudi")
+                Text("---")
                     .font(.largeTitle)
                     .fontWeight(.bold)
             }

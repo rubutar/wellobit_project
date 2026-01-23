@@ -13,6 +13,7 @@ struct HRChartView: View {
 
     /// RAW heart rate samples (bpm)
     let hrSamples: [HeartRateSample]
+    let avgRHR: Int
 
     let sleepSessions: [SleepSession]
     let startDate: Date
@@ -86,6 +87,19 @@ struct HRChartView: View {
                     .foregroundStyle(by: .value("Series", "Heart Rate"))
                     .lineStyle(.init(lineWidth: 1.5))
                     .interpolationMethod(.linear)
+                }
+                
+                if avgRHR > 0 {
+                    RuleMark(
+                        y: .value("Avg RHR", avgRHR)
+                    )
+                    .foregroundStyle(.orange)
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    .annotation(position: .bottom) {
+                        Text("Avg RHR")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                    }
                 }
             }
             .chartXScale(domain: startDate ... endDate)

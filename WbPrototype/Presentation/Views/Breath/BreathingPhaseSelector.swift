@@ -13,41 +13,62 @@ struct BreathingPhaseSelector: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            VStack(spacing: 8) {
+//            VStack(spacing: 8) {
+//                Button {
+//                    withAnimation(.easeInOut) {
+//                        isEditingCycles.toggle()
+//                    }
+//                } label: {
+//                    HStack(spacing: 6) {
+//                        Text(viewModel.durationString(for: viewModel.cycleCount))
+//                            .font(.title.bold())
+//                        Image(systemName: isEditingCycles ? "chevron.up" : "chevron.down")
+//                            .font(.caption.bold())
+//                    }
+//                    .foregroundColor(.white)
+//                }
+//                .buttonStyle(.plain)
+            VStack(spacing: 4) {
                 Button {
                     withAnimation(.easeInOut) {
                         isEditingCycles.toggle()
                     }
                 } label: {
-                    HStack(spacing: 6) {
-                        Text(viewModel.durationString(for: viewModel.cycleCount))
-                            .font(.title.bold())
-                        Image(systemName: isEditingCycles ? "chevron.up" : "chevron.down")
-                            .font(.caption.bold())
+                    VStack(spacing: 2) {
+                        HStack(spacing: 6) {
+                            Text(viewModel.durationString(for: viewModel.cycleCount))
+                                .font(.title.bold())
+                        }
+
+                        // ugly but requested
+                        Text("Change Time")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.85))
                     }
                     .foregroundColor(.white)
                 }
                 .buttonStyle(.plain)
-
+                .padding(.bottom, 100)
+                
                 ZStack {
                     VStack(spacing: 8) {
-                        HStack(spacing: 8) {
-                            Menu {
-                                Picker("Breathing Library", selection: $viewModel.selectedPreset) {
-                                    ForEach(BreathingPreset.allCases) { preset in
-                                        Text(preset.rawValue)
-                                            .tag(preset)
-                                    }
-                                }
-                            } label: {
-                                dropdownLabel(
-                                    title: "Library",
-                                    value: viewModel.selectedPreset.rawValue
-                                )
-                            }
-
-                            Spacer()
-                        }
+//                        HStack(spacing: 8) {
+//                            Menu {
+//                                Picker("Breathing Library", selection: $viewModel.selectedPreset) {
+//                                    ForEach(BreathingPreset.allCases) { preset in
+//                                        Text(preset.rawValue)
+//                                            .tag(preset)
+//                                    }
+//                                }
+//                            } label: {
+//                                dropdownLabel(
+//                                    title: "Library",
+//                                    value: viewModel.selectedPreset.rawValue
+//                                )
+//                            }
+//
+//                            Spacer()
+//                        }
 
                         HStack(spacing: 12) {
                             collapsedBox(title: "Inhale", value: viewModel.settings.inhale)
@@ -112,6 +133,7 @@ struct BreathingPhaseSelector: View {
                     value: valueForPhase(selected)
                 )
                 .padding(.horizontal)
+                .offset(y: 50)
                 .zIndex(10)
                 .transition(.opacity.combined(with: .scale))
             }
@@ -120,7 +142,6 @@ struct BreathingPhaseSelector: View {
 }
 
 private extension BreathingPhaseSelector {
-
     func collapsedBox(title: String, value: Double) -> some View {
         VStack(spacing: 6) {
             Text(title)

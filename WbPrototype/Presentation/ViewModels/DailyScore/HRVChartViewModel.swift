@@ -24,10 +24,25 @@ final class HRVChartViewModel: ObservableObject {
     
     @Published var isEmpty = false
     @Published var dailyScore: Int = 0
+    @Published var currentScore: Int = 0
     @Published var scoreMessage: String = ""
     @Published var scoreLabel: String = ""
     @Published var interpretation: HRVInterpretation?
+    @Published var currentInterpretation: HRVInterpretation?
 
+    
+    @Published private(set) var avgRMSSD: Double = 0
+    @Published private(set) var avgSDNN: Double = 0
+    @Published private(set) var currentRMSSD: Double = 0
+    @Published private(set) var currentSDNN: Double = 0
+    @Published private(set) var baselineRMSSDValue: Double = 0
+    @Published private(set) var baselineRMSSDValueof: Double = 0
+    @Published private(set) var baselineSDNNValue: Double = 0
+    @Published private(set) var currentRHRValue: Double = 0
+    @Published private(set) var baselineAvgRHR: Double = 0
+
+
+    
     private let fetchSDNNUseCase: FetchTodayHRVUseCase
     private let fetchRMSSDUseCase: FetchTodayRMSSDUseCase
     private let fetch30DayRMSSDUseCase: FetchLast30DaysRMSSDUseCase
@@ -113,14 +128,33 @@ final class HRVChartViewModel: ObservableObject {
             
             let avgRMSSD = dailyAverage(of: rmssdResult)
             let avgSDNN = dailyAverage(of: sdnnResult)
+            
+            let currentRMSSD = latestValue(of: rmssdResult)
+            let currentSDNN = latestValue(of: sdnnResult)
 
-            let baselineAvgRMSSD = dailyAverage(of: rmssdBase)
-            let baselineAvgSDNN = dailyAverage(of: sdnnBase)
+            let baselineAvgRMSSD = baselineAverage(rmssdBase)
+            let baselineAvgSDNN = baselineAverage(sdnnBase)
 
-            let baselineAvgRHR = rhrBase.isEmpty
-                ? 0
-                : rhrBase.reduce(0, +) / Double(rhrBase.count)
+            let baselineAvgRHR = baselineAverage(rhrBase)
+            let currentRHR = rhrResult ?? 0
 
+
+//            let baselineAvgRMSSDof = dailyAverage(of: rmssdBase)
+//            let baselineAvgSDNN = dailyAverage(of: sdnnBase)
+
+//            let baselineAvgRHR = rhrBase.isEmpty
+//                ? 0
+//                : rhrBase.reduce(0, +) / Double(rhrBase.count)
+
+            self.currentScore = calculateScoreUseCase.execute(
+                todayRMSSD: currentRMSSD,
+                baselineRMSSD: baselineAvgRMSSD,
+                todaySDNN: currentSDNN,
+                baselineSDNN: baselineAvgSDNN,
+                todayRHR: rhrResult ?? 0,
+                baselineRHR: baselineAvgRHR
+            )
+            
             self.dailyScore = calculateScoreUseCase.execute(
                 todayRMSSD: avgRMSSD,
                 baselineRMSSD: baselineAvgRMSSD,
@@ -129,9 +163,36 @@ final class HRVChartViewModel: ObservableObject {
                 todayRHR: rhrResult ?? 0,
                 baselineRHR: baselineAvgRHR
             )
-            print("RMMSD = \(avgRMSSD)")
-            print("baselineRMSSD = \(baselineAvgRMSSD)")
+
+            
+//            print("RMMSD = \(avgRMSSD)")
+//            print("baselineRMSSD = \(baselineAvgRMSSD)")
             self.scoreMessage = interpretScoreUseCase.execute(score: self.dailyScore)
+            let currentInterpretationInput = HRVInterpretationInput(
+                rmssdToday: currentRMSSD,
+                rmssdBaseline: baselineAvgRMSSD,
+                sdnnToday: currentSDNN,
+                sdnnBaseline: baselineAvgSDNN,
+                restingHR: rhrResult ?? 0,
+                hrBaseline: baselineAvgRHR,
+                aboveBaselineTooMuchStreak: 0,
+                extremeValueDaysStreak: 0,
+                occurredDuringSleep: true,
+                occurredDuringWaking: false,
+                repeatedWithin24h: false
+            )
+            self.currentInterpretation = interpretHRVUseCase.execute(input: currentInterpretationInput)
+
+            self.avgRMSSD = avgRMSSD
+            self.avgSDNN = avgSDNN
+            self.currentRMSSD = currentRMSSD
+            self.currentSDNN = currentSDNN
+            self.baselineRMSSDValue = baselineAvgRMSSD
+//            self.baselineRMSSDValueof = baselineAvgRMSSDof
+            self.baselineSDNNValue = baselineAvgSDNN
+            self.currentRHRValue = currentRHR
+            self.baselineAvgRHR = baselineAvgRHR
+            
             let interpretationInput = HRVInterpretationInput(
                 rmssdToday: avgRMSSD,
                 rmssdBaseline: baselineAvgRMSSD,
@@ -146,6 +207,7 @@ final class HRVChartViewModel: ObservableObject {
                 repeatedWithin24h: false
             )
             self.interpretation = interpretHRVUseCase.execute(input: interpretationInput)
+
 
 
         } catch {
@@ -178,15 +240,15 @@ extension HRVChartViewModel {
         var parts: [String] = []
 
         // HRV comparison
-        if let todayRMSSD = rmssdPoints.averageValue,
+        if let todayRMSSD = sdnnPoints.averageValue,
            let baselineRMSSD = baselineRMSSD.averageValue {
 
             if todayRMSSD > baselineRMSSD {
-                parts.append("Your HRV (RMSSD) is higher than your baseline")
+                parts.append("Your daily average HRV (DSNN) is higher than your baseline")
             } else if todayRMSSD < baselineRMSSD {
-                parts.append("Your HRV (RMSSD) is lower than your baseline")
+                parts.append("Your daily average HRV (DSNN) is lower than your baseline")
             } else {
-                parts.append("Your HRV (RMSSD) is similar to your baseline")
+                parts.append("Your daily average HRV (DSNN) is similar to your baseline")
             }
         }
 
@@ -204,9 +266,6 @@ extension HRVChartViewModel {
                 parts.append("your resting heart rate is similar to your baseline")
             }
         }
-
-//        let factualSentence = parts.joined(separator: " and ") + "."
-//        return "\(factualSentence) \(interpretation.message)"
         let factualSentence = parts.joined(separator: " and ")
 
         if factualSentence.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -214,5 +273,63 @@ extension HRVChartViewModel {
         } else {
             return "\(factualSentence). \(interpretation.message)"
         }
+    }
+    
+    var currentDetailedExplanation: String {
+        guard let interpretation else { return "" }
+
+        var parts: [String] = []
+
+        // HRV comparison
+        if let todayRMSSD = rmssdPoints.latestValue,
+           let baselineRMSSD = baselineRMSSD.averageValue {
+
+            if todayRMSSD > baselineRMSSD {
+                parts.append("Your current HRV (RMSSD) is higher than your baseline")
+            } else if todayRMSSD < baselineRMSSD {
+                parts.append("Your current HRV (RMSSD) is lower than your baseline")
+            } else {
+                parts.append("Your current HRV (RMSSD) is similar to your baseline")
+            }
+        }
+
+        // RHR comparison
+        if let todayRHR,
+           !baselineRHR.isEmpty {
+
+            let baseline = baselineRHR.reduce(0, +) / Double(baselineRHR.count)
+
+            if todayRHR > baseline {
+                parts.append("your resting heart rate is higher than your baseline")
+            } else if todayRHR < baseline {
+                parts.append("your resting heart rate is lower than your baseline")
+            } else {
+                parts.append("your resting heart rate is similar to your baseline")
+            }
+        }
+        let factualSentence = parts.joined(separator: " and ")
+
+        if factualSentence.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return interpretation.message
+        } else {
+            return "\(factualSentence). \(interpretation.message)"
+        }
+    }
+    
+    private func latestValue(of points: [HRVPoint]) -> Double {
+        points
+            .sorted { $0.date < $1.date }
+            .last?
+            .value ?? 0
+    }
+
+    private func baselineAverage(_ values: [HRVPoint]) -> Double {
+        guard !values.isEmpty else { return 0 }
+        return values.map { $0.value }.reduce(0, +) / Double(values.count)
+    }
+
+    private func baselineAverage(_ values: [Double]) -> Double {
+        guard !values.isEmpty else { return 0 }
+        return values.reduce(0, +) / Double(values.count)
     }
 }

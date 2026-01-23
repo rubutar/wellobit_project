@@ -25,5 +25,11 @@ extension Array where Element == HRVPoint {
         guard !isEmpty else { return nil }
         return map(\.value).reduce(0, +) / Double(count)
     }
+    var latestValue: Double? {
+        guard let latest = self.max(by: { $0.date < $1.date }) else {
+            return nil
+        }
+        return latest.value
+    }
 }
 

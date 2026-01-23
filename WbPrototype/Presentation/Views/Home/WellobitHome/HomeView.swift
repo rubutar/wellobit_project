@@ -55,6 +55,15 @@ struct HomeView: View {
             )
         )
     }
+    
+    init(
+        viewModel: SleepViewModel,
+        hrvViewModel: HRVChartViewModel
+    ) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        _hrvViewModel = StateObject(wrappedValue: hrvViewModel)
+    }
+    
     var body: some View {
         let endDate = Calendar.current.date(
             bySettingHour: 23,
@@ -69,27 +78,125 @@ struct HomeView: View {
             to: endDate
         )!
         
-        let interpretation_message = hrvViewModel.detailedExplanation
-        let interpretation_label = hrvViewModel.interpretation?.label ?? ""
+        let interpretation_message = hrvViewModel.currentDetailedExplanation
+        let interpretation_label = hrvViewModel.currentInterpretation?.label ?? ""
         
         ZStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 16) {
                     HeaderView()
                     WellbeingCardView(
-                        score: hrvViewModel.dailyScore,
+                        score: hrvViewModel.currentScore,
                         status: interpretation_label,
                         description: interpretation_message,
                         onInfoTap: {
                             print(hrvViewModel.dailyScore)
                             showWellbeingInfo = true
-                        }
+                        },
+                        hrvViewModel: hrvViewModel,
+                        startDate: startDate,
+                        endDate: endDate,
+                        sleepSessions: viewModel.sleepSession.map { [$0] } ?? []              
                     )
+                    HStack(spacing: 16) {
+                        AvgHRVCardView(
+                            title: "Current HRV",
+                            value: Int(hrvViewModel.currentSDNN),
+                            unit: "ms",
+                            recentAverage: Int(hrvViewModel.baselineSDNNValue),
+                            isUp: Int(hrvViewModel.currentSDNN) > Int(hrvViewModel.baselineSDNNValue)
+                        )
 
-                    StatsRowView(
-                        dailyAverage: 46,
-                        baseline: 35
-                    )
+
+                        AvgHRVCardView(
+                            title: "RHR Today",
+                            value: Int(hrvViewModel.currentRHRValue),
+                            unit: "bpm",
+                            recentAverage: Int(hrvViewModel.baselineAvgRHR),
+                            isUp: Int(hrvViewModel.currentRHRValue) > Int(hrvViewModel.baselineAvgRHR)
+                        )
+
+                    }
+
+
+
+                    
+//                    StatsRowView(
+//                        dailyAverage: 0,
+//                        baseline: 0
+//                    )
+                    
+//                    ---------------------------------
+
+                    Divider()
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Debug, will remove later")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                        }
+                        
+                        HStack {
+                            VStack (alignment: .leading) {
+                                Text("Current Score")
+                                    .font(.body)
+                                Text("\(hrvViewModel.currentScore)")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text("\(hrvViewModel.interpretation?.state)")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text("\(hrvViewModel.interpretation?.context)")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                            }
+
+                            Divider()
+                            
+                            VStack (alignment: .leading) {
+                                Text("HRV - RMSSD")
+                                    .font(.body)
+                                Text("\(Int(hrvViewModel.currentRMSSD))")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text("Baseline - RMSSD")
+                                    .font(.body)
+                                Text("\(Int(hrvViewModel.baselineRMSSDValue))")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text("HRV - SDNN")
+                                    .font(.body)
+                                Text("\(Int(hrvViewModel.currentSDNN))")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text("Baseline - SDNN")
+                                    .font(.body)
+                                Text("\(Int(hrvViewModel.baselineSDNNValue))")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text("RHR")
+                                    .font(.body)
+                                Text("\(Int(hrvViewModel.currentRHRValue))")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text("Baseline - RHR")
+                                    .font(.body)
+                                Text("\(viewModel.sleepSession.map { [$0] } ?? [])")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                            }
+                            
+                            
+                        }
+                        
+                    }
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(16)
+                    .shadow(color: .black.opacity(0.05), radius: 10)
+                    
+                    
+//                    ---------------------------------
                 }
                 .padding(.horizontal)
                 .padding(.top)
@@ -104,7 +211,7 @@ struct HomeView: View {
                     )
                     await stressViewModel.load(for: viewModel.selectedDate)
                 } catch {
-                    print("❌ HealthKit authorization failed:", error)
+                    print("HealthKit authorization failed:", error)
                 }
             }
             if showWellbeingInfo {
@@ -118,7 +225,10 @@ struct HomeView: View {
 }
 
 
+#Preview {
+    HomeView(
+        viewModel: SleepViewModel.mock(),
+        hrvViewModel: HRVChartViewModel.mock()
+    )
+}
 
-//#Preview {
-//    HomeView()
-//}
