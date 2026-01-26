@@ -15,6 +15,12 @@ struct ControlFloatingButton: View {
 
     var body: some View {
         ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .ignoresSafeArea()
+                .onTapGesture {
+                    NotificationCenter.default.post(name: .showBreathingControls, object: nil)
+                }
             HStack {
                 Spacer()
                 BreathingPlayerControls(
@@ -23,9 +29,6 @@ struct ControlFloatingButton: View {
                 )
             }
             .contentShape(Rectangle())
-            .onTapGesture {
-                NotificationCenter.default.post(name: .showBreathingControls, object: nil)
-            }
         }
     }
 }

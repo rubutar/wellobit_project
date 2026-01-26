@@ -14,53 +14,68 @@ struct SceneListView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        ZStack {
-            Image(sceneSettingsVM.selectedScene.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                .ignoresSafeArea()
-                .opacity(0.3)
-
-//            Color.black.opacity(0.25)
-//                .ignoresSafeArea()
-            
-            VStack(alignment: .leading, spacing: 24) {
-                Spacer()
+        NavigationStack{
+            ZStack {
+                Image(sceneSettingsVM.selectedScene.imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                    .ignoresSafeArea()
+                    .opacity(1)
                 
-                Text("Scenes")
-                    .font(.title2)
-                    .bold()
-                    .padding(.horizontal)
+                Color.black.opacity(0.65)
+                    .ignoresSafeArea()
                 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(sceneSettingsVM.scenes) { scene in
-                            SceneCard(
-                                scene: scene,
-                                isSelected: scene == sceneSettingsVM.selectedScene
-                            )
-                            .onTapGesture {
-                                sceneSettingsVM.select(scene)
+                VStack(alignment: .leading, spacing: 24) {
+                    Spacer()
+                    
+                    //                Text("Scenes")
+                    //                    .font(.title2)
+                    //                    .bold()
+                    //                    .padding(.horizontal)
+                    Text("Scenes")
+                        .font(.largeTitle.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .background {
+                            Text("Scenes")
+                                .font(.title.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .blur(radius: 8)
+                        }
+                        .padding(.horizontal)
+                    
+                    
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(sceneSettingsVM.scenes) { scene in
+                                SceneCard(
+                                    scene: scene,
+                                    isSelected: scene == sceneSettingsVM.selectedScene
+                                )
+                                .onTapGesture {
+                                    sceneSettingsVM.select(scene)
+                                }
                             }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
+                    
+                    Spacer()
                 }
                 
-                Spacer()
             }
-//            .navigationBarTitleDisplayMode(.inline)
-//            .toolbar {
-//                ToolbarItem(placement: .topBarLeading) {
-//                    Button {
-//                        dismiss()
-//                    } label: {
-//                        Image(systemName: "xmark")
-//                    }
-//                }
-//            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
         }
     }
 }
@@ -74,4 +89,14 @@ struct SceneListView: View {
         SceneListView(sceneSettingsVM: sceneVM)
     }
     .preferredColorScheme(.dark)
+}
+
+#Preview {
+    let repo = LocalBreathingRepository()
+    let initialSettings = repo.load()
+    let libraryVM = LibraryViewModel(
+        repository: repo,
+        initial: initialSettings
+    )
+    LibraryView(viewModel: libraryVM)
 }

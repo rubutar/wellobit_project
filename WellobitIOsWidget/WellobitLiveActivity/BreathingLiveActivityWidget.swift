@@ -30,7 +30,7 @@ struct BreathingLiveActivityWidget: Widget {
 //                ProgressView(value: progress)
 //                    .progressViewStyle(.circular)
 
-            ZStack() {
+            HStack() {
                 Text("Let's finish the session.")
                     .font(.body)
                     .fontWeight(.regular)
@@ -65,6 +65,7 @@ struct BreathingLiveActivityWidget: Widget {
                             .fontWeight(.regular)
 //                            .monospacedDigit()
                             .foregroundStyle(.primary)
+                            .padding(.top)
                     }
                 }
                 DynamicIslandExpandedRegion(.center) {

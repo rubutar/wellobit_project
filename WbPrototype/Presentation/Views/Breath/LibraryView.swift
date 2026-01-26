@@ -47,37 +47,83 @@ struct LibraryView: View {
                 
                 Color.black.opacity(0.25)
                     .ignoresSafeArea()
+                
                 ZStack {
-                    ControlFloatingButton(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
-                        .padding(.top, 100)
+                    Image(sceneSettingsViewModel.selectedScene.imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .ignoresSafeArea()
+
+                    Color.black.opacity(0.25)
+                        .ignoresSafeArea()
+
                     VStack {
                         Spacer()
-                        Spacer()
-                        BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
-                        //                        .alert(
-                        //                            "Breathing Session Starting",
-                        //                            isPresented: $playerViewModel.showPreSessionModal
-                        //                        ) {
-                        //                            Button("Continue") {
-                        //                                playerViewModel.play()
-                        //
-                        //                            }
-                        //
-                        //                            Button("Cancel", role: .cancel) { }
-                        //                        } message: {
-                        //                            Text(alertMessage)
-                        //                        }
-                        
+
+                        BreathingPlayer(
+                            viewModel: playerViewModel,
+                            libraryViewModel: libraryViewModel,
+                            sceneSettingsViewModel: sceneSettingsViewModel
+                        )
+
                         BreathingPhaseSelector(viewModel: libraryViewModel)
                             .opacity(playerViewModel.isPlaying ? 0 : 1)
                             .allowsHitTesting(!playerViewModel.isPlaying)
-                        Spacer()
+
                         Spacer()
                     }
+
+                    HStack {
+                        Spacer()
+                        BreathingPlayerControls(
+                            viewModel: playerViewModel,
+                            sceneSettingsViewModel: sceneSettingsViewModel
+                        )
+                    }
+                    .padding(.top, 100)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 32)
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        NotificationCenter.default.post(
+                            name: .showBreathingControls,
+                            object: nil
+                        )
+                    }
+                )
                 .navigationBarBackButtonHidden(true)
+
+                
+//                ZStack {
+//                    ControlFloatingButton(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
+//                        .padding(.top, 100)
+//                    VStack {
+//                        Spacer()
+//                        Spacer()
+//                        BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
+//                        //                        .alert(
+//                        //                            "Breathing Session Starting",
+//                        //                            isPresented: $playerViewModel.showPreSessionModal
+//                        //                        ) {
+//                        //                            Button("Continue") {
+//                        //                                playerViewModel.play()
+//                        //
+//                        //                            }
+//                        //
+//                        //                            Button("Cancel", role: .cancel) { }
+//                        //                        } message: {
+//                        //                            Text(alertMessage)
+//                        //                        }
+//                        
+//                        BreathingPhaseSelector(viewModel: libraryViewModel)
+//                            .opacity(playerViewModel.isPlaying ? 0 : 1)
+//                            .allowsHitTesting(!playerViewModel.isPlaying)
+//                        Spacer()
+//                        Spacer()
+//                    }
+//                }
+//                .padding(.horizontal)
+//                .padding(.bottom, 32)
+//                .navigationBarBackButtonHidden(true)
                 //                .toolbar {
                 //                    ToolbarItem(placement: .navigationBarLeading) {
                 //                        Button {

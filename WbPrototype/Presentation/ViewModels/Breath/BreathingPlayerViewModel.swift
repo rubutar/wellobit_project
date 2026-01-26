@@ -209,7 +209,12 @@ final class BreathingPlayerViewModel: ObservableObject {
         if !isMuted {
             audioPlayer?.play()
         }
-        if uiState == .breathing, let phase = currentPhase {
+//        if uiState == .breathing, let phase = currentPhase {
+//            haptics.play(for: phase)
+//        }
+        if isHapticsEnabled,
+           uiState == .breathing,
+           let phase = currentPhase {
             haptics.play(for: phase)
         }
     }

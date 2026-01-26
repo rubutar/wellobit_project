@@ -38,7 +38,6 @@ struct ModeledStressChartView: View {
                     .foregroundStyle(.blue.opacity(0.15))
                 }
 
-                // Modeled stress line (AUTOMATIC GAPS ON NIL)
                 ForEach(states) { state in
                     LineMark(
                         x: .value("Time", state.date),
