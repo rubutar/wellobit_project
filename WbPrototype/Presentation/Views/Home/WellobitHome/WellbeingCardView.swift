@@ -95,7 +95,6 @@ struct WellbeingCardView: View {
     let endDate: Date
     let sleepSessions: [SleepSession]
     
-    @State private var showInfo = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -123,30 +122,15 @@ struct WellbeingCardView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
-            if score != 0 {
-                Button {
-                    showInfo = true
-                } label: {
-                    Text("More info")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.blue)
-                }
-            }
+//            if score != 0 {
+                
+//            }
         }
         .padding()
         .background(Color.white)
         .cornerRadius(20)
         .shadow(color: .black.opacity(0.05), radius: 10)
-        .sheet(isPresented: $showInfo) {
-            MoreHRVInfoSheet(
-//                viewModel: SleepViewModel.mock(),
-                hrvViewModel: hrvViewModel,
-                startDate: startDate,
-                endDate: endDate,
-                sleepSessions: sleepSessions
-            )
-        }
+        
     }
 }
 

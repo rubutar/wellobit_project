@@ -17,7 +17,9 @@ struct SleepScoreContainerView: View {
         VStack(spacing: 16) {
 
             if let score = viewModel.sleepScore {
-                SleepScoreGaugeView(score: score.value)
+                Text("Sleep Score (\(score.value))")
+                    .font(.headline)
+                HorizontalSegmentedGaugeView(score: score.value)
                 SleepScoreSummaryView(score: score)
             } else {
                 Text("Sleep score unavailable")

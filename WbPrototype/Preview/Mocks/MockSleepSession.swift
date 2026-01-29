@@ -38,10 +38,19 @@ extension SleepSession {
             to: start
         )!                     // 06:30
 
+        
+        let stages: [SleepStage] = [
+            SleepStage(type: .core, duration: 2 * 3600),
+            SleepStage(type: .deep, duration: 1.5 * 3600),
+            SleepStage(type: .rem, duration: 1.5 * 3600),
+            SleepStage(type: .awake, duration: 5 * 60)
+        ]
+        
         return SleepSession(
             startDate: start,
             endDate: end,
-            duration: 6 * 3600
+            duration: 6 * 3600,
+            stages: stages
         )
     }
 }

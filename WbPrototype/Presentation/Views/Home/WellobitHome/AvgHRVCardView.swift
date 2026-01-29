@@ -84,7 +84,7 @@ struct AvgHRVCardView: View {
 
         } else if value < recentAverage {
             Image(systemName: "arrowtriangle.down.fill")
-                .rotationEffect(.degrees(180))
+//                .rotationEffect(.degrees(180))
                 .font(.caption2)
                 .foregroundColor(.red)
 

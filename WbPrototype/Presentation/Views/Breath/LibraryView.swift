@@ -151,6 +151,10 @@ struct LibraryView: View {
                 
             }
         }
+        .onDisappear {
+            playerViewModel.pauseIfNeeded()
+        }
+
     }
     
     

@@ -149,7 +149,11 @@ private extension BreathingPlayerControls {
         }
         .sheet(isPresented: $showSceneList) {
             SceneListView(sceneSettingsVM: sceneSettingsViewModel)
-                .presentationDetents([.large])
+                .presentationDetents([
+//                    .medium
+                    .height(520),
+                    .large
+                ])
                 .presentationDragIndicator(.visible)
         }
     }

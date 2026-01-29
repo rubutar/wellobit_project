@@ -95,6 +95,14 @@ final class BreathingPlayerViewModel: ObservableObject {
         ) { [weak self] _ in
             self?.pauseForBackground()
         }
+
+//        NotificationCenter.default.addObserver(
+//            forName: UIApplication.didEnterBackgroundNotification,
+//            object: nil,
+//            queue: .main
+//        ) { [weak self] _ in
+//            self?.setScreenAwake(false)
+//        }
     }
 
     // MARK: - Scene Binding
@@ -167,6 +175,7 @@ final class BreathingPlayerViewModel: ObservableObject {
 
         uiState = .preparing(seconds: preparationSeconds)
         startPreparationCountdown()
+        setScreenAwake(true)
     }
 
     func stop() {
@@ -185,6 +194,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         isPlaying = false
         isPaused = false
         uiState = .idle
+        setScreenAwake(false)
     }
 
     func pause() {
@@ -193,6 +203,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         haptics.stop()
         invalidateTimers()
         audioPlayer?.pause()
+        setScreenAwake(false)
     }
 
     func resume() {
@@ -217,6 +228,7 @@ final class BreathingPlayerViewModel: ObservableObject {
            let phase = currentPhase {
             haptics.play(for: phase)
         }
+        setScreenAwake(true)
     }
 
     func toggleMute() {
@@ -410,6 +422,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         haptics.stop()
         invalidateTimers()
         audioPlayer?.pause()
+        setScreenAwake(false)
     }
 
     
@@ -487,6 +500,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         isPlaying = false
         isPaused = false
         uiState = .completed
+        setScreenAwake(false)
     }
 
     // MARK: - Phase Helpers
@@ -578,8 +592,19 @@ final class BreathingPlayerViewModel: ObservableObject {
     func toggleHaptics() {
         isHapticsEnabled.toggle()
     }
+    private func setScreenAwake(_ enabled: Bool) {
+        DispatchQueue.main.async {
+            UIApplication.shared.isIdleTimerDisabled = enabled
+            print("screen awake turned \(enabled ? "on" : "off")")
+        }
+    }
+    func pauseIfNeeded() {
+        guard isPlaying, !isPaused else { return }
+        pause()
+    }
     deinit {
         NotificationCenter.default.removeObserver(self)
         liveActivityController.end()
+        setScreenAwake(false)
     }
 }

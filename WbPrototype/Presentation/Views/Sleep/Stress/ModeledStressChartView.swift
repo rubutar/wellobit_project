@@ -49,6 +49,17 @@ struct ModeledStressChartView: View {
                 }
             }
             .chartXScale(domain: startDate ... endDate)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .hour, count: 2)) { value in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel {
+                        if let date = value.as(Date.self) {
+                            Text(date, format: .dateTime.hour(.twoDigits(amPM: .omitted)))
+                        }
+                    }
+                }
+            }
             .chartYScale(domain: 0...100)
             .frame(height: 180)
         }

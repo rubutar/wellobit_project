@@ -221,10 +221,10 @@ struct PreviewHomeView: View {
 
 }
 
-#Preview {
-    PreviewHomeView(
-        viewModel: SleepViewModel.mock(),
-        hrvViewModel: HRVChartViewModel.mock()
-    )
-}
+//#Preview {
+//    PreviewHomeView(
+//        viewModel: SleepViewModel.mock(),
+//        hrvViewModel: HRVChartViewModel.mock()
+//    )
+//}
 

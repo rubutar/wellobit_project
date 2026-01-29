@@ -56,10 +56,15 @@ final class HealthKitSleepRepository: SleepRepository {
                     HKCategoryValueSleepAnalysis.asleep.rawValue,
                     HKCategoryValueSleepAnalysis.asleepCore.rawValue,
                     HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
-                    HKCategoryValueSleepAnalysis.asleepREM.rawValue
+                    HKCategoryValueSleepAnalysis.asleepREM.rawValue,
+                    HKCategoryValueSleepAnalysis.awake.rawValue
                 ]
 
                 let asleepSamples = samples
+                    .filter { asleepValues.contains($0.value) }
+                    .sorted { $0.startDate < $1.startDate }
+                
+                let sessionSamples = samples
                     .filter { asleepValues.contains($0.value) }
                     .sorted { $0.startDate < $1.startDate }
 
@@ -69,10 +74,23 @@ final class HealthKitSleepRepository: SleepRepository {
                     return
                 }
 
+                let stages: [SleepStage] = sessionSamples.compactMap { sample in
+                    guard let type = SleepStageType(from: sample.value) else {
+                        return nil
+                    }
+
+                    return SleepStage(
+                        type: type,
+                        duration: sample.endDate.timeIntervalSince(sample.startDate)
+                    )
+                }
+                
                 let session = SleepSession(
                     startDate: first.startDate,
                     endDate: last.endDate,
-                    duration: last.endDate.timeIntervalSince(first.startDate)
+                    duration: last.endDate.timeIntervalSince(first.startDate),
+                    stages: stages
+
                 )
 
                 continuation.resume(returning: session)
@@ -109,36 +127,56 @@ final class HealthKitSleepRepository: SleepRepository {
                     return
                 }
 
+                guard let samples = samples as? [HKCategorySample],
+                      !samples.isEmpty else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                // 1️⃣ Build stages (awake included for interruptions)
+                let stages: [SleepStage] = samples.compactMap { sample in
+                    guard let type = SleepStageType(from: sample.value) else {
+                        return nil
+                    }
+
+                    return SleepStage(
+                        type: type,
+                        duration: sample.endDate.timeIntervalSince(sample.startDate)
+                    )
+                }
+
+                // 2️⃣ Determine session bounds from asleep stages
                 let asleepValues: Set<Int> = [
                     HKCategoryValueSleepAnalysis.asleepCore.rawValue,
                     HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
                     HKCategoryValueSleepAnalysis.asleepREM.rawValue
                 ]
 
-                let asleep = (samples as? [HKCategorySample])?
+                let asleepStages = samples
                     .filter { asleepValues.contains($0.value) }
                     .sorted { $0.startDate < $1.startDate }
 
-                guard
-                    let first = asleep?.first,
-                    let last = asleep?.last
-                else {
+                guard let first = asleepStages.first,
+                      let last = asleepStages.last else {
                     continuation.resume(returning: nil)
                     return
                 }
 
-                continuation.resume(
-                    returning: SleepSession(
-                        startDate: first.startDate,
-                        endDate: last.endDate,
-                        duration: last.endDate.timeIntervalSince(first.startDate)
-                    )
+                // 3️⃣ Build SleepSession
+                let session = SleepSession(
+                    startDate: first.startDate,
+                    endDate: last.endDate,
+                    duration: last.endDate.timeIntervalSince(first.startDate),
+                    stages: stages
                 )
+
+                continuation.resume(returning: session)
             }
 
             healthStore.execute(query)
         }
     }
+
 
 
 
@@ -248,7 +286,88 @@ final class HealthKitSleepRepository: SleepRepository {
         }
     }
     
-    func fetchAverageBedtime(days: Int) async throws -> Date? {
+//    func fetchAverageBedtime(days: Int) async throws -> Date? {
+//
+//        let calendar = Calendar.current
+//        let today = calendar.startOfDay(for: Date())
+//        let startDate = calendar.date(byAdding: .day, value: -days, to: today)!
+//
+//        let sleepType = HKObjectType.categoryType(
+//            forIdentifier: .sleepAnalysis
+//        )!
+//
+//        let predicate = HKQuery.predicateForSamples(
+//            withStart: startDate,
+//            end: today,
+//            options: .strictEndDate
+//        )
+//
+//        return try await withCheckedThrowingContinuation { continuation in
+//
+//            let query = HKSampleQuery(
+//                sampleType: sleepType,
+//                predicate: predicate,
+//                limit: HKObjectQueryNoLimit,
+//                sortDescriptors: nil
+//            ) { _, samples, error in
+//
+//                if let error {
+//                    continuation.resume(throwing: error)
+//                    return
+//                }
+//
+//                let asleepValues: Set<Int> = [
+//                    HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+//                    HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
+//                    HKCategoryValueSleepAnalysis.asleepREM.rawValue
+//                ]
+//
+//                guard
+//                    let samples = samples as? [HKCategorySample]
+//                else {
+//                    continuation.resume(returning: nil)
+//                    return
+//                }
+//
+//                // ✅ One bedtime per night
+//                let bedtimes = samples
+//                    .filter { asleepValues.contains($0.value) }
+//                    .sorted { $0.startDate < $1.startDate }
+//                    .reduce(into: [Date: Date]()) { dict, sample in
+//                        let night = calendar.startOfDay(for: sample.startDate)
+//                        dict[night] = min(dict[night] ?? sample.startDate, sample.startDate)
+//                    }
+//                    .map { $0.value }
+//
+//                guard !bedtimes.isEmpty else {
+//                    continuation.resume(returning: nil)
+//                    return
+//                }
+//
+//                // ✅ Average minutes since midnight
+//                let minutes = bedtimes.map {
+//                    calendar.component(.hour, from: $0) * 60 +
+//                    calendar.component(.minute, from: $0)
+//                }
+//
+//                let avgMinutes = minutes.reduce(0, +) / minutes.count
+//
+//                let avgDate = calendar.date(
+//                    bySettingHour: avgMinutes / 60,
+//                    minute: avgMinutes % 60,
+//                    second: 0,
+//                    of: today
+//                )
+//
+//                continuation.resume(returning: avgDate)
+//            }
+//
+//            healthStore.execute(query)
+//        }
+//    }
+
+
+    func fetchAverageBedtime(days: Int = 7) async throws -> Date? {
 
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
@@ -278,33 +397,82 @@ final class HealthKitSleepRepository: SleepRepository {
                     return
                 }
 
-                let bedtimes = (samples as? [HKCategorySample])?
-                    .filter {
-                        $0.value == HKCategoryValueSleepAnalysis.asleep.rawValue
-                    }
-                    .map { $0.startDate }
-
-                guard
-                    let times = bedtimes,
-                    !times.isEmpty
-                else {
+                guard let samples = samples as? [HKCategorySample] else {
                     continuation.resume(returning: nil)
                     return
                 }
 
-                // ⏰ Average bedtime (minutes from midnight)
-                let minutes = times.map {
-                    calendar.component(.hour, from: $0) * 60
-                    + calendar.component(.minute, from: $0)
+                let asleepValues: Set<Int> = [
+                    HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                    HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
+                    HKCategoryValueSleepAnalysis.asleepREM.rawValue
+                ]
+
+                // 1️⃣ Group samples by night
+                let grouped = Dictionary(grouping: samples.filter {
+                    asleepValues.contains($0.value)
+                }) { sample in
+                    calendar.startOfDay(for: sample.startDate)
                 }
 
-                let avgMinutes = minutes.reduce(0, +) / minutes.count
+                // 2️⃣ First sustained sleep per night (≥15 min)
+                var bedtimes: [Date] = []
 
+                for (_, nightSamples) in grouped {
+                    let sorted = nightSamples.sorted { $0.startDate < $1.startDate }
+
+                    var accumulated: TimeInterval = 0
+                    var start: Date?
+
+                    for s in sorted {
+                        if start == nil {
+                            start = s.startDate
+                            accumulated = s.endDate.timeIntervalSince(s.startDate)
+                        } else {
+                            accumulated += s.endDate.timeIntervalSince(s.startDate)
+                        }
+
+                        if accumulated >= 15 * 60 {
+                            bedtimes.append(start!)
+                            break
+                        }
+                    }
+                }
+
+                guard bedtimes.count >= 3 else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                // 3️⃣ Convert to minutes since midnight
+                var minutes = bedtimes.map {
+                    calendar.component(.hour, from: $0) * 60 +
+                    calendar.component(.minute, from: $0)
+                }
+
+                // 4️⃣ Outlier suppression (Apple-like)
+                if minutes.count >= 5 {
+                    minutes.sort()
+                    minutes.removeFirst()
+                    minutes.removeLast()
+                }
+
+                // 5️⃣ Weight recent nights
+                let weights: [Int] = [3, 2, 2, 1, 1, 1, 1]
+                let weighted = zip(minutes.reversed(), weights)
+                    .map { Double($0.0 * $0.1) }
+
+                let weightSum = zip(minutes.reversed(), weights)
+                    .map { Double($0.1) }
+                    .reduce(0, +)
+
+                let avgMinutes = Int(weighted.reduce(0, +) / weightSum)
+
+                // 6️⃣ Rebuild Date (time-only)
                 let avgDate = calendar.date(
-                    bySettingHour: avgMinutes / 60,
-                    minute: avgMinutes % 60,
-                    second: 0,
-                    of: today
+                    byAdding: .minute,
+                    value: avgMinutes - 45,
+                    to: today
                 )
 
                 continuation.resume(returning: avgDate)
@@ -313,6 +481,8 @@ final class HealthKitSleepRepository: SleepRepository {
             healthStore.execute(query)
         }
     }
+
+
 
     func fetchSleepHistory(
         range: SleepHistoryRange

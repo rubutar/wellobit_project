@@ -17,6 +17,9 @@ protocol HRVDataSource {
     
     func fetchTodayRHR(startDate: Date, endDate: Date) async throws -> Double?
     func fetchRHRRange(startDate: Date, endDate: Date) async throws -> [Double]
+    
+//    func fetchHRVRange(startDate: Date, endDate: Date) async throws -> [HRVPoint]
+    func fetchMostRecentHRV() async throws -> HRVPoint?
 
 }
 
@@ -196,6 +199,56 @@ final class HealthKitHRVDataSource: HRVDataSource {
         print(sqrt(meanSquare))
         return sqrt(meanSquare)*1000
     }
+    
+    func fetchMostRecentHRV() async throws -> HRVPoint? {
+        try await withCheckedThrowingContinuation {
+            (continuation: CheckedContinuation<HRVPoint?, Error>) in
+
+            let type = HKQuantityType.quantityType(
+                forIdentifier: .heartRateVariabilitySDNN
+            )!
+
+            let sort = NSSortDescriptor(
+                key: HKSampleSortIdentifierEndDate,
+                ascending: false
+            )
+
+            let query = HKSampleQuery(
+                sampleType: type,
+                predicate: nil,
+                limit: 1,
+                sortDescriptors: [sort]
+            ) { _, samples, error in
+
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                guard let sample = samples?.first as? HKQuantitySample else {
+                    // ✅ nil is now allowed
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let value = sample.quantity.doubleValue(
+                    for: .secondUnit(with: .milli)
+                )
+
+                continuation.resume(
+                    returning: HRVPoint(
+                        date: sample.endDate,
+                        value: value,
+                        type: .sdnn
+                    )
+                )
+            }
+
+            healthStore.execute(query)
+        }
+    }
+
+
     
     func fetchHRVRange(startDate: Date, endDate: Date) async throws -> [HRVPoint] {
         let sdnnType = HKQuantityType.quantityType(

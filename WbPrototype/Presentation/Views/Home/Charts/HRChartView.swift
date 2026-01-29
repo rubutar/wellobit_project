@@ -21,62 +21,14 @@ struct HRChartView: View {
 
     var body: some View {
 
-        if hrSamples.isEmpty {
-            Text("No heart rate data today")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .frame(height: 180)
-        } else {
+//        if hrSamples.isEmpty {
+//            Text("No heart rate data today")
+//                .font(.caption)
+//                .foregroundColor(.secondary)
+//                .frame(height: 180)
+//        } else {
 
             Chart {
-
-//                // Sleep overlay
-//                ForEach(sleepSessions.indices, id: \.self) { index in
-//                    let session = sleepSessions[index]
-//
-//                    RectangleMark(
-//                        xStart: .value("Sleep start", session.startDate),
-//                        xEnd: .value("Sleep end", session.endDate),
-//                        yStart: .value("Bottom", 0),
-//                        yEnd: .value("Top", 100)
-//                    )
-//                    .foregroundStyle(by: .value("Series", "Sleep"))
-//                    .opacity(0.15)
-//                }
-                
-                // MARK: - Sleep overlay (clamped to chart range)
-                ForEach(sleepSessions.indices, id: \.self) { index in
-                    let session = sleepSessions[index]
-
-                    let clampedStart = max(session.startDate, startDate)
-                    let clampedEnd = min(session.endDate, endDate)
-
-                    if clampedStart < clampedEnd {
-                        RectangleMark(
-                            xStart: .value("Sleep start", clampedStart),
-                            xEnd: .value("Sleep end", clampedEnd),
-                            yStart: .value("Bottom", hrRange.lowerBound),
-                            yEnd: .value("Top", hrRange.upperBound)
-                        )
-                        .foregroundStyle(.gray)
-                        .opacity(0.12)
-                    }
-                }
-
-                
-                // MARK: - Sleep overlay
-                ForEach(sleepSessions.indices, id: \.self) { index in
-                    let session = sleepSessions[index]
-
-                    RectangleMark(
-                        xStart: .value("Sleep start", session.startDate),
-                        xEnd: .value("Sleep end", session.endDate),
-                        yStart: .value("Bottom", hrRange.lowerBound),
-                        yEnd: .value("Top", hrRange.upperBound)
-                    )
-                    .foregroundStyle(by: .value("Series", "Sleep"))
-                    .opacity(0.15)
-                }
 
                 // MARK: - Raw HR (bpm)
                 ForEach(hrSamples) { sample in
@@ -87,6 +39,7 @@ struct HRChartView: View {
                     .foregroundStyle(by: .value("Series", "Heart Rate"))
                     .lineStyle(.init(lineWidth: 1.5))
                     .interpolationMethod(.linear)
+                    .foregroundStyle(.red)
                 }
                 
                 if avgRHR > 0 {
@@ -103,12 +56,23 @@ struct HRChartView: View {
                 }
             }
             .chartXScale(domain: startDate ... endDate)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .hour, count: 2)) { value in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel {
+                        if let date = value.as(Date.self) {
+                            Text(date, format: .dateTime.hour(.twoDigits(amPM: .omitted)))
+                        }
+                    }
+                }
+            }
             .chartYScale(domain: hrRange)
             .frame(height: 180)
             
             
         }
-    }
+//    }
 
     // MARK: - Helpers
 

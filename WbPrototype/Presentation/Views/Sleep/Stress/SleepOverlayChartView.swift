@@ -71,14 +71,23 @@ struct SleepOverlayDebugView: View {
         of: Calendar.current.date(byAdding: .day, value: 1, to: Date())!
     )!
 
+    let stages: [SleepStage] = [
+        SleepStage(type: .core, duration: 3 * 3600),
+        SleepStage(type: .deep, duration: 2 * 3600),
+        SleepStage(type: .rem, duration: 1.5 * 3600),
+        SleepStage(type: .awake, duration: 5 * 60)
+    ]
+
     SleepOverlayChartView(
         sleepSessions: [
             SleepSession(
                 startDate: start,
                 endDate: end,
-                duration: end.timeIntervalSince(start)
+                duration: end.timeIntervalSince(start),
+                stages: stages
             )
         ]
     )
     .padding()
 }
+

@@ -137,7 +137,6 @@ final class StressViewModel: ObservableObject {
             }
             
             group.enter()
-            group.enter()
             Task { [weak self] in
                 defer { group.leave() }
 
@@ -185,17 +184,13 @@ final class StressViewModel: ObservableObject {
 
         modeledStressTimeline = buildStressTimelineUseCase.execute(input: input)
 
-        // 🔴 peak points (red dots)
         peakStressDates = detectPeakPointsUseCase.execute(
             states: modeledStressTimeline
         )
 
-        // 🎯 peak stress %
         peakStress = computePeakStressUseCase.execute(
             states: modeledStressTimeline
         )
-
-    
         
         print("""
         🧪 loadModeledStress CALLED
@@ -205,6 +200,5 @@ final class StressViewModel: ObservableObject {
         HR samples: \(heartRates.count)
         Sleep sessions: \(sleepSessions.count)
         """)
-
     }
 }

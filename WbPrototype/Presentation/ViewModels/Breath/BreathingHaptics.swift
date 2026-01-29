@@ -83,6 +83,7 @@ final class DefaultBreathingHaptics: BreathingHaptics {
     }
     
     func stop() {
+        stopPulsing()
         timer?.invalidate()
         timer = nil
         startTime = nil
@@ -126,7 +127,9 @@ final class DefaultBreathingHaptics: BreathingHaptics {
     private func stopPulsing() {
         timer?.invalidate()
         timer = nil
+        startTime = nil
     }
+
 
     // MARK: - Duration source (IMPORTANT)
 
@@ -140,7 +143,6 @@ final class DefaultBreathingHaptics: BreathingHaptics {
     }
 
     deinit {
-        Task { @MainActor in
-            self.stopPulsing()
-        }    }
+        
+    }
 }

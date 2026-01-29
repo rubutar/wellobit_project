@@ -29,6 +29,10 @@ final class HRVChartViewModel: ObservableObject {
     @Published var scoreLabel: String = ""
     @Published var interpretation: HRVInterpretation?
     @Published var currentInterpretation: HRVInterpretation?
+    @Published var latestSnapshot: HRVSnapshot?
+    @Published var hrBaseline7Days: Double?
+
+
 
     
     @Published private(set) var avgRMSSD: Double = 0
@@ -53,6 +57,10 @@ final class HRVChartViewModel: ObservableObject {
     private let calculateScoreUseCase: CalculateDailyScoreUseCase
     private let interpretScoreUseCase: InterpretDailyScoreUseCase
     private let interpretHRVUseCase: InterpretHRVUseCase
+    private let fetchLatestSnapshotUseCase: FetchLatestHRVSnapshotUseCase
+    private let fetchHRBaselineUseCase: FetchHRBaselineUseCase
+
+
 
     init(
         fetchSDNNUseCase: FetchTodayHRVUseCase,
@@ -64,7 +72,9 @@ final class HRVChartViewModel: ObservableObject {
         fetchHeartRateUseCase: FetchTodayHeartRateSamplesUseCase,
         calculateScoreUseCase: CalculateDailyScoreUseCase,
         interpretScoreUseCase: InterpretDailyScoreUseCase,
-        interpretHRVUseCase: InterpretHRVUseCase
+        interpretHRVUseCase: InterpretHRVUseCase,
+        fetchLatestSnapshotUseCase: FetchLatestHRVSnapshotUseCase,
+        fetchHRBaselineUseCase: FetchHRBaselineUseCase
 
     ) {
         self.fetchSDNNUseCase = fetchSDNNUseCase
@@ -77,6 +87,8 @@ final class HRVChartViewModel: ObservableObject {
         self.calculateScoreUseCase = calculateScoreUseCase
         self.interpretScoreUseCase = interpretScoreUseCase
         self.interpretHRVUseCase = interpretHRVUseCase
+        self.fetchLatestSnapshotUseCase = fetchLatestSnapshotUseCase
+        self.fetchHRBaselineUseCase = fetchHRBaselineUseCase
 
     }
 
@@ -244,11 +256,11 @@ extension HRVChartViewModel {
            let baselineRMSSD = baselineRMSSD.averageValue {
 
             if todayRMSSD > baselineRMSSD {
-                parts.append("Your daily average HRV (DSNN) is higher than your baseline")
+                parts.append("Your daily average HRV (SDNN) is higher than your baseline")
             } else if todayRMSSD < baselineRMSSD {
-                parts.append("Your daily average HRV (DSNN) is lower than your baseline")
+                parts.append("Your daily average HRV (SDNN) is lower than your baseline")
             } else {
-                parts.append("Your daily average HRV (DSNN) is similar to your baseline")
+                parts.append("Your daily average HRV (SDNN) is similar to your baseline")
             }
         }
 
@@ -332,4 +344,14 @@ extension HRVChartViewModel {
         guard !values.isEmpty else { return 0 }
         return values.reduce(0, +) / Double(values.count)
     }
+
+    func loadLatestSnapshot() async {
+        do {
+            latestSnapshot = try await fetchLatestSnapshotUseCase.execute()
+        } catch {
+            latestSnapshot = nil
+            print("Failed to load HRV snapshot:", error)
+        }
+    }
+
 }

@@ -7,9 +7,16 @@
 
 import Foundation
 
-struct SleepSession {
+//struct SleepSession {
+//    let startDate: Date
+//    let endDate: Date
+//    let duration: TimeInterval
+//}
+
+struct SleepSession: Identifiable {
+    let id = UUID()
     let startDate: Date
     let endDate: Date
     let duration: TimeInterval
+    let stages: [SleepStage]
 }
-

@@ -91,15 +91,13 @@ struct StressChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
 
-            if timeline.isEmpty {
+            if timeline.isEmpty && hrTimeline.isEmpty{
                 Text("No stress data in the last 24 hours")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .frame(height: 180)
             } else {
                 Chart {
-
-                    // Sleep overlay
                     ForEach(sleepSessions.indices, id: \.self) { index in
                         let session = sleepSessions[index]
 

@@ -28,6 +28,20 @@ private func zone(for score: Int) -> WellbeingZoneEnum {
     }
 }
 
+private func indicatorColor(for score: Int) -> Color {
+    switch score {
+    case 0..<30:
+        return Color("low_range")
+    case 30..<50:
+        return Color("moderate_range")
+    case 50..<70:
+        return Color("balance_range")
+    default:
+        return Color("good_range")
+    }
+}
+
+
 struct GaugeZone {
     let range: ClosedRange<Int>
     let color: Color
@@ -73,6 +87,9 @@ struct SegmentedGaugeView: View {
     private let lineWidth: CGFloat = 20
     private let startAngle: Double = 135
     private let sweepAngle: Double = 270
+    private let indicatorSize: CGFloat = 28
+    private let indicatorStroke: CGFloat = 6
+
     
     private let zones: [GaugeZone] = [
         .init(range: 0...27, color: Color("low_range")),
@@ -111,21 +128,51 @@ struct SegmentedGaugeView: View {
                 
                 Circle()
                     .fill(Color.white)
-                    .frame(width: lineWidth + 2, height: lineWidth + 2)
+                    .frame(width: indicatorSize, height: indicatorSize)
                     .overlay(
                         Circle()
-                            .stroke(Color.black.opacity(0.15), lineWidth: 2)
+                            .stroke(
+                                indicatorColor(for: score),
+                                lineWidth: indicatorStroke
+                            )
+                    )
+                    .background(
+                        Circle()
+                            .fill(Color.black.opacity(0.08))
+                            .blur(radius: 4)
+                            .scaleEffect(1.2)
                     )
                     .position(
                         x: size / 2 + cos(indicatorAngle * .pi / 180) * (size / 2),
                         y: size / 2 + sin(indicatorAngle * .pi / 180) * (size / 2)
                     )
+                    .animation(.easeInOut(duration: 0.3), value: score)
+
+
+                
+//                Circle()
+//                    .fill(Color.white)
+//                    .frame(width: lineWidth + 2, height: lineWidth + 2)
+//                    .overlay(
+//                        Circle()
+//                            .stroke(Color.black.opacity(0.15), lineWidth: 2)
+//                    )
+//                    .position(
+//                        x: size / 2 + cos(indicatorAngle * .pi / 180) * (size / 2),
+//                        y: size / 2 + sin(indicatorAngle * .pi / 180) * (size / 2)
+//                    )
             }
         }
         .aspectRatio(1, contentMode: .fit)
     }
+    private func activeZoneColor(for score: Int) -> Color {
+        zones.first(where: { $0.range.contains(score) })?.color
+            ?? .gray
+    }
+
 }
 
 #Preview {
-    CircularGaugeView(score: 90)
+    CircularGaugeView(score: 30
+    )
 }
