@@ -49,11 +49,12 @@ struct GaugeZone {
 
 struct CircularGaugeView: View {
     let score: Int
+    let isUndefined: Bool
     @State private var currentZone: WellbeingZoneEnum = .low
 
     var body: some View {
         ZStack {
-            if score == 0 {
+            if score == 0 || isUndefined {
                 Image("zenny_no_data")
                     .resizable()
                     .scaledToFit()
@@ -66,8 +67,11 @@ struct CircularGaugeView: View {
                     .id(currentZone)
             }
             
-            SegmentedGaugeView(score: score)            .frame(width: 240, height: 240)
-            
+            if isUndefined {
+                SegmentedGaugeView(score: 0)            .frame(width: 240, height: 240)
+            } else {
+                SegmentedGaugeView(score: score)            .frame(width: 240, height: 240)
+            }
 
         }
         .frame(width: 220, height: 220)
@@ -126,29 +130,33 @@ struct SegmentedGaugeView: View {
                         .rotationEffect(.degrees(startAngle))
                 }
                 
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: indicatorSize, height: indicatorSize)
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                indicatorColor(for: score),
-                                lineWidth: indicatorStroke
-                            )
-                    )
-                    .background(
-                        Circle()
-                            .fill(Color.black.opacity(0.08))
-                            .blur(radius: 4)
-                            .scaleEffect(1.2)
-                    )
-                    .position(
-                        x: size / 2 + cos(indicatorAngle * .pi / 180) * (size / 2),
-                        y: size / 2 + sin(indicatorAngle * .pi / 180) * (size / 2)
-                    )
-                    .animation(.easeInOut(duration: 0.3), value: score)
-
-
+                
+                if score == 0 {
+                    
+                } else {
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: indicatorSize, height: indicatorSize)
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    indicatorColor(for: score),
+                                    lineWidth: indicatorStroke
+                                )
+                        )
+                        .background(
+                            Circle()
+                                .fill(Color.black.opacity(0.08))
+                                .blur(radius: 4)
+                                .scaleEffect(1.2)
+                        )
+                        .position(
+                            x: size / 2 + cos(indicatorAngle * .pi / 180) * (size / 2),
+                            y: size / 2 + sin(indicatorAngle * .pi / 180) * (size / 2)
+                        )
+                        .animation(.easeInOut(duration: 0.3), value: score)
+                    
+                }
                 
 //                Circle()
 //                    .fill(Color.white)
@@ -173,6 +181,6 @@ struct SegmentedGaugeView: View {
 }
 
 #Preview {
-    CircularGaugeView(score: 30
+    CircularGaugeView(score: 30, isUndefined: true
     )
 }

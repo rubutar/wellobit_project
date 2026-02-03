@@ -27,7 +27,6 @@ final class SleepViewModel: ObservableObject {
     @Published var selectedHistoryRange: SleepHistoryRange = .week
     @Published var sleepAverages: SleepAverages?
     @Published var sleepSession: SleepSession?
-
     
     @Published private(set) var selectedDate: Date
     
@@ -40,14 +39,11 @@ final class SleepViewModel: ObservableObject {
         ) ?? selectedDate
     }
 
-
     private let fetchSleepUseCase: FetchSleepSessionUseCase
     private let fetchSleepStagesUseCase: FetchSleepStagesUseCase
     private let permissionManager = HealthKitPermissionManager()
     private let fetchSleepHistoryUseCase: FetchSleepHistoryUseCase
     private let fetchSleepAveragesUseCase: FetchSleepAveragesUseCase
-
-
 
     init(
         fetchSleepUseCase: FetchSleepSessionUseCase,
@@ -60,8 +56,6 @@ final class SleepViewModel: ObservableObject {
         self.fetchSleepHistoryUseCase = fetchSleepHistoryUseCase
         self.fetchSleepAveragesUseCase = fetchSleepAveragesUseCase
         self.selectedDate = Calendar.current.startOfDay(for: Date())
-
-
     }
     
     func onAppear() async {

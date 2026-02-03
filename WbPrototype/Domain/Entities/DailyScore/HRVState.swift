@@ -20,6 +20,7 @@ enum UndefinedReason {
     case physiologicalAdaptation
     case measurementArtifact
     case noClearPattern
+    case contradictoryTrends
 }
 
 enum HRContext {
@@ -37,13 +38,16 @@ struct HRVInterpretation {
 
 struct HRVInterpretationInput {
 
+    let hrvSamples: [HRVPoint]
+    let hrSamples: [HeartRateSample]
+    
     let rmssdToday: Double
     let rmssdBaseline: Double
 
     let sdnnToday: Double
     let sdnnBaseline: Double
 
-    let restingHR: Double
+    let currentHR: Double
     let hrBaseline: Double
 
     let aboveBaselineTooMuchStreak: Int
@@ -52,4 +56,6 @@ struct HRVInterpretationInput {
     let occurredDuringSleep: Bool
     let occurredDuringWaking: Bool
     let repeatedWithin24h: Bool
+    
+    let isRest: Bool
 }

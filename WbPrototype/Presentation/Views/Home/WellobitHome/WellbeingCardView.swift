@@ -15,6 +15,8 @@ struct WellbeingZoneInfo: Identifiable {
     let color: Color
 }
 
+
+
 let wellbeingZoneInfos: [WellbeingZoneInfo] = [
     .init(
         title: "Low",
@@ -23,7 +25,7 @@ let wellbeingZoneInfos: [WellbeingZoneInfo] = [
         color: Color("low_range")
     ),
     .init(
-        title: "Recovery",
+        title: "Moderate",
         subtitle: "System is in recovery mode",
         icon: "bolt.fill",
         color: Color("moderate_range")
@@ -94,7 +96,13 @@ struct WellbeingCardView: View {
     let startDate: Date
     let endDate: Date
     let sleepSessions: [SleepSession]
+    let interpretation: HRVInterpretation?
+
     
+    private var currentZone: WellbeingZone {
+        wellbeingZones.first { $0.range.contains(score) }
+        ?? wellbeingZones.first!
+    }
     
     var body: some View {
         VStack(spacing: 16) {
@@ -111,20 +119,44 @@ struct WellbeingCardView: View {
             }
             .padding(.bottom)
             
-            CircularGaugeView(score: score)
+            CircularGaugeView(score: score, isUndefined: isUndefined)
             
-            Text(status)
-//                .font(.headline)
-                .font(.system(size: 24, weight: .bold))
-
-            
-            Text(description)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-//            if score != 0 {
+            if isUndefined {
+                Text("Undefined")
+                    .font(.system(size: 24, weight: .bold))
                 
-//            }
+                var attributedText: AttributedString {
+                    var text = AttributedString(
+                        "We couldn’t reliably interpret your current HRV data. " +
+                        "This can happen if the measurement was too short, affected by movement, " +
+                        "or if your heart rhythm data was inconsistent."
+//                        "Try wearing your device steadily " +
+//                        "for longer periods, especially during rest or sleep, to get more accurate insights."
+                    )
+
+                    if let range = text.range(of: "We couldn’t reliably interpret your current HRV data. ") {
+                        text[range].font = .system(.subheadline, weight: .semibold)
+                    }
+
+                    return text
+                }
+                
+                Text(attributedText)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+
+
+            } else {
+                Text(currentZone.title)
+                    .font(.system(size: 24, weight: .bold))
+                
+                
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
         }
         .padding()
         .background(Color.white)
@@ -132,6 +164,15 @@ struct WellbeingCardView: View {
         .shadow(color: .black.opacity(0.05), radius: 10)
         
     }
+    private var isUndefined: Bool {
+        guard let interpretation else { return true }
+
+        if case .undefined = interpretation.state {
+            return true
+        }
+        return false
+    }
+
 }
 
 
@@ -309,6 +350,8 @@ private extension WellbeingInfoPopup {
         }
     }
 }
+
+
 
 
 

@@ -7,111 +7,144 @@
 
 import SwiftUI
 
+
 final class TabRouter {
-    func makeHome() -> some View {
-        // Repositories
-        let sleepRepository = HealthKitSleepRepository()
-        let vitalsRepository = HealthKitVitalsRepository()
+    private let progressStore: ProgressStore
 
-        // Sleep use cases
-        let fetchSleepUseCase = FetchSleepSession(
-            repository: sleepRepository
-        )
-
-        let fetchSleepStagesUseCase = FetchSleepStages(
-            repository: sleepRepository
-        )
-
-        let fetchSleepHistoryUseCase = FetchSleepHistory(
-            repository: sleepRepository
-        )
-
-        let fetchSleepAveragesUseCase = FetchSleepAverages(
-            repository: sleepRepository
-        )
-
-        // Sleep ViewModel
-        let sleepViewModel = SleepViewModel(
-            fetchSleepUseCase: fetchSleepUseCase,
-            fetchSleepStagesUseCase: fetchSleepStagesUseCase,
-            fetchSleepHistoryUseCase: fetchSleepHistoryUseCase,
-            fetchSleepAveragesUseCase: fetchSleepAveragesUseCase
-        )
-
-        // Sleep score wiring
-        let sleepScoreInputBuilder = SleepScoreInputBuilder(
-            sleepRepository: sleepRepository,
-            vitalsRepository: vitalsRepository
-        )
-
-        let sleepScoreViewModel = SleepScoreViewModel(
-            inputBuilder: sleepScoreInputBuilder
-        )
-
-        return HomeView(
-            viewModel: sleepViewModel
-        )
-//        return HomeView()
+    init() {
+        let progressRepository = LocalBreathingProgressRepository()
+        self.progressStore = ProgressStore(repository: progressRepository)
     }
     
+
+    func makeHome() -> some View {
+        let sleepVM = makeSleepViewModel()
+        return HomeView(
+            viewModel: sleepVM
+        )
+    }
+
+    func makeMockHome() -> some View {
+        let sleepVM = makeSleepViewModel()
+        let breathingVM = makeBreathingPlayerViewModel()
+        return MockHomeView(
+            viewModel: sleepVM,
+            breathingViewModel: breathingVM
+        )
+    }
+
+    // MARK: - LIBRARY LIST
+
+    func makeListLibrary() -> some View {
+
+        let libraryRepo = MockLibraryBreathingRepository()
+        let breathingRepo = LocalBreathingRepository()
+
+        let useCase = GetLibraryBreathingSessionsUseCase(
+            repository: libraryRepo
+        )
+
+        let listVM = LibraryListViewModel(
+            getSessionsUseCase: useCase,
+            breathingRepository: breathingRepo
+        )
+
+        return LibraryListView(
+            viewModel: listVM,
+            makeLibrary: { [weak self] in
+                guard let self else {
+                    return AnyView(EmptyView())
+                }
+                return AnyView(self.makeLibrary())
+            }
+        )
+    }
 
     func makeLibrary() -> some View {
-        let repo = LocalBreathingRepository()
-        let initial = repo.load()
-        
-        let vm = LibraryViewModel(
-            repository: repo,
-            initial: initial
+
+        let breathingRepo = LocalBreathingRepository()
+
+        let libraryVM = LibraryViewModel(
+            repository: breathingRepo,
+            initial: breathingRepo.load()
         )
-        return LibraryView(viewModel: vm)
+
+        let sceneVM = SceneSettingsViewModel(
+            repository: LocalBreathingSceneRepository()
+        )
+
+        let playerVM = BreathingPlayerViewModel(
+            libraryViewModel: libraryVM,
+            sceneSettingsViewModel: sceneVM,
+            progressStore: progressStore   // ✅ SAME INSTANCE
+        )
+
+        return LibraryView(
+            libraryViewModel: libraryVM,
+            sceneSettingsViewModel: sceneVM,
+            playerViewModel: playerVM
+        )
     }
     
-    func makeSleep() -> some View {
+    func makeProgress() -> some View {
+        ProgressScreenView(progressStore: progressStore)
+    }
 
-        // Repositories
+
+
+    // MARK: - SLEEP
+    func makeSleep() -> some View {
+        let sleepVM = makeSleepViewModel()
+        let sleepScoreVM = makeSleepScoreViewModel()
+        return SleepView(
+            viewModel: sleepVM,
+            sleepScoreVM: sleepScoreVM
+        )
+    }
+
+    // MARK: - PRIVATE BUILDERS
+    private func makeBreathingPlayerViewModel() -> BreathingPlayerViewModel {
+
+        let repo = LocalBreathingRepository()
+
+        let libraryVM = LibraryViewModel(
+            repository: repo,
+            initial: repo.load()
+        )
+
+        let sceneVM = SceneSettingsViewModel(
+            repository: LocalBreathingSceneRepository()
+        )
+
+        return BreathingPlayerViewModel(
+            libraryViewModel: libraryVM,
+            sceneSettingsViewModel: sceneVM,
+            progressStore: progressStore
+        )
+    }
+
+    private func makeSleepViewModel() -> SleepViewModel {
+
+        let sleepRepository = HealthKitSleepRepository()
+
+        return SleepViewModel(
+            fetchSleepUseCase: FetchSleepSession(repository: sleepRepository),
+            fetchSleepStagesUseCase: FetchSleepStages(repository: sleepRepository),
+            fetchSleepHistoryUseCase: FetchSleepHistory(repository: sleepRepository),
+            fetchSleepAveragesUseCase: FetchSleepAverages(repository: sleepRepository)
+        )
+    }
+
+    private func makeSleepScoreViewModel() -> SleepScoreViewModel {
+
         let sleepRepository = HealthKitSleepRepository()
         let vitalsRepository = HealthKitVitalsRepository()
 
-        // Sleep use cases
-        let fetchSleepUseCase = FetchSleepSession(
-            repository: sleepRepository
-        )
-
-        let fetchSleepStagesUseCase = FetchSleepStages(
-            repository: sleepRepository
-        )
-
-        let fetchSleepHistoryUseCase = FetchSleepHistory(
-            repository: sleepRepository
-        )
-
-        let fetchSleepAveragesUseCase = FetchSleepAverages(
-            repository: sleepRepository
-        )
-
-        // Sleep ViewModel
-        let sleepViewModel = SleepViewModel(
-            fetchSleepUseCase: fetchSleepUseCase,
-            fetchSleepStagesUseCase: fetchSleepStagesUseCase,
-            fetchSleepHistoryUseCase: fetchSleepHistoryUseCase,
-            fetchSleepAveragesUseCase: fetchSleepAveragesUseCase
-        )
-
-        // Sleep score wiring
-        let sleepScoreInputBuilder = SleepScoreInputBuilder(
+        let inputBuilder = SleepScoreInputBuilder(
             sleepRepository: sleepRepository,
             vitalsRepository: vitalsRepository
         )
 
-        let sleepScoreViewModel = SleepScoreViewModel(
-            inputBuilder: sleepScoreInputBuilder
-        )
-
-        return SleepView(
-            viewModel: sleepViewModel,
-            sleepScoreVM: sleepScoreViewModel
-        )
+        return SleepScoreViewModel(inputBuilder: inputBuilder)
     }
-
-
 }

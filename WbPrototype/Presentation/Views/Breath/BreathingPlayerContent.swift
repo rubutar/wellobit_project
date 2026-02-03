@@ -47,35 +47,88 @@ private extension BreathingPlayerContent {
         }
     }
 
+//    var breathingCore: some View {
+//        ZStack {
+//            BreathingCircle(
+//                phase: viewModel.currentPhase,
+//                progress: viewModel.phaseProgress
+//            )
+//            .opacity(viewModel.uiState == .breathing ? 1 : 0)
+//
+//            if !viewModel.isPlaying {
+//                Button {
+//                    handleMainButtonTap()
+//                } label: {
+//                    ZStack {
+//                        Circle()
+//                            .fill(Color("playButtonColor"))
+//                            .frame(width: 120, height: 120)
+//
+//                        Image(systemName: "play.fill")
+//                            .font(.system(size: 36))
+//                            .foregroundColor(.white)
+//                    }
+//                }
+//                .transition(.scale)
+//            }
+//
+//            if viewModel.uiState == .breathing {
+//                Text(centerPhaseText)
+//                    .font(.system(size: 28, weight: .semibold))
+//                    .foregroundColor(.white)
+//            }
+//        }
+//    }
+    
     var breathingCore: some View {
-        ZStack {
-            BreathingCircle(
-                phase: viewModel.currentPhase,
-                progress: viewModel.phaseProgress
-            )
-            .opacity(viewModel.uiState == .breathing ? 1 : 0)
+        VStack(spacing: 24) {
 
-            if !viewModel.isPlaying {
-                Button {
-                    handleMainButtonTap()
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(Color("playButtonColor"))
-                            .frame(width: 120, height: 120)
+            ZStack {
+                BreathingCircle(
+                    phase: viewModel.currentPhase,
+                    progress: viewModel.phaseProgress
+                )
+                .opacity(viewModel.uiState == .breathing ? 1 : 0)
 
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 36))
-                            .foregroundColor(.white)
+                if !viewModel.isPlaying {
+                    Button {
+                        handleMainButtonTap()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(Color("playButtonColor"))
+                                .frame(width: 120, height: 120)
+
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 36))
+                                .foregroundColor(.white)
+                        }
                     }
+                    .transition(.scale)
                 }
-                .transition(.scale)
+
+                if viewModel.uiState == .breathing {
+                    VStack {
+                        Spacer()
+
+                        Text(centerPhaseText)
+                            .font(.system(size: 28, weight: .semibold))
+                            .foregroundColor(.white)
+
+                        Spacer()
+                    }
+                    .frame(width: 200, height: 200)
+                    .allowsHitTesting(false)
+                }
             }
+            .frame(width: 260, height: 260)
 
             if viewModel.uiState == .breathing {
-                Text(centerPhaseText)
-                    .font(.system(size: 28, weight: .semibold))
-                    .foregroundColor(.white)
+                Text(formatTime(viewModel.remainingSessionSeconds))
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white.opacity(0.8))
+                    .monospacedDigit()
+                    .transition(.opacity)
             }
         }
     }
@@ -97,4 +150,10 @@ private extension BreathingPlayerContent {
         )
         viewModel.showPreSessionModal = true
     }
+    private func formatTime(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let secs = seconds % 60
+        return String(format: "%02d:%02d", minutes, secs)
+    }
+
 }

@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import HealthKit
 
+@MainActor
 final class StressViewModel: ObservableObject {
 
     @Published var stressScore: Int = 0

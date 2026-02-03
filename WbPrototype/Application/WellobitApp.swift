@@ -19,6 +19,12 @@ private struct DataModeKey: EnvironmentKey {
 @main
 struct WellobitApp: App {
     @State private var dataMode: DataMode = .real
+    init() {
+        UserDefaults.standard.register(
+            defaults: [RestKeys.isResting: true]
+        )
+    }
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()

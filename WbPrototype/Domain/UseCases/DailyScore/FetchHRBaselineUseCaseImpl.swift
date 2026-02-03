@@ -26,10 +26,19 @@ final class FetchHRBaselineUseCaseImpl: FetchHRBaselineUseCase {
     }
 
     func execute(days: Int = 7) async throws -> Double? {
+        print("👉 FetchHRBaselineUseCase.execute CALLED")
+
 
         let end = Date()
         let start = calendar.date(byAdding: .day, value: -days, to: end)!
 
+        // 👇 PUT DEBUG CODE HERE (TEMPORARY)
+         let samples = try? await dataSource.fetchHeartRateSamples(
+             startDate: start,
+             endDate: end
+         )
+         print("HR samples in baseline window:", samples?.count ?? 0)
+        
         return try await dataSource.fetchAverageHeartRate(
             startDate: start,
             endDate: end

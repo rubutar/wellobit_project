@@ -62,6 +62,7 @@ struct MoreHRVInfoSheet: View {
                                         title: "HRV - RMSSD",
                                         value: Int(hrvRMSSDToday),
                                         unit: "ms",
+                                        time: "00.00",
                                         recentAverage: Int(hrvRMSSDBaseline),
                                         isUp: hrvRMSSDToday >= hrvRMSSDBaseline
                                     )
@@ -70,6 +71,7 @@ struct MoreHRVInfoSheet: View {
                                         title: "HRV - SDNN",
                                         value: Int(hrvSDNNToday),
                                         unit: "ms",
+                                        time: "00.00",
                                         recentAverage: Int(hrvSDNNBaseline),
                                         isUp: hrvSDNNToday >= hrvSDNNBaseline
                                     )
@@ -101,6 +103,7 @@ struct MoreHRVInfoSheet: View {
                                     title: "Resting HR",
                                     value: Int(rhrToday),
                                     unit: "bpm",
+                                    time: "00.00",
                                     recentAverage: Int(rhrBaseline),
                                     isUp: rhrToday <= rhrBaseline // lower is better
                                 )
@@ -225,12 +228,12 @@ private extension MoreHRVInfoSheet {
 
 
 
-//#Preview {
-//    HomeView(
-//        viewModel: SleepViewModel.mock(),
-//        hrvViewModel: HRVChartViewModel.mock()
-//    )
-//}
+#Preview {
+    HomeView(
+        viewModel: SleepViewModel.mock(),
+        hrvViewModel: HRVChartViewModel.mock()
+    )
+}
 
 
 

@@ -98,7 +98,7 @@ struct BreathingPhaseSelector: View {
                                 get: { Double(viewModel.cycleCount) },
                                 set: { viewModel.cycleCount = Int($0.rounded()) }
                             ),
-                            in: 1...60,
+                            in: 4...60,
                             step: 1,
                             onEditingChanged: { editing in
                                 if !editing {
@@ -298,13 +298,13 @@ private extension BreathingPhaseSelector {
     }
 }
 
-#Preview {
-    let repo = LocalBreathingRepository()
-    let initialSettings = repo.load()
-    let libraryVM = LibraryViewModel(
-        repository: repo,
-        initial: initialSettings
-    )
-    LibraryView(viewModel: libraryVM)
-}
+//#Preview {
+//    let repo = LocalBreathingRepository()
+//    let initialSettings = repo.load()
+//    let libraryVM = LibraryViewModel(
+//        repository: repo,
+//        initial: initialSettings
+//    )
+//    LibraryView(viewModel: libraryVM)
+//}
 

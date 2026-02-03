@@ -18,11 +18,12 @@ struct AvgHRVCardView: View {
     let title: String
     let value: Int
     let unit: String
+    let time: String
     let recentAverage: Int
     let isUp: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading) {
             HStack{
                 Text(title)
                     .font(.body)
@@ -30,6 +31,13 @@ struct AvgHRVCardView: View {
                     .foregroundColor(.secondary)
 //                Image(systemName: "info.circle")
 //                    .foregroundColor(.secondary)
+            }
+            HStack{
+                Image(systemName: "clock")
+                    .foregroundColor(.secondary)
+                Text("\(time)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
             
             HStack(alignment: .firstTextBaseline, spacing: 4) {

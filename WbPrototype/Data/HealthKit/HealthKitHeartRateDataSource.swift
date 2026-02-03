@@ -46,7 +46,7 @@ final class HealthKitHeartRateDataSource: HeartRateDataSource {
         )
 
         return try await withCheckedThrowingContinuation { continuation in
-
+            
             let query = HKSampleQuery(
                 sampleType: heartRateType,
                 predicate: predicate,
@@ -58,12 +58,12 @@ final class HealthKitHeartRateDataSource: HeartRateDataSource {
                     )
                 ]
             ) { _, samples, error in
-
+                
                 if let error {
                     continuation.resume(throwing: error)
                     return
                 }
-
+                
                 let hrSamples = (samples as? [HKQuantitySample])?
                     .map {
                         HeartRateSample(
@@ -74,10 +74,10 @@ final class HealthKitHeartRateDataSource: HeartRateDataSource {
                             )
                         )
                     } ?? []
-
+                
                 continuation.resume(returning: hrSamples)
             }
-
+            
             self.healthStore.execute(query)
         }
     }
