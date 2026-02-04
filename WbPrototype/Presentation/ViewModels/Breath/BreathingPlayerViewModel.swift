@@ -173,6 +173,8 @@ final class BreathingPlayerViewModel: ObservableObject {
     
     func play() {
         guard !isPlaying else { return }
+        libraryVM.prepareForPlayback()
+
 
         isPlaying = true
         isPaused = false
@@ -210,6 +212,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         startPreparationCountdown()
         setScreenAwake(true)
         isResting = false
+
     }
 
 

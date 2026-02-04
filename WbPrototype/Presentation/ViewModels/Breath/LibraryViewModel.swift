@@ -23,7 +23,7 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    @Published var cycleCount: Int = 4
+    @Published var cycleCount: Int = 7
 
     // Navigation state is owned here, rendered by LibraryView
     @Published var navigationPath = NavigationPath()
@@ -84,7 +84,7 @@ final class LibraryViewModel: ObservableObject {
         }
 
         settings = presetSettings
-        enforceMinimumCycleCount()   // 👈 ADD THIS
+        enforceMinimumCycleCount()
         repository.save(settings: settings)
     }
 
@@ -135,6 +135,11 @@ final class LibraryViewModel: ObservableObject {
         let secs = seconds % 60
 
         return "\(minutes)min \(secs)secs"
+    }
+    func prepareForPlayback() {
+        if cycleCount < minimumCycleCount {
+            cycleCount = minimumCycleCount
+        }
     }
 
 }
