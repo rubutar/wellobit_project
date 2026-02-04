@@ -37,7 +37,7 @@ final class ProgressStore: ObservableObject {
 
         current.completedSessions += 1
 
-        let expectedBadges = current.completedSessions / 3
+        let expectedBadges = current.completedSessions / 1
         let didEarnBadge = expectedBadges > current.badges
 
         current.badges = expectedBadges

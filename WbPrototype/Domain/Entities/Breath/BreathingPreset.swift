@@ -71,8 +71,6 @@ extension BreathingPreset {
                 holdOut: 0
             )
 
-
-
         case .custom:
             return nil
         }

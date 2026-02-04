@@ -71,8 +71,10 @@ final class LibraryViewModel: ObservableObject {
             phase: phase,
             value: stepped
         )
+        enforceMinimumCycleCount()
 
         repository.save(settings: settings)
+        
     }
 
     // MARK: - Preset Logic
@@ -82,8 +84,10 @@ final class LibraryViewModel: ObservableObject {
         }
 
         settings = presetSettings
+        enforceMinimumCycleCount()   // 👈 ADD THIS
         repository.save(settings: settings)
     }
+
     func durationString(for cycles: Int) -> String {
         let phaseTotal =
             settings.inhale +
@@ -107,5 +111,30 @@ final class LibraryViewModel: ObservableObject {
 
         return Int(Double(cycleCount) * phaseTotal)
     }
-    
+    var secondsPerCycle: Double {
+        settings.inhale +
+        settings.holdIn +
+        settings.exhale +
+        settings.holdOut
+    }
+    var minimumCycleCount: Int {
+        guard secondsPerCycle > 0 else { return 1 }
+        return Int(ceil(120 / secondsPerCycle))
+    }
+    private func enforceMinimumCycleCount() {
+        if cycleCount < minimumCycleCount {
+            cycleCount = minimumCycleCount
+        }
+    }
+    let minimumDurationSeconds = 120
+
+    var durationText: String {
+        let seconds = max(totalDurationSeconds, minimumDurationSeconds)
+
+        let minutes = seconds / 60
+        let secs = seconds % 60
+
+        return "\(minutes)min \(secs)secs"
+    }
+
 }

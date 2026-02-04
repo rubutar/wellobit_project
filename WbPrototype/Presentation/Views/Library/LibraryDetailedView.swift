@@ -1,14 +1,16 @@
-//
-//  LibraryListView.swift
-//  WbPrototype
-//
-//  Created by Rudi Butarbutar on 01/02/26.
-//
+////
+////  LibraryListView.swift
+////  WbPrototype
+////
+////  Created by Rudi Butarbutar on 01/02/26.
+////
 
 import SwiftUI
 
 struct LibraryDetailedView: View {
     
+    @State var showPreSessionModal = false
+
     let session: BreathingSession
     let onStart: () -> Void
     
@@ -16,15 +18,15 @@ struct LibraryDetailedView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color.tmGRGreen.opacity(0),
-                    Color.tmGRGreen.opacity(1)
+                    Color.tmGRYellow,
+                    Color.tmGRGreen
                 ],
                 startPoint: .top,
                 endPoint: .bottom
             )
             .ignoresSafeArea()
             
-            ScrollView {
+//            ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                         Text(session.description)
                             .font(.body)
@@ -59,7 +61,9 @@ struct LibraryDetailedView: View {
                     
                     Spacer()
                     
-                    Button(action: onStart) {
+                    Button(action: {
+                        showPreSessionModal = true
+                    }) {
                         Text("Let’s Start")
                             .font(.headline)
                             .foregroundColor(.white)
@@ -71,9 +75,22 @@ struct LibraryDetailedView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
                 }
+//            }
+            
+            if showPreSessionModal {
+                MindfulnessOverlay(
+                    onConfirm: {
+                        showPreSessionModal = false
+                        onStart()
+                    },
+                    onClose: {
+                        showPreSessionModal = false
+                    }
+                )
             }
         }
         .navigationTitle(session.title)
         .navigationBarTitleDisplayMode(.large)
     }
 }
+

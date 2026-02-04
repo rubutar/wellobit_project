@@ -41,8 +41,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     
     @Published private(set) var phaseProgress: Double = 0.0
     
-    // Presession Modal
-    @Published var showPreSessionModal = false
     @Published var isHapticsEnabled = true
 
 
