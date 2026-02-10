@@ -110,8 +110,8 @@ extension BadgeProgressViewModel {
                 imageBadge: "11imBadge",
                 earnedAt: Date()
             ),
-            status: .locked,
-            remainingSessions: nil
+            status: .active,
+            remainingSessions: 3
         ),
         BadgeProgress(
             id: "6",
@@ -128,7 +128,7 @@ extension BadgeProgressViewModel {
                 earnedAt: Date()
             ),
             status: .locked,
-            remainingSessions: 4
+            remainingSessions: nil
         ),
         BadgeProgress(
             id: "9",

@@ -11,6 +11,7 @@ private struct BadgeCenterPreferenceKey: PreferenceKey {
     static var defaultValue: [String: CGFloat] = [:]
 
 
+
     
     static func reduce(
         value: inout [String: CGFloat],
@@ -25,6 +26,7 @@ struct BadgeEarnedHeaderView: View {
 //    @ObservedObject var viewModel: BadgeProgressViewModel
     @EnvironmentObject var viewModel: BadgeProgressViewModel
     @State private var badgeCenters: [String: CGFloat] = [:]
+    @State private var scrollDebounceTask: DispatchWorkItem?
 
 
     @State private var centeredId: String?
@@ -88,13 +90,20 @@ struct BadgeEarnedHeaderView: View {
                 }
                 .onPreferenceChange(BadgeCenterPreferenceKey.self) { value in
                     badgeCenters = value
+
+                    scrollDebounceTask?.cancel()
+                    let task = DispatchWorkItem {
+                        snapToNearestBadge(proxy: proxy)
+                    }
+                    scrollDebounceTask = task
+
+                    DispatchQueue.main.asyncAfter(
+                        deadline: .now() + 0.15,
+                        execute: task
+                    )
                 }
-                .gesture(
-                    DragGesture()
-                        .onEnded { _ in
-                            snapToNearestBadge(proxy: proxy)
-                        }
-                )
+
+                
 
 
                 .onChange(of: viewModel.progresses) { _ in
@@ -278,9 +287,64 @@ private func statusText(for progress: BadgeProgress) -> some View {
 }
 
 
-//#Preview {
-//    BadgeEarnedHeaderView(
-//        viewModel: BadgeProgressViewModel(useMockData: true)
-//    )
-//}
+// MARK: - Preview
+#if DEBUG
+struct BadgeEarnedHeaderView_Previews: PreviewProvider {
 
+    static var previewViewModel: BadgeProgressViewModel {
+        let vm = BadgeProgressViewModel()
+
+        vm.progresses = [
+            BadgeProgress(
+                id: "calm",
+                badge: Badge(
+                    id: "b1",
+                    title: "Calm Starter",
+                    description: "Complete breathing sessions to stay calm",
+                    imageName: "badge_sample_1",
+                    imageBadge: "badge_sample_1",
+                    earnedAt: nil
+                ),
+                status: .active,
+                remainingSessions: 3
+            ),
+            BadgeProgress(
+                id: "focus",
+                badge: Badge(
+                    id: "b2",
+                    title: "Focus Master",
+                    description: "Build deep focus with breathing",
+                    imageName: "badge_sample_2",
+                    imageBadge: "badge_sample_2",
+                    earnedAt: Date()
+                ),
+                status: .earned,
+                remainingSessions: nil
+            ),
+            BadgeProgress(
+                id: "zen",
+                badge: Badge(
+                    id: "b3",
+                    title: "Zen Legend",
+                    description: "Achieve ultimate calm",
+                    imageName: "badge_sample_3",
+                    imageBadge: "badge_sample_3",
+                    earnedAt: nil
+                ),
+                status: .locked,
+                remainingSessions: nil
+            )
+        ]
+
+        return vm
+    }
+
+    static var previews: some View {
+        BadgeEarnedHeaderView()
+            .environmentObject(previewViewModel)
+            .previewLayout(.sizeThatFits)
+            .padding()
+            .previewDisplayName("Badge Earned Header")
+    }
+}
+#endif
