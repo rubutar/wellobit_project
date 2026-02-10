@@ -107,9 +107,6 @@
 import Combine
 import SwiftUI
 
-
-
-
 struct LibraryListView: View {
 
     @ObservedObject private var viewModel: LibraryListViewModel
@@ -146,19 +143,31 @@ struct LibraryListView: View {
     }
 
     private var content: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                ForEach(BreathingCategory.allCases, id: \.self) { category in
-                    if let sessions = viewModel.sessionsByCategory[category] {
-                        LibrarySectionView(
-                            title: category.rawValue,
-                            sessions: sessions,
-                            onSelect: viewModel.select
-                        )
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.tmGRYellow,
+                    Color.tmGRGreen
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 24) {
+                    ForEach(BreathingCategory.allCases, id: \.self) { category in
+                        if let sessions = viewModel.sessionsByCategory[category] {
+                            LibrarySectionView(
+                                title: category.rawValue,
+                                sessions: sessions,
+                                onSelect: viewModel.select
+                            )
+                        }
                     }
                 }
+                .padding()
             }
-            .padding()
         }
     }
 }

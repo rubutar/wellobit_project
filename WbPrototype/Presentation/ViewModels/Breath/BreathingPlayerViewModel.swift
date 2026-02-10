@@ -18,6 +18,7 @@ enum PlayerUIState: Equatable {
     case completed
 }
 
+@MainActor
 final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Published (UI-facing)
@@ -42,6 +43,10 @@ final class BreathingPlayerViewModel: ObservableObject {
     @Published private(set) var phaseProgress: Double = 0.0
     
     @Published var isHapticsEnabled = true
+    @Published var showPreSessionModal = false
+//    var onBadgeEarned: ((Int) -> Void)?
+    var onBadgeEarned: ((String) -> Void)?
+
 
 
     private var cancellables = Set<AnyCancellable>()
@@ -76,6 +81,8 @@ final class BreathingPlayerViewModel: ObservableObject {
     private let libraryVM: LibraryViewModel
     private let sceneSettingsVM: SceneSettingsViewModel
     private let progressStore: ProgressStore
+    private let badgeProgressVM: BadgeProgressViewModel
+
 
     var totalCycles: Int {
         libraryVM.cycleCount
@@ -85,12 +92,13 @@ final class BreathingPlayerViewModel: ObservableObject {
     init(
         libraryViewModel: LibraryViewModel,
         sceneSettingsViewModel: SceneSettingsViewModel,
-        progressStore: ProgressStore
-
+        progressStore: ProgressStore,
+        badgeProgressVM: BadgeProgressViewModel
     ) {
         self.libraryVM = libraryViewModel
         self.sceneSettingsVM = sceneSettingsViewModel
         self.progressStore = progressStore
+        self.badgeProgressVM = badgeProgressVM
 
         self.isResting = UserDefaults.standard.bool(
             forKey: RestKeys.isResting
@@ -143,7 +151,7 @@ final class BreathingPlayerViewModel: ObservableObject {
 //
 //        isPlaying = true
 //        isPaused = false
-//        
+//
 //        sessionStartDate = Date()
 //
 //        let totalBreathingDuration =
@@ -155,7 +163,7 @@ final class BreathingPlayerViewModel: ObservableObject {
 //
 //        let totalSessionDuration = totalBreathingDuration + Double(preparationSeconds)
 //        let sessionEnd = sessionStartDate!.addingTimeInterval(totalSessionDuration)
-//        
+//
 //        if !hasStartedLiveActivity {
 //            liveActivityController.start(
 //                totalCycles: totalCycles,
@@ -284,21 +292,6 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Preparation
-//    private func startPreparationCountdown() {
-//        remainingSeconds = preparationSeconds
-//        invalidateTimers()
-
-//        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
-//            guard let self else { return }
-//
-//            if self.remainingSeconds <= 1 {
-//                timer.invalidate()
-//                self.startBreathingSession()
-//            } else {
-//                self.remainingSeconds -= 1
-//                self.uiState = .preparing(seconds: self.remainingSeconds)
-//            }
         
     private func startPreparationCountdown() {
         remainingSeconds = preparationSeconds
@@ -424,17 +417,18 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
     }
 
-
-    // MARK: - Completion
     private func finishSession() {
+        guard isPlaying || isPaused else { return }
         if hasStartedLiveActivity {
             liveActivityController.end()
             hasStartedLiveActivity = false
         }
+
         invalidateTimers()
         stopSessionCountdown()
         stopAudio()
         haptics.stop()
+
         currentPhase = nil
         phaseProgress = 0
         isPlaying = false
@@ -443,17 +437,37 @@ final class BreathingPlayerViewModel: ObservableObject {
 
         isResting = false
         scheduleRestReset()
-
         setScreenAwake(false)
-        // ✅ NEW: persist completion
-        
-        let didEarnBadge = progressStore.completeSession()
 
-        if didEarnBadge {
-            showBadgePopup = true
+        // ✅ CALL ONCE
+//        let result = progressStore.completeSession()
+//
+//        print("🧪 progressStore.completeSession() result =", result as Any)
+//
+//        if let badgeSequence = result {
+//            print("🧪 badge earned with sequence =", badgeSequence)
+//            onBadgeEarned?(badgeSequence)
+//        } else {
+//            print("🧪 no badge earned")
+//        }
+        // ✅ SESSION COMPLETED
+        let result = progressStore.completeSession()
+
+        // ✅ UPDATE BADGES
+        badgeProgressVM.updateBadgeProgress(
+            completedSessions: progressStore.progress.completedSessions
+        )
+
+        // ✅ OPTIONAL UI CALLBACK
+        if let badgeId = result {
+            print("🧪 badge earned with id =", badgeId)
+            onBadgeEarned?(badgeId)
         }
-        print("🫁 Player uses ProgressStore:", ObjectIdentifier(progressStore))
+        print("🧪 finishSession → completedSessions =",
+              progressStore.progress.completedSessions)
+
     }
+
 
     // MARK: - Phase Helpers
     private func setPhase(_ newPhase: BreathingPhase) {
@@ -558,7 +572,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         restResetWorkItem = workItem
 
         DispatchQueue.main.asyncAfter(
-            deadline: .now() + 3600,
+            deadline: .now() + 3600120,
             execute: workItem
         )
     }
@@ -615,8 +629,7 @@ final class BreathingPlayerViewModel: ObservableObject {
         sessionTimer?.invalidate()
         sessionTimer = nil
     }
-
-
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }

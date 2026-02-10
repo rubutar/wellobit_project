@@ -16,6 +16,25 @@ enum BreathingPreset: String, CaseIterable, Identifiable {
     case custom = "Custom"
 
     var id: String { rawValue }
+    
+    var defaultCycleCount: Int {
+        switch self {
+        case .box:
+            return 8
+        case .longExhale:
+            return 8
+        case .cBreath:
+            return 12
+        case .eBreath:
+            return 7
+        case .sleep:
+            return 12
+        case .fourSevenEight:
+            return 7
+        case .custom:
+            return 8
+        }
+    }
 }
 
 

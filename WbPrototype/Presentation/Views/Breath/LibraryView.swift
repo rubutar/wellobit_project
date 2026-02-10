@@ -5,111 +5,69 @@
 //  Created by Rudi Butarbutar on 02/01/26.
 
 
-import SwiftUI
-import WatchConnectivity
-
-struct LibraryView: View {
-    @StateObject var libraryViewModel: LibraryViewModel
-    @StateObject var sceneSettingsViewModel: SceneSettingsViewModel
-    @StateObject var playerViewModel: BreathingPlayerViewModel
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        ZStack {
+//import SwiftUI
+//import WatchConnectivity
+//
+//struct LibraryView: View {
+//    @StateObject var libraryViewModel: LibraryViewModel
+//    @StateObject var sceneSettingsViewModel: SceneSettingsViewModel
+//    @StateObject var playerViewModel: BreathingPlayerViewModel
+//    @Environment(\.dismiss) private var dismiss
+//
+//    var body: some View {
+//        ZStack {
 //            Image(sceneSettingsViewModel.selectedScene.imageName)
 //                .resizable()
 //                .scaledToFill()
 //                .frame(maxWidth: .infinity, maxHeight: .infinity)
 //                .clipped()
 //                .ignoresSafeArea()
-
-            if !playerViewModel.showBadgePopup {
-                    // Player background ONLY when popup is NOT shown
-                    Image(sceneSettingsViewModel.selectedScene.imageName)
-                        .resizable()
-                        .scaledToFill()
-                        .ignoresSafeArea()
-                }
-
-                // Player content always here
-
-                if playerViewModel.showBadgePopup {
-                    BadgePopupView {
-                        playerViewModel.showBadgePopup = false
-                    }
-                    .zIndex(100)
-                }
-            
-            Color.black.opacity(0.25)
-                .ignoresSafeArea()
-            VStack {
-                HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .padding(12)
-                            .background(Color.black.opacity(0.4))
-                            .clipShape(Circle())
-                    }
-
-                    Spacer()
-                }
-                .padding(.leading, 16)
-                .padding(.top, 50)
-
-                Spacer()
-            }
-            .zIndex(20)
-            ZStack {
-                Image(sceneSettingsViewModel.selectedScene.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-                
-                Color.black.opacity(0.25)
-                    .ignoresSafeArea()
-                
-                VStack {
-                    Spacer()
-                    
-//                    if playerViewModel.isResting {
-//                        Text("isResting : TRUE")
-//                    } else {
-//                        Text("isResting : FALSE")
-//                    }
-                    
-                    BreathingPlayer(
-                        viewModel: playerViewModel,
-                        libraryViewModel: libraryViewModel,
-                        sceneSettingsViewModel: sceneSettingsViewModel
-                    )
-                    
-                    BreathingPhaseSelector(viewModel: libraryViewModel)
-                        .opacity(playerViewModel.isPlaying ? 0 : 1)
-                        .allowsHitTesting(!playerViewModel.isPlaying)
-                    
-                    Spacer()
-                }
-                
-                HStack {
-                    Spacer()
-                    BreathingPlayerControls(
-                        viewModel: playerViewModel,
-                        sceneSettingsViewModel: sceneSettingsViewModel
-                    )
-                }
-                .padding(.top, 100)
-                
-//                if playerViewModel.showBadgePopup {
-//                    BadgePopupView {
-//                        playerViewModel.showBadgePopup = false
-//                    }
-//                    .zIndex(100)
+//
+//            Color.black.opacity(0.25)
+//                .ignoresSafeArea()
+//
+//            ZStack {
+//                Image(sceneSettingsViewModel.selectedScene.imageName)
+//                    .resizable()
+//                    .scaledToFill()
+//                    .ignoresSafeArea()
+//
+//                Color.black.opacity(0.25)
+//                    .ignoresSafeArea()
+//
+//                VStack {
+////                    header
+//                    Spacer()
+//
+//                    BreathingPlayer(
+//                        viewModel: playerViewModel,
+//                        libraryViewModel: libraryViewModel,
+//                        sceneSettingsViewModel: sceneSettingsViewModel
+//                    )
+//
+//                    BreathingPhaseSelector(viewModel: libraryViewModel)
+//                        .opacity(playerViewModel.isPlaying ? 0 : 1)
+//                        .allowsHitTesting(!playerViewModel.isPlaying)
+//
+//                    Spacer()
 //                }
-            }
+//
+//                HStack {
+//                    Spacer()
+//                    BreathingPlayerControls(
+//                        viewModel: playerViewModel,
+//                        sceneSettingsViewModel: sceneSettingsViewModel
+//                    )
+//                }
+//                .padding(.top, 100)
+//
+//                BadgePopupView(viewModel: popupVM) {
+//                    playerViewModel.showBadgePopup = false
+//                    playerViewModel.badgePopupViewModel = nil
+//                }
+//                    .zIndex(10)
+//                }
+//            }
 //            .simultaneousGesture(
 //                TapGesture().onEnded {
 //                    NotificationCenter.default.post(
@@ -118,103 +76,195 @@ struct LibraryView: View {
 //                    )
 //                }
 //            )
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    // UI intent ONLY
-                    NotificationCenter.default.post(
-                        name: .showBreathingControls,
-                        object: nil
-                    )
+//
+//
+////            if playerViewModel.showPreSessionModal {
+////                MindfulnessOverlay(
+////                    onConfirm: {
+////                        playerViewModel.showPreSessionModal = false
+////                        playerViewModel.play()
+////                    },
+////                    onClose: {
+////                        playerViewModel.showPreSessionModal = false
+////                    }
+////                )
+////            }
+//
+//        }
+//        .toolbar(.hidden, for: .tabBar)
+////        .navigationBarBackButtonHidden(true)
+//        .onAppear {
+//            playerViewModel.start()
+//        }
+//        .onDisappear {
+//            playerViewModel.pauseIfNeeded()
+//            playerViewModel.teardown()
+//        }
+//    }
+////    private var header: some View {
+////        HStack(spacing: 12) {
+////            Button {
+////                dismiss()
+////            } label: {
+////                Image(systemName: "chevron.left")
+////                    .font(.title2)
+////                    .foregroundColor(.white)
+////                    .padding(10)
+////                    .background(Color.black.opacity(0.4))
+////                    .clipShape(Circle())
+////            }
+////
+////            Text("Library")
+////                .font(.headline)
+////                .foregroundColor(.white)
+////                .lineLimit(1)
+////
+////            Spacer()
+////        }
+////        .padding(.horizontal, 28)
+////        .padding(.top, 72)
+////    }
+//
+//}
 
-                    NotificationCenter.default.post(
-                        name: .showCenterPauseButton,
-                        object: nil
-                    )
+
+//
+//  LibraryView.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 02/01/26.
+
+
+import SwiftUI
+import WatchConnectivity
+
+
+struct LibraryView: View {
+    @StateObject var libraryViewModel: LibraryViewModel
+    @StateObject var sceneSettingsViewModel: SceneSettingsViewModel
+    @StateObject var playerViewModel: BreathingPlayerViewModel
+    @Environment(\.dismiss) private var dismiss
+    @StateObject var badgeProgressViewModel = BadgeProgressViewModel(useMockData: true)
+
+    
+    
+    
+    var body: some View {
+        ZStack {
+            // MARK: - Main Content
+            mainContent
+                .zIndex(0)
+                .fullScreenCover(isPresented: $badgeProgressViewModel.showBadgePopup) {
+                    BadgePopupView(viewModel: badgeProgressViewModel) {
+                        badgeProgressViewModel.closeBadgePopup()
+                    }
+                    .ignoresSafeArea()
                 }
-            )
-
-
-            
-            
-//            if playerViewModel.showPreSessionModal {
-//                MindfulnessOverlay(
-//                    onConfirm: {
-//                        playerViewModel.showPreSessionModal = false
-//                        playerViewModel.play()
-//                    },
-//                    onClose: {
-//                        playerViewModel.showPreSessionModal = false
-//                    }
-//                )
-//            }
-            
         }
-//        .navigationTitle("Library")
-//        .background(DisableInteractivePopGesture())
-//        .modifier(DisableBackSwipe())
         .toolbar(.hidden, for: .tabBar)
-        .navigationBarBackButtonHidden(true)
+//        .navigationBarBackButtonHidden(true)
         .onAppear {
-//            UIApplication.shared.disableInteractivePopGesture()
+            print("🧪 LibraryView onAppear — wiring onBadgeEarned")
+
+            playerViewModel.onBadgeEarned = { badgeId in
+                print("🧪 LibraryView RECEIVED badgeId =", badgeId)
+
+                print("🧪 BadgeProgress IDs:",
+                      badgeProgressViewModel.progresses.map { $0.id })
+
+                if let progress = badgeProgressViewModel.progresses.first(
+                    where: { $0.id == badgeId }
+                ) {
+                    print("🧪 MATCH FOUND → BadgeProgress id =", progress.id)
+                    badgeProgressViewModel.selectBadge(progress)
+                } else {
+                    print("❌ NO MATCH for badgeId =", badgeId)
+                }
+            }
+
             playerViewModel.start()
         }
         .onDisappear {
-//            UIApplication.shared.disableInteractivePopGesture()
+            playerViewModel.onBadgeEarned = nil
             playerViewModel.pauseIfNeeded()
             playerViewModel.teardown()
         }
+
     }
+    private var mainContent: some View {
+        ZStack {
+
+            Image(sceneSettingsViewModel.selectedScene.imageName)
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            Color.black.opacity(0.25)
+                .ignoresSafeArea()
+
+            VStack {
+//                header
+                Spacer()
+
+                BreathingPlayer(
+                    viewModel: playerViewModel,
+                    libraryViewModel: libraryViewModel,
+                    sceneSettingsViewModel: sceneSettingsViewModel
+                )
+
+                BreathingPhaseSelector(viewModel: libraryViewModel)
+                    .opacity(playerViewModel.isPlaying ? 0 : 1)
+                    .allowsHitTesting(!playerViewModel.isPlaying)
+
+                Spacer()
+            }
+
+            HStack {
+                Spacer()
+                BreathingPlayerControls(
+                    viewModel: playerViewModel,
+                    sceneSettingsViewModel: sceneSettingsViewModel
+                )
+            }
+            .padding(.top, 100)
+        }
+        .simultaneousGesture(
+            playerViewModel.showBadgePopup
+            ? nil
+            : TapGesture().onEnded {
+                NotificationCenter.default.post(
+                    name: .showBreathingControls,
+                    object: nil
+                )
+                NotificationCenter.default.post(
+                    name: .showCenterPauseButton,
+                    object: nil
+                )
+            }
+        )
+    }
+    private var header: some View {
+        HStack {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .padding(12)
+                    .background(Color.black.opacity(0.4))
+                    .clipShape(Circle())
+            }
+
+            Spacer()
+        }
+        .padding(.leading, 16)
+        .padding(.top, 50)
+    }
+
 }
+    
 
-
-//struct DisableInteractivePopGesture: UIViewControllerRepresentable {
-//
-//    func makeUIViewController(context: Context) -> UIViewController {
-//        let controller = UIViewController()
-//        DispatchQueue.main.async {
-//            controller.navigationController?.interactivePopGestureRecognizer?.isEnabled = false
-//        }
-//        return controller
-//    }
-//
-//    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
-//}
-
-//import UIKit
-//
-//extension UIApplication {
-//    func disableInteractivePopGesture() {
-//        guard
-//            let windowScene = connectedScenes.first as? UIWindowScene,
-//            let root = windowScene.windows.first?.rootViewController
-//        else { return }
-//
-//        let nav = findNavigationController(from: root)
-//        nav?.interactivePopGestureRecognizer?.isEnabled = false
-//    }
-//
-//    func enableInteractivePopGesture() {
-//        guard
-//            let windowScene = connectedScenes.first as? UIWindowScene,
-//            let root = windowScene.windows.first?.rootViewController
-//        else { return }
-//
-//        let nav = findNavigationController(from: root)
-//        nav?.interactivePopGestureRecognizer?.isEnabled = true
-//    }
-//
-//    private func findNavigationController(from vc: UIViewController) -> UINavigationController? {
-//        if let nav = vc as? UINavigationController {
-//            return nav
-//        }
-//        for child in vc.children {
-//            if let nav = findNavigationController(from: child) {
-//                return nav
-//            }
-//        }
-//        return nil
-//    }
-//}
 
 import UIKit
 
@@ -237,7 +287,6 @@ struct DisableBackSwipe: ViewModifier {
     }
 }
 
-import SwiftUI
 
 struct DisableBackSwipeController: UIViewControllerRepresentable {
 
@@ -263,3 +312,4 @@ struct DisableBackSwipeController: UIViewControllerRepresentable {
 extension Notification.Name {
     static let showCenterPauseButton = Notification.Name("showCenterPauseButton")
 }
+

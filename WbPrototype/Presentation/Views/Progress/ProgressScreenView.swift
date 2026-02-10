@@ -30,30 +30,41 @@
 //    }
 //}
 
-
 import SwiftUI
 
 struct ProgressScreenView: View {
 
     @ObservedObject var progressStore: ProgressStore
+    @EnvironmentObject var badgeProgressVM: BadgeProgressViewModel
 
     var body: some View {
-        VStack(spacing: 24) {
-            Text("Progress")
-                .font(.largeTitle)
-                .bold()
+        VStack(spacing: 0) {
 
-            Text("Sessions today")
-            Text("\(progressStore.progress.completedSessions)")
-                .font(.system(size: 48, weight: .bold))
+            // ✅ HEADER
+            BadgeEarnedHeaderView()
+                .environmentObject(badgeProgressVM)
 
-            Text("Badges today")
-            Text("🏅 \(progressStore.progress.badges)")
-                .font(.system(size: 48))
+            Divider()
+                .padding(.vertical, 12)
 
-            Spacer()
+            // ✅ EXISTING CONTENT
+            VStack(spacing: 24) {
+                Text("Progress")
+                    .font(.largeTitle)
+                    .bold()
+
+                Text("Sessions today")
+                Text("\(progressStore.progress.completedSessions)")
+                    .font(.system(size: 48, weight: .bold))
+
+                Text("Badges today")
+                Text("🏅 \(progressStore.progress.badges)")
+                    .font(.system(size: 48))
+
+                Spacer()
+            }
+            .padding()
         }
-        .padding()
         .onChange(of: progressStore.progress) { value in
             print("🔁 Progress UI updated:", value)
         }

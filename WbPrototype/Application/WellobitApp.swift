@@ -19,6 +19,14 @@ private struct DataModeKey: EnvironmentKey {
 @main
 struct WellobitApp: App {
     @State private var dataMode: DataMode = .real
+
+    // 🔥 LONG-LIVED OBJECTS (created ONCE)
+    private let progressStore = ProgressStore(
+        repository: LocalBreathingProgressRepository()
+    )
+
+    private let badgeProgressVM = BadgeProgressViewModel()
+
     init() {
         UserDefaults.standard.register(
             defaults: [RestKeys.isResting: true]
@@ -28,10 +36,15 @@ struct WellobitApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                // ✅ Custom environment value
                 .environment(\.dataMode, dataMode)
+
+                // ✅ Global EnvironmentObjects
+                .environmentObject(progressStore)
+                .environmentObject(badgeProgressVM)
+
                 .preferredColorScheme(.light)
-        }
-    }
+        }    }
 }
 
 extension EnvironmentValues {
