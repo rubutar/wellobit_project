@@ -245,8 +245,25 @@ final class BreathingPlayerViewModel: ObservableObject {
         setScreenAwake(false)
     }
 
+//    func pause() {
+//        guard isPlaying, !isPaused else { return }
+//        isPaused = true
+//        isResting = true
+//        haptics.stop()
+//        invalidateTimers()
+//        stopSessionCountdown()
+//        audioPlayer?.pause()
+//        setScreenAwake(false)
+//    }
     func pause() {
-        guard isPlaying, !isPaused else { return }
+        guard isPlaying else { return }
+        if case .preparing = uiState {
+            stop()
+            return
+        }
+
+        guard !isPaused else { return }
+
         isPaused = true
         isResting = true
         haptics.stop()
