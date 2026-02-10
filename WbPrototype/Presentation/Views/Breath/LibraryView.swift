@@ -3,182 +3,313 @@
 //  Wellobit
 //
 //  Created by Rudi Butarbutar on 02/01/26.
+
+
+//import SwiftUI
+//import WatchConnectivity
 //
+//struct LibraryView: View {
+//    @StateObject var libraryViewModel: LibraryViewModel
+//    @StateObject var sceneSettingsViewModel: SceneSettingsViewModel
+//    @StateObject var playerViewModel: BreathingPlayerViewModel
+//    @Environment(\.dismiss) private var dismiss
+//
+//    var body: some View {
+//        ZStack {
+//            Image(sceneSettingsViewModel.selectedScene.imageName)
+//                .resizable()
+//                .scaledToFill()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .clipped()
+//                .ignoresSafeArea()
+//
+//            Color.black.opacity(0.25)
+//                .ignoresSafeArea()
+//
+//            ZStack {
+//                Image(sceneSettingsViewModel.selectedScene.imageName)
+//                    .resizable()
+//                    .scaledToFill()
+//                    .ignoresSafeArea()
+//
+//                Color.black.opacity(0.25)
+//                    .ignoresSafeArea()
+//
+//                VStack {
+////                    header
+//                    Spacer()
+//
+//                    BreathingPlayer(
+//                        viewModel: playerViewModel,
+//                        libraryViewModel: libraryViewModel,
+//                        sceneSettingsViewModel: sceneSettingsViewModel
+//                    )
+//
+//                    BreathingPhaseSelector(viewModel: libraryViewModel)
+//                        .opacity(playerViewModel.isPlaying ? 0 : 1)
+//                        .allowsHitTesting(!playerViewModel.isPlaying)
+//
+//                    Spacer()
+//                }
+//
+//                HStack {
+//                    Spacer()
+//                    BreathingPlayerControls(
+//                        viewModel: playerViewModel,
+//                        sceneSettingsViewModel: sceneSettingsViewModel
+//                    )
+//                }
+//                .padding(.top, 100)
+//
+//                BadgePopupView(viewModel: popupVM) {
+//                    playerViewModel.showBadgePopup = false
+//                    playerViewModel.badgePopupViewModel = nil
+//                }
+//                    .zIndex(10)
+//                }
+//            }
+//            .simultaneousGesture(
+//                TapGesture().onEnded {
+//                    NotificationCenter.default.post(
+//                        name: .showBreathingControls,
+//                        object: nil
+//                    )
+//                }
+//            )
+//
+//
+////            if playerViewModel.showPreSessionModal {
+////                MindfulnessOverlay(
+////                    onConfirm: {
+////                        playerViewModel.showPreSessionModal = false
+////                        playerViewModel.play()
+////                    },
+////                    onClose: {
+////                        playerViewModel.showPreSessionModal = false
+////                    }
+////                )
+////            }
+//
+//        }
+//        .toolbar(.hidden, for: .tabBar)
+////        .navigationBarBackButtonHidden(true)
+//        .onAppear {
+//            playerViewModel.start()
+//        }
+//        .onDisappear {
+//            playerViewModel.pauseIfNeeded()
+//            playerViewModel.teardown()
+//        }
+//    }
+////    private var header: some View {
+////        HStack(spacing: 12) {
+////            Button {
+////                dismiss()
+////            } label: {
+////                Image(systemName: "chevron.left")
+////                    .font(.title2)
+////                    .foregroundColor(.white)
+////                    .padding(10)
+////                    .background(Color.black.opacity(0.4))
+////                    .clipShape(Circle())
+////            }
+////
+////            Text("Library")
+////                .font(.headline)
+////                .foregroundColor(.white)
+////                .lineLimit(1)
+////
+////            Spacer()
+////        }
+////        .padding(.horizontal, 28)
+////        .padding(.top, 72)
+////    }
+//
+//}
+
+
+//
+//  LibraryView.swift
+//  Wellobit
+//
+//  Created by Rudi Butarbutar on 02/01/26.
+
 
 import SwiftUI
 import WatchConnectivity
 
+
 struct LibraryView: View {
-    // MARK: - ViewModels (owned here)
-    @StateObject private var libraryViewModel: LibraryViewModel
-    @StateObject private var sceneSettingsViewModel: SceneSettingsViewModel
-    @StateObject private var playerViewModel: BreathingPlayerViewModel
+    @StateObject var libraryViewModel: LibraryViewModel
+    @StateObject var sceneSettingsViewModel: SceneSettingsViewModel
+    @StateObject var playerViewModel: BreathingPlayerViewModel
     @Environment(\.dismiss) private var dismiss
+    @StateObject var badgeProgressViewModel = BadgeProgressViewModel(useMockData: true)
+
     
     
     
-    // MARK: - Init
-    init(viewModel: LibraryViewModel) {
-        _libraryViewModel = StateObject(wrappedValue: viewModel)
-        
-        let sceneVM = SceneSettingsViewModel(
-            repository: LocalBreathingSceneRepository()
-        )
-        _sceneSettingsViewModel = StateObject(wrappedValue: sceneVM)
-        
-        _playerViewModel = StateObject(
-            wrappedValue: BreathingPlayerViewModel(
-                libraryViewModel: viewModel,
-                sceneSettingsViewModel: sceneVM
-            )
-        )
-    }
-    
-    // MARK: - Body
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Image(sceneSettingsViewModel.selectedScene.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
+        ZStack {
+            // MARK: - Main Content
+            mainContent
+                .zIndex(0)
+                .fullScreenCover(isPresented: $badgeProgressViewModel.showBadgePopup) {
+                    BadgePopupView(viewModel: badgeProgressViewModel) {
+                        badgeProgressViewModel.closeBadgePopup()
+                    }
                     .ignoresSafeArea()
-                
-                Color.black.opacity(0.25)
-                    .ignoresSafeArea()
-                
-                ZStack {
-                    Image(sceneSettingsViewModel.selectedScene.imageName)
-                        .resizable()
-                        .scaledToFill()
-                        .ignoresSafeArea()
-
-                    Color.black.opacity(0.25)
-                        .ignoresSafeArea()
-
-                    VStack {
-                        Spacer()
-
-                        BreathingPlayer(
-                            viewModel: playerViewModel,
-                            libraryViewModel: libraryViewModel,
-                            sceneSettingsViewModel: sceneSettingsViewModel
-                        )
-
-                        BreathingPhaseSelector(viewModel: libraryViewModel)
-                            .opacity(playerViewModel.isPlaying ? 0 : 1)
-                            .allowsHitTesting(!playerViewModel.isPlaying)
-
-                        Spacer()
-                    }
-
-                    HStack {
-                        Spacer()
-                        BreathingPlayerControls(
-                            viewModel: playerViewModel,
-                            sceneSettingsViewModel: sceneSettingsViewModel
-                        )
-                    }
-                    .padding(.top, 100)
                 }
-                .simultaneousGesture(
-                    TapGesture().onEnded {
-                        NotificationCenter.default.post(
-                            name: .showBreathingControls,
-                            object: nil
-                        )
-                    }
-                )
-                .navigationBarBackButtonHidden(true)
+        }
+        .toolbar(.hidden, for: .tabBar)
+//        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            print("🧪 LibraryView onAppear — wiring onBadgeEarned")
 
-                
-//                ZStack {
-//                    ControlFloatingButton(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
-//                        .padding(.top, 100)
-//                    VStack {
-//                        Spacer()
-//                        Spacer()
-//                        BreathingPlayer(viewModel: playerViewModel, libraryViewModel: libraryViewModel, sceneSettingsViewModel: sceneSettingsViewModel)
-//                        //                        .alert(
-//                        //                            "Breathing Session Starting",
-//                        //                            isPresented: $playerViewModel.showPreSessionModal
-//                        //                        ) {
-//                        //                            Button("Continue") {
-//                        //                                playerViewModel.play()
-//                        //
-//                        //                            }
-//                        //
-//                        //                            Button("Cancel", role: .cancel) { }
-//                        //                        } message: {
-//                        //                            Text(alertMessage)
-//                        //                        }
-//                        
-//                        BreathingPhaseSelector(viewModel: libraryViewModel)
-//                            .opacity(playerViewModel.isPlaying ? 0 : 1)
-//                            .allowsHitTesting(!playerViewModel.isPlaying)
-//                        Spacer()
-//                        Spacer()
-//                    }
-//                }
-//                .padding(.horizontal)
-//                .padding(.bottom, 32)
-//                .navigationBarBackButtonHidden(true)
-                //                .toolbar {
-                //                    ToolbarItem(placement: .navigationBarLeading) {
-                //                        Button {
-                //                            dismiss()
-                //                        } label: {
-                //                            Image(systemName: "chevron.left")
-                //                                .foregroundColor(.black)
-                //                        }
-                //                    }
-                //                }
-                
-                
-                
-                if playerViewModel.showPreSessionModal {
-                    MindfulnessOverlay(
-                        onConfirm: {
-                            playerViewModel.showPreSessionModal = false
-                            playerViewModel.play()
-                        },
-                        onClose: {
-                            playerViewModel.showPreSessionModal = false
-                        }
-                    )
+            playerViewModel.onBadgeEarned = { badgeId in
+                print("🧪 LibraryView RECEIVED badgeId =", badgeId)
+
+                print("🧪 BadgeProgress IDs:",
+                      badgeProgressViewModel.progresses.map { $0.id })
+
+                if let progress = badgeProgressViewModel.progresses.first(
+                    where: { $0.id == badgeId }
+                ) {
+                    print("🧪 MATCH FOUND → BadgeProgress id =", progress.id)
+                    badgeProgressViewModel.selectBadge(progress)
+                } else {
+                    print("❌ NO MATCH for badgeId =", badgeId)
                 }
-                
             }
+
+            playerViewModel.start()
         }
         .onDisappear {
+            playerViewModel.onBadgeEarned = nil
             playerViewModel.pauseIfNeeded()
+            playerViewModel.teardown()
         }
 
     }
+    private var mainContent: some View {
+        ZStack {
+
+            Image(sceneSettingsViewModel.selectedScene.imageName)
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            Color.black.opacity(0.25)
+                .ignoresSafeArea()
+
+            VStack {
+//                header
+                Spacer()
+
+                BreathingPlayer(
+                    viewModel: playerViewModel,
+                    libraryViewModel: libraryViewModel,
+                    sceneSettingsViewModel: sceneSettingsViewModel
+                )
+
+                BreathingPhaseSelector(viewModel: libraryViewModel)
+                    .opacity(playerViewModel.isPlaying ? 0 : 1)
+                    .allowsHitTesting(!playerViewModel.isPlaying)
+
+                Spacer()
+            }
+
+            HStack {
+                Spacer()
+                BreathingPlayerControls(
+                    viewModel: playerViewModel,
+                    sceneSettingsViewModel: sceneSettingsViewModel
+                )
+            }
+            .padding(.top, 100)
+        }
+        .simultaneousGesture(
+            playerViewModel.showBadgePopup
+            ? nil
+            : TapGesture().onEnded {
+                NotificationCenter.default.post(
+                    name: .showBreathingControls,
+                    object: nil
+                )
+                NotificationCenter.default.post(
+                    name: .showCenterPauseButton,
+                    object: nil
+                )
+            }
+        )
+    }
+    private var header: some View {
+        HStack {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .padding(12)
+                    .background(Color.black.opacity(0.4))
+                    .clipShape(Circle())
+            }
+
+            Spacer()
+        }
+        .padding(.leading, 16)
+        .padding(.top, 50)
+    }
+
+}
     
-    
-    //    private var alertMessage: String {
-    //        let cycles = libraryViewModel.cycleCount
-    //        let totalSeconds = libraryViewModel.totalDurationSeconds
-    //
-    //        let minutes = totalSeconds / 60
-    //        let seconds = totalSeconds % 60
-    //
-    //        return """
-    //        You’re about to begin \(cycles) breathing cycles (~\(minutes)m \(seconds)s).
-    //
-    //        For better HRV accuracy, please start a Mindfulness-style session on your Apple Watch.
-    //        """
-    //    }
+
+
+import UIKit
+
+final class NoBackSwipeGestureDelegate: NSObject, UIGestureRecognizerDelegate {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        false
+    }
+}
+import SwiftUI
+
+struct DisableBackSwipe: ViewModifier {
+
+    private let delegate = NoBackSwipeGestureDelegate()
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                DisableBackSwipeController(delegate: delegate)
+            )
+    }
 }
 
-#Preview {
-    let repo = LocalBreathingRepository()
-    let initialSettings = repo.load()
-    let libraryVM = LibraryViewModel(
-        repository: repo,
-        initial: initialSettings
-    )
-    LibraryView(viewModel: libraryVM)
+
+struct DisableBackSwipeController: UIViewControllerRepresentable {
+
+    let delegate: UIGestureRecognizerDelegate
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        let vc = UIViewController()
+        vc.view.backgroundColor = .clear
+        return vc
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        DispatchQueue.main.async {
+            if let nav = uiViewController.navigationController {
+                nav.interactivePopGestureRecognizer?.delegate = delegate
+                nav.interactivePopGestureRecognizer?.isEnabled = true
+            }
+        }
+    }
+    
 }
+
+extension Notification.Name {
+    static let showCenterPauseButton = Notification.Name("showCenterPauseButton")
+}
+

@@ -93,7 +93,7 @@ private extension BreathingPlayerControls {
         VStack(spacing: 12) {
             toggleHapticsButton
             muteButton
-            pauseResumeButton
+//            pauseResumeButton
             stopButton
         }
     }

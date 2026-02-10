@@ -91,12 +91,12 @@ struct SceneListView: View {
     .preferredColorScheme(.dark)
 }
 
-#Preview {
-    let repo = LocalBreathingRepository()
-    let initialSettings = repo.load()
-    let libraryVM = LibraryViewModel(
-        repository: repo,
-        initial: initialSettings
-    )
-    LibraryView(viewModel: libraryVM)
-}
+//#Preview {
+//    let repo = LocalBreathingRepository()
+//    let initialSettings = repo.load()
+//    let libraryVM = LibraryViewModel(
+//        repository: repo,
+//        initial: initialSettings
+//    )
+//    LibraryView(viewModel: libraryVM)
+//}

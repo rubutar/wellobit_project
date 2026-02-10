@@ -18,6 +18,7 @@ enum PlayerUIState: Equatable {
     case completed
 }
 
+@MainActor
 final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Published (UI-facing)
@@ -29,12 +30,23 @@ final class BreathingPlayerViewModel: ObservableObject {
     @Published private(set) var isPlaying = false
     @Published private(set) var isPaused = false
     @Published var isMuted = false
+    @Published var isResting: Bool {
+        didSet {
+            UserDefaults.standard.set(isResting, forKey: RestKeys.isResting)
+        }
+    }
+    private var restResetWorkItem: DispatchWorkItem?
+    @Published var showBadgePopup = false
+    @Published private(set) var remainingSessionSeconds: Int = 0
+    private var sessionTimer: Timer?
     
     @Published private(set) var phaseProgress: Double = 0.0
     
-    // Presession Modal
-    @Published var showPreSessionModal = false
     @Published var isHapticsEnabled = true
+    @Published var showPreSessionModal = false
+//    var onBadgeEarned: ((Int) -> Void)?
+    var onBadgeEarned: ((String) -> Void)?
+
 
 
     private var cancellables = Set<AnyCancellable>()
@@ -63,13 +75,14 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     // MARK: - Haptics
     private let haptics = DefaultBreathingHaptics()
-    private var liveActivityTimer: Timer?
+//    private var liveActivityTimer: Timer?
 
     // MARK: - Dependencies
     private let libraryVM: LibraryViewModel
     private let sceneSettingsVM: SceneSettingsViewModel
-    
-    
+    private let progressStore: ProgressStore
+    private let badgeProgressVM: BadgeProgressViewModel
+
 
     var totalCycles: Int {
         libraryVM.cycleCount
@@ -78,31 +91,18 @@ final class BreathingPlayerViewModel: ObservableObject {
     // MARK: - Init
     init(
         libraryViewModel: LibraryViewModel,
-        sceneSettingsViewModel: SceneSettingsViewModel
+        sceneSettingsViewModel: SceneSettingsViewModel,
+        progressStore: ProgressStore,
+        badgeProgressVM: BadgeProgressViewModel
     ) {
         self.libraryVM = libraryViewModel
         self.sceneSettingsVM = sceneSettingsViewModel
+        self.progressStore = progressStore
+        self.badgeProgressVM = badgeProgressVM
 
-        configureAudioSession()
-        bindConfigurationChanges()
-        bindSceneChanges()
-        
-        
-        NotificationCenter.default.addObserver(
-            forName: UIApplication.willResignActiveNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.pauseForBackground()
-        }
-
-//        NotificationCenter.default.addObserver(
-//            forName: UIApplication.didEnterBackgroundNotification,
-//            object: nil,
-//            queue: .main
-//        ) { [weak self] _ in
-//            self?.setScreenAwake(false)
-//        }
+        self.isResting = UserDefaults.standard.bool(
+            forKey: RestKeys.isResting
+        )
     }
 
     // MARK: - Scene Binding
@@ -146,12 +146,47 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Public Controls
+//    func play() {
+//        guard !isPlaying else { return }
+//
+//        isPlaying = true
+//        isPaused = false
+//
+//        sessionStartDate = Date()
+//
+//        let totalBreathingDuration =
+//            Double(libraryVM.cycleCount) *
+//            (libraryVM.settings.inhale +
+//             libraryVM.settings.holdIn +
+//             libraryVM.settings.exhale +
+//             libraryVM.settings.holdOut)
+//
+//        let totalSessionDuration = totalBreathingDuration + Double(preparationSeconds)
+//        let sessionEnd = sessionStartDate!.addingTimeInterval(totalSessionDuration)
+//
+//        if !hasStartedLiveActivity {
+//            liveActivityController.start(
+//                totalCycles: totalCycles,
+//                sessionStart: sessionStartDate!,
+//                sessionEnd: sessionEnd
+//            )
+//            hasStartedLiveActivity = true
+//        }
+//
+//        uiState = .preparing(seconds: preparationSeconds)
+//        startPreparationCountdown()
+//        setScreenAwake(true)
+//        isResting = false
+//    }
+    
     func play() {
         guard !isPlaying else { return }
+        libraryVM.prepareForPlayback()
+
 
         isPlaying = true
         isPaused = false
-        
+
         sessionStartDate = Date()
 
         let totalBreathingDuration =
@@ -161,9 +196,17 @@ final class BreathingPlayerViewModel: ObservableObject {
              libraryVM.settings.exhale +
              libraryVM.settings.holdOut)
 
-        let totalSessionDuration = totalBreathingDuration + Double(preparationSeconds)
-        let sessionEnd = sessionStartDate!.addingTimeInterval(totalSessionDuration)
-        
+        let totalSessionDuration =
+            Int(totalBreathingDuration) + preparationSeconds
+
+        // ✅ ADD: initialize countdown ONCE
+        remainingSessionSeconds = totalSessionDuration
+        startSessionCountdown()
+
+        let sessionEnd = sessionStartDate!.addingTimeInterval(
+            Double(totalSessionDuration)
+        )
+
         if !hasStartedLiveActivity {
             liveActivityController.start(
                 totalCycles: totalCycles,
@@ -176,7 +219,10 @@ final class BreathingPlayerViewModel: ObservableObject {
         uiState = .preparing(seconds: preparationSeconds)
         startPreparationCountdown()
         setScreenAwake(true)
+        isResting = false
+
     }
+
 
     func stop() {
         if hasStartedLiveActivity {
@@ -184,6 +230,7 @@ final class BreathingPlayerViewModel: ObservableObject {
             hasStartedLiveActivity = false
         }
         invalidateTimers()
+        stopSessionCountdown()
         stopAudio()
         haptics.stop()
 
@@ -193,15 +240,35 @@ final class BreathingPlayerViewModel: ObservableObject {
         currentCycle = 0
         isPlaying = false
         isPaused = false
+        isResting = true
         uiState = .idle
         setScreenAwake(false)
     }
 
+//    func pause() {
+//        guard isPlaying, !isPaused else { return }
+//        isPaused = true
+//        isResting = true
+//        haptics.stop()
+//        invalidateTimers()
+//        stopSessionCountdown()
+//        audioPlayer?.pause()
+//        setScreenAwake(false)
+//    }
     func pause() {
-        guard isPlaying, !isPaused else { return }
+        guard isPlaying else { return }
+        if case .preparing = uiState {
+            stop()
+            return
+        }
+
+        guard !isPaused else { return }
+
         isPaused = true
+        isResting = true
         haptics.stop()
         invalidateTimers()
+        stopSessionCountdown()
         audioPlayer?.pause()
         setScreenAwake(false)
     }
@@ -209,6 +276,8 @@ final class BreathingPlayerViewModel: ObservableObject {
     func resume() {
         guard isPlaying, isPaused else { return }
         isPaused = false
+        isResting = false
+        startSessionCountdown()
         
         if let duration = Optional(phaseDuration) {
             phaseStartDate = Date()
@@ -240,21 +309,6 @@ final class BreathingPlayerViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Preparation
-//    private func startPreparationCountdown() {
-//        remainingSeconds = preparationSeconds
-//        invalidateTimers()
-
-//        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
-//            guard let self else { return }
-//
-//            if self.remainingSeconds <= 1 {
-//                timer.invalidate()
-//                self.startBreathingSession()
-//            } else {
-//                self.remainingSeconds -= 1
-//                self.uiState = .preparing(seconds: self.remainingSeconds)
-//            }
         
     private func startPreparationCountdown() {
         remainingSeconds = preparationSeconds
@@ -285,22 +339,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     // MARK: - Breathing Session
     private func startBreathingSession() {
         uiState = .breathing
-//        sessionStartDate = Date()
-//
-//        let totalSessionDuration =
-//            Double(libraryVM.cycleCount) *
-//            (libraryVM.settings.inhale +
-//             libraryVM.settings.holdIn +
-//             libraryVM.settings.exhale +
-//             libraryVM.settings.holdOut)
-//
-//        let sessionEnd = sessionStartDate!.addingTimeInterval(totalSessionDuration)
-
-//        liveActivityController.start(
-//            totalCycles: totalCycles,
-//            sessionStart: sessionStartDate!,
-//            sessionEnd: sessionEnd
-//        )
 
         startAudio()
         currentCycle = 1
@@ -309,37 +347,6 @@ final class BreathingPlayerViewModel: ObservableObject {
     }
 
     
-//    private func startBreathingSession() {
-//        uiState = .breathing
-//        sessionStartDate = Date()
-//        startAudio()
-//        currentCycle = 1
-//        phaseIndex = 0
-//        startPhase()
-//        
-////        if let phase = currentPhase {
-////            liveActivityController.start(
-////                totalCycles: totalCycles,
-////                phase: phase.rawValue.capitalized,
-////                remainingSeconds: remainingSeconds,
-////                phaseTotalSeconds: Int(phaseDuration)
-////            )
-////        }
-//        if let phase = currentPhase,
-//           let start = phaseStartDate {
-//
-//            let end = start.addingTimeInterval(phaseDuration)
-//
-//            liveActivityController.start(
-//                totalCycles: totalCycles,
-//                phase: phase.rawValue.capitalized,
-//                phaseStart: start,
-//                phaseEnd: end
-//            )
-//        }
-//
-//    }
-
     private func startPhase() {
         guard isPlaying, !isPaused else { return }
 
@@ -360,15 +367,6 @@ final class BreathingPlayerViewModel: ObservableObject {
         remainingSeconds = Int(phaseDuration)
         phaseProgress = 0
         phaseStartDate = Date()
-        
-//        let start = phaseStartDate!
-//        let end = start.addingTimeInterval(phaseDuration)
-
-//        liveActivityController.update(
-//            phase: phase.rawValue.capitalized,
-//            phaseStart: start,
-//            phaseEnd: end
-//        )
 
         
         playCue(for: phase)
@@ -394,25 +392,6 @@ final class BreathingPlayerViewModel: ObservableObject {
                 self.remainingSeconds = Int(self.phaseDuration - elapsed)
             }
         }
-//        liveActivityTimer = Timer.scheduledTimer(
-//            withTimeInterval: 1.0,
-//            repeats: true
-//        ) { [weak self] _ in
-//            guard let self,
-//                  let start = self.phaseStartDate,
-//                  let phase = self.currentPhase else { return }
-//
-//            let elapsed = Date().timeIntervalSince(start)
-//            let remaining = max(Int(self.phaseDuration - elapsed), 0)
-//
-//            self.remainingSeconds = remaining
-//
-//            self.liveActivityController.update(
-//                phase: phase.rawValue.capitalized,
-//                remainingSeconds: remaining,
-//                phaseTotalSeconds: Int(self.phaseDuration)
-//            )
-//        }
     }
 
     private func pauseForBackground() {
@@ -427,9 +406,8 @@ final class BreathingPlayerViewModel: ObservableObject {
 
     
     private func resumeCurrentPhase() {
-        guard let start = phaseStartDate else { return }
+//        guard let start = phaseStartDate else { return }
 
-//        let remaining = TimeInterval(remainingSeconds)
         invalidateTimers()
         
         let remainingDuration = phaseDuration * (1.0 - phaseProgress)
@@ -453,62 +431,62 @@ final class BreathingPlayerViewModel: ObservableObject {
             let elapsed = Date().timeIntervalSince(start)
             self.phaseProgress = min(elapsed / self.phaseDuration, 1.0)
 
-            liveActivityTimer = Timer.scheduledTimer(
-                withTimeInterval: 1.0,
-                repeats: true
-            ) { [weak self] _ in
-                guard let self,
-                      let start = self.phaseStartDate,
-                      let phase = self.currentPhase else { return }
-
-                let elapsed = Date().timeIntervalSince(start)
-                let remaining = max(Int(self.phaseDuration - elapsed), 0)
-
-                self.remainingSeconds = remaining
-
-//                self.liveActivityController.update(
-//                    phase: phase.rawValue.capitalized,
-//                    remainingSeconds: remaining,
-//                    phaseTotalSeconds: Int(self.phaseDuration)
-//                )
-//                let start = self.phaseStartDate ?? Date()
-//                let end = start.addingTimeInterval(self.phaseDuration)
-//
-//                self.liveActivityController.update(
-//                    phase: phase.rawValue.capitalized,
-//                    phaseStart: start,
-//                    phaseEnd: end
-//                )
-
-            }
-
         }
     }
 
-
-    // MARK: - Completion
     private func finishSession() {
+        guard isPlaying || isPaused else { return }
         if hasStartedLiveActivity {
             liveActivityController.end()
             hasStartedLiveActivity = false
         }
+
         invalidateTimers()
+        stopSessionCountdown()
         stopAudio()
         haptics.stop()
+
         currentPhase = nil
         phaseProgress = 0
         isPlaying = false
         isPaused = false
         uiState = .completed
+
+        isResting = false
+        scheduleRestReset()
         setScreenAwake(false)
+
+        // ✅ CALL ONCE
+//        let result = progressStore.completeSession()
+//
+//        print("🧪 progressStore.completeSession() result =", result as Any)
+//
+//        if let badgeSequence = result {
+//            print("🧪 badge earned with sequence =", badgeSequence)
+//            onBadgeEarned?(badgeSequence)
+//        } else {
+//            print("🧪 no badge earned")
+//        }
+        // ✅ SESSION COMPLETED
+        let result = progressStore.completeSession()
+
+        // ✅ UPDATE BADGES
+        badgeProgressVM.updateBadgeProgress(
+            completedSessions: progressStore.progress.completedSessions
+        )
+
+        // ✅ OPTIONAL UI CALLBACK
+        if let badgeId = result {
+            print("🧪 badge earned with id =", badgeId)
+            onBadgeEarned?(badgeId)
+        }
+        print("🧪 finishSession → completedSessions =",
+              progressStore.progress.completedSessions)
+
     }
 
+
     // MARK: - Phase Helpers
-//    private func setPhase(_ newPhase: BreathingPhase) {
-//        guard currentPhase != newPhase else { return }
-//        currentPhase = newPhase
-//        haptics.play(for: newPhase)
-//    }
     private func setPhase(_ newPhase: BreathingPhase) {
         guard currentPhase != newPhase else { return }
         currentPhase = newPhase
@@ -532,11 +510,9 @@ final class BreathingPlayerViewModel: ObservableObject {
     private func invalidateTimers() {
         phaseTimer?.invalidate()
         secondTimer?.invalidate()
-        liveActivityTimer?.invalidate()
 
         phaseTimer = nil
         secondTimer = nil
-        liveActivityTimer = nil
     }
 
     // MARK: - Audio
@@ -602,9 +578,76 @@ final class BreathingPlayerViewModel: ObservableObject {
         guard isPlaying, !isPaused else { return }
         pause()
     }
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    
+    private func scheduleRestReset() {
+        restResetWorkItem?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.isResting = true
+        }
+
+        restResetWorkItem = workItem
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + 3600120,
+            execute: workItem
+        )
+    }
+    func start() {
+        configureAudioSession()
+        bindConfigurationChanges()
+        bindSceneChanges()
+
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.pauseForBackground()
+        }
+    }
+
+    func teardown() {
+        invalidateTimers()
+        stopAudio()
+        haptics.stop()
         liveActivityController.end()
         setScreenAwake(false)
+    }
+
+    
+    private var isBreathingOrPreparing: Bool {
+        switch uiState {
+        case .breathing, .preparing:
+            return true
+        default:
+            return false
+        }
+    }
+    private func startSessionCountdown() {
+        sessionTimer?.invalidate()
+
+        sessionTimer = Timer.scheduledTimer(
+            withTimeInterval: 1,
+            repeats: true
+        ) { [weak self] _ in
+            guard let self else { return }
+
+            guard self.remainingSessionSeconds > 0 else {
+                self.sessionTimer?.invalidate()
+                self.sessionTimer = nil
+                return
+            }
+
+            self.remainingSessionSeconds -= 1
+        }
+    }
+    private func stopSessionCountdown() {
+        sessionTimer?.invalidate()
+        sessionTimer = nil
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

@@ -12,6 +12,7 @@ struct LatestHRVSnapshotView: View {
 
     let snapshot: HRVSnapshot
     let hrBaseline7Days: Double?
+    let score: Int
 
     var body: some View {
         VStack(spacing: 8) {
@@ -19,6 +20,10 @@ struct LatestHRVSnapshotView: View {
 
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
+                    Text("Score : \(score)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
                     Text("Latest HRV")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -44,6 +49,7 @@ struct LatestHRVSnapshotView: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 4) {
+
                     Text("Heart Rate")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -87,6 +93,11 @@ struct LatestHRVSnapshotView: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .onTapGesture {
+            hideKeyboard()
+        }
+        
+        
     }
     
 //    private var hrDelta: Double? {
@@ -97,4 +108,17 @@ struct LatestHRVSnapshotView: View {
 //
 //        return currentHR - baseline
 //    }
+}
+
+import UIKit
+
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
+        )
+    }
 }

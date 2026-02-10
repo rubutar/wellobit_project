@@ -39,6 +39,7 @@ struct SleepView: View {
         let rhrUseCase = FetchTodayRHRUseCaseImpl(dataSource: dataSource)
         let rhr60 = FetchLast60DaysRHRUseCaseImpl(dataSource: dataSource)
         let calculateScoreUseCase = CalculateDailyScoreUseCaseImpl()
+        let calculateCurrentScoreUseCase = CalculateCurrentScoreUseCaseImpl()
         let interpretScoreUseCase = InterpretDailyScoreUseCaseImpl()
         let interpretHRVUseCase = InterpretHRVUseCaseImpl()
         let fetchLatestSnapshotUseCase = FetchLatestHRVSnapshotUseCaseImpl(
@@ -59,6 +60,7 @@ struct SleepView: View {
                 fetch60DayRHRUseCase: rhr60,
                 fetchHeartRateUseCase: fetchHRUseCase,
                 calculateScoreUseCase: calculateScoreUseCase,
+                calculateCurrentScoreUseCase: calculateCurrentScoreUseCase,
                 interpretScoreUseCase: interpretScoreUseCase,
                 interpretHRVUseCase: interpretHRVUseCase,
                 fetchLatestSnapshotUseCase: fetchLatestSnapshotUseCase,

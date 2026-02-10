@@ -7,8 +7,12 @@
 
 import SwiftUI
 
+
+
 struct MainTabView: View {
     private let router = TabRouter()
+    
+    
 
     var body: some View {
         TabView {
@@ -16,9 +20,17 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-            router.makeLibrary()
+            router.makeMockHome()
                 .tabItem {
-                    Label("Breath", systemImage: "play.circle.fill")
+                    Label("Sandbox", systemImage: "apple.image.playground")
+                }
+            router.makeListLibrary()
+                .tabItem {
+                    Label("Library", systemImage: "book.circle")
+                }
+            router.makeProgress()
+                .tabItem {
+                    Label("Progress", systemImage: "chart.bar")
                 }
             router.makeSleep()
                 .tabItem {

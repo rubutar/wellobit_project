@@ -13,10 +13,7 @@ import Combine
 final class SleepOverlayViewModel: ObservableObject {
 
     @Published var sleepSessions: [SleepSession] = []
-
     private let fetchSleepUseCase: FetchSleepSessionUseCase
-
-
     init(fetchSleepUseCase: FetchSleepSessionUseCase) {
         self.fetchSleepUseCase = fetchSleepUseCase
     }

@@ -42,6 +42,7 @@ struct HomeView: View {
         let rhrUseCase = FetchTodayRHRUseCaseImpl(dataSource: dataSource)
         let rhr60 = FetchLast60DaysRHRUseCaseImpl(dataSource: dataSource)
         let calculateScoreUseCase = CalculateDailyScoreUseCaseImpl()
+        let calculateCurrentScoreUseCase = CalculateCurrentScoreUseCaseImpl()
         let interpretScoreUseCase = InterpretDailyScoreUseCaseImpl()
         let interpretHRVUseCase = InterpretHRVUseCaseImpl()
         let fetchLatestSnapshotUseCase = FetchLatestHRVSnapshotUseCaseImpl(
@@ -63,6 +64,7 @@ struct HomeView: View {
                 fetch60DayRHRUseCase: rhr60,
                 fetchHeartRateUseCase: fetchHRUseCase,
                 calculateScoreUseCase: calculateScoreUseCase,
+                calculateCurrentScoreUseCase: calculateCurrentScoreUseCase,
                 interpretScoreUseCase: interpretScoreUseCase,
                 interpretHRVUseCase: interpretHRVUseCase,
                 fetchLatestSnapshotUseCase: fetchLatestSnapshotUseCase,
@@ -108,24 +110,27 @@ struct HomeView: View {
                         hrvViewModel: hrvViewModel,
                         startDate: startDate,
                         endDate: endDate,
-                        sleepSessions: viewModel.sleepSession.map { [$0] } ?? []              
+                        sleepSessions: viewModel.sleepSession.map { [$0] } ?? [],
+                        interpretation: hrvViewModel.currentInterpretation
                     )
                     HStack(spacing: 16) {
                         AvgHRVCardView(
                             title: "Current HRV",
-                            value: Int(hrvViewModel.currentSDNN),
+                            value: Int(hrvViewModel.latestSnapshot?.sdnn?.value ?? 0),
                             unit: "ms",
+                            time: hrvViewModel.latestSnapshot?.sdnn?.date.hourMinuteString ?? "--",
                             recentAverage: Int(hrvViewModel.baselineSDNNValue),
-                            isUp: Int(hrvViewModel.currentSDNN) > Int(hrvViewModel.baselineSDNNValue)
+                            isUp: Int(hrvViewModel.latestSnapshot?.sdnn?.value ?? 0) > Int(hrvViewModel.baselineSDNNValue)
                         )
 
 
                         AvgHRVCardView(
-                            title: "RHR Today",
-                            value: Int(hrvViewModel.currentRHRValue),
+                            title: "Current Heart Rate",
+                            value: Int(hrvViewModel.latestSnapshot?.heartRate?.bpm ?? 0),
                             unit: "bpm",
-                            recentAverage: Int(hrvViewModel.baselineAvgRHR),
-                            isUp: Int(hrvViewModel.currentRHRValue) > Int(hrvViewModel.baselineAvgRHR)
+                            time: hrvViewModel.latestSnapshot?.heartRate?.date.hourMinuteString ?? "--",
+                            recentAverage: Int(hrvViewModel.hrBaseline7Days ?? 0),
+                            isUp: Int(hrvViewModel.latestSnapshot?.heartRate?.bpm ?? 0) > Int(hrvViewModel.hrBaseline7Days ?? 0)
                         )
 
                     }
@@ -150,13 +155,6 @@ struct HomeView: View {
                             sleepSessions: []
                         )
                     }
-                    
-                    if let snapshot = hrvViewModel.latestSnapshot {
-                        LatestHRVSnapshotView(snapshot: snapshot,
-                                              hrBaseline7Days: hrvViewModel.hrBaseline7Days
-                        )
-                    }
-                    
                 }
                 .padding(.horizontal)
                 .padding(.top)
@@ -187,13 +185,21 @@ struct HomeView: View {
         .background(Color(.systemGroupedBackground))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+    
 }
 
+extension Date {
+    var hourMinuteString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: self)
+    }
+}
 
-//#Preview {
-//    HomeView(
-//        viewModel: SleepViewModel.mock(),
-//        hrvViewModel: HRVChartViewModel.mock()
-//    )
-//}
+#Preview {
+    HomeView(
+        viewModel: SleepViewModel.mock(),
+        hrvViewModel: HRVChartViewModel.mock()
+    )
+}
 

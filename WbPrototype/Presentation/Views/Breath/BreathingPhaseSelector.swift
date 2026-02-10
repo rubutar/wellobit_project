@@ -36,7 +36,8 @@ struct BreathingPhaseSelector: View {
                 } label: {
                     VStack(spacing: 2) {
                         HStack(spacing: 6) {
-                            Text(viewModel.durationString(for: viewModel.cycleCount))
+//                            Text(viewModel.durationString(for: viewModel.cycleCount))
+                            Text(viewModel.durationText)
                                 .font(.title.bold())
                         }
 
@@ -93,12 +94,31 @@ struct BreathingPhaseSelector: View {
                     )
 
                     VStack(spacing: 4) {
+//                        Slider(
+//                            value: Binding(
+//                                get: { Double(viewModel.cycleCount) },
+//                                set: { viewModel.cycleCount = Int($0.rounded()) }
+//                            ),
+//                            in: 4...60,
+//                            step: 1,
+//                            onEditingChanged: { editing in
+//                                if !editing {
+//                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+//                                        withAnimation(.easeInOut) {
+//                                            isEditingCycles = false
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        )
+//                        .padding(.horizontal, 20)
+//                        .tint(.white)
                         Slider(
                             value: Binding(
                                 get: { Double(viewModel.cycleCount) },
                                 set: { viewModel.cycleCount = Int($0.rounded()) }
                             ),
-                            in: 1...60,
+                            in: Double(viewModel.minimumCycleCount)...60,
                             step: 1,
                             onEditingChanged: { editing in
                                 if !editing {
@@ -110,7 +130,8 @@ struct BreathingPhaseSelector: View {
                                 }
                             }
                         )
-                        .tint(.white)
+                        .padding(.horizontal, 20)
+
 
                         Text("\(viewModel.cycleCount) Breathing Cycles")
                             .font(.caption.bold())
@@ -137,6 +158,9 @@ struct BreathingPhaseSelector: View {
                 .zIndex(10)
                 .transition(.opacity.combined(with: .scale))
             }
+        }
+        .onAppear {
+            print("BreathingPhaseSelector VM:", ObjectIdentifier(viewModel))
         }
     }
 }
@@ -298,13 +322,13 @@ private extension BreathingPhaseSelector {
     }
 }
 
-#Preview {
-    let repo = LocalBreathingRepository()
-    let initialSettings = repo.load()
-    let libraryVM = LibraryViewModel(
-        repository: repo,
-        initial: initialSettings
-    )
-    LibraryView(viewModel: libraryVM)
-}
+//#Preview {
+//    let repo = LocalBreathingRepository()
+//    let initialSettings = repo.load()
+//    let libraryVM = LibraryViewModel(
+//        repository: repo,
+//        initial: initialSettings
+//    )
+//    LibraryView(viewModel: libraryVM)
+//}
 

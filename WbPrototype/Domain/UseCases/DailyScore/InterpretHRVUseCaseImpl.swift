@@ -5,6 +5,8 @@
 //  Created by Rudi Butarbutar on 19/01/26.
 //
 
+import Foundation
+
 protocol InterpretHRVUseCase {
     func execute(input: HRVInterpretationInput) -> HRVInterpretation
 }
@@ -35,22 +37,32 @@ final class InterpretHRVUseCaseImpl: InterpretHRVUseCase {
 private extension InterpretHRVUseCaseImpl {
     func determineHRVState(_ input: HRVInterpretationInput) -> HRVState {
 
-        if input.rmssdToday >= 300 {
+        if input.isRest && (input.rmssdToday > 200 || input.rmssdToday < 5) {
             return .undefined(reason: .extremeValue)
         }
 
-        if input.sdnnToday >= 150 {
+        if input.isRest && (input.sdnnToday >= 150 || input.sdnnToday < 5) {
+            return .undefined(reason: .extremeValue)
+        }
+        if input.isRest && (input.currentHR > 130 || input.currentHR < 40) {
             return .undefined(reason: .extremeValue)
         }
 
-        // Relative baseline checks ONLY AFTER extreme is ruled out
-        if input.rmssdToday >= input.rmssdBaseline * 1.5 {
-            return .undefined(reason: .aboveBaselineTooMuch)
+        if input.isRest && hasContradictoryRestTrends(
+            hrSamples: input.hrSamples,
+            hrvPoints: input.hrvSamples
+        ) {
+            return .undefined(reason: .contradictoryTrends)
         }
+//        if input.c
 
-        if input.sdnnToday >= input.sdnnBaseline * 1.5 {
-            return .undefined(reason: .aboveBaselineTooMuch)
-        }
+//        if input.rmssdToday >= input.rmssdBaseline * 1.5 {
+//            return .undefined(reason: .aboveBaselineTooMuch)
+//        }
+//
+//        if input.sdnnToday >= input.sdnnBaseline * 1.5 {
+//            return .undefined(reason: .aboveBaselineTooMuch)
+//        }
 
         let ratio = input.rmssdToday / input.rmssdBaseline
 
@@ -67,7 +79,7 @@ private extension InterpretHRVUseCaseImpl {
     func hasInsufficientData(_ input: HRVInterpretationInput) -> Bool {
         input.rmssdToday <= 0 ||
         input.sdnnToday <= 0 ||
-        input.restingHR <= 0 ||
+        input.currentHR <= 0 ||
         input.hrBaseline <= 0
     }
 
@@ -77,7 +89,7 @@ private extension InterpretHRVUseCaseImpl {
 
     func determineHRContext(_ input: HRVInterpretationInput) -> HRContext {
 
-        let ratio = input.restingHR / input.hrBaseline
+        let ratio = input.currentHR / input.hrBaseline
 
         switch ratio {
         case ..<0.9:
@@ -221,6 +233,9 @@ private extension InterpretHRVUseCaseImpl {
             return "This HRV reading may be a measurement artifact."
         case .noClearPattern:
             return "No clear recovery pattern detected."
+        case .contradictoryTrends:
+            return "Contradictory trends."
+
         }
     }
     func extremeValueMessage(for input: HRVInterpretationInput) -> String {
@@ -262,3 +277,106 @@ private extension InterpretHRVUseCaseImpl {
 
 }
 
+//CHECK TRENDS
+private extension InterpretHRVUseCaseImpl {
+    private func splitIntoThirds(_ values: [Double]) -> ([Double], [Double], [Double]) {
+        let count = values.count
+        guard count >= 6 else { return ([], [], []) }
+
+        let third = count / 3
+        return (
+            Array(values[0..<third]),
+            Array(values[third..<(2 * third)]),
+            Array(values[(2 * third)..<count])
+        )
+    }
+
+    private func isIncreasing(_ values: [Double]) -> Bool {
+        let (a, b, c) = splitIntoThirds(values)
+        guard !a.isEmpty, !b.isEmpty, !c.isEmpty else { return false }
+
+        let m1 = a.reduce(0, +) / Double(a.count)
+        let m2 = b.reduce(0, +) / Double(b.count)
+        let m3 = c.reduce(0, +) / Double(c.count)
+
+        return m1 < m2 && m2 < m3
+    }
+
+//    private func hasContradictoryRestTrends(
+//        hrSamples: [HeartRateSample],
+//        hrvPoints: [HRVPoint],
+//        hrvType: HRVType = .sdnn
+//    ) -> Bool {
+//
+//        let hrValues = sortedHRValues(from: hrSamples)
+//        let hrvValues = sortedValues(from: hrvPoints, type: hrvType)
+//
+//        guard hrValues.count >= 6, hrvValues.count >= 6 else {
+//            return false
+//        }
+//        return isIncreasing(hrValues) && isIncreasing(hrvValues)
+//    }
+    private func hasContradictoryRestTrends(
+        hrSamples: [HeartRateSample],
+        hrvPoints: [HRVPoint],
+        hrvType: HRVType = .sdnn
+    ) -> Bool {
+
+        let hrValues = sortedHRValues(from: hrSamples)
+        let hrvValues = sortedValues(from: hrvPoints, type: hrvType)
+
+        // 🔍 RAW INPUT
+        print("🧪 [TrendCheck] HR raw samples:")
+        hrSamples.forEach {
+            print("   \(formatted($0.date)) → \($0.bpm)")
+        }
+
+        print("🧪 [TrendCheck] HRV raw samples (\(hrvType)):")
+        hrvPoints
+            .filter { $0.type == hrvType }
+            .forEach {
+                print("   \(formatted($0.date)) → \($0.value)")
+            }
+
+        // 🔍 SORTED VALUES
+        print("📈 [TrendCheck] HR sorted values:", hrValues)
+        print("📈 [TrendCheck] HRV sorted values:", hrvValues)
+
+        guard hrValues.count >= 6, hrvValues.count >= 6 else {
+            print("⚠️ [TrendCheck] Not enough samples (HR: \(hrValues.count), HRV: \(hrvValues.count))")
+            return false
+        }
+
+        let hrIncreasing = isIncreasing(hrValues)
+        let hrvIncreasing = isIncreasing(hrvValues)
+
+        print("📊 [TrendCheck] HR increasing:", hrIncreasing)
+        print("📊 [TrendCheck] HRV increasing:", hrvIncreasing)
+
+        let result = hrIncreasing && hrvIncreasing
+        print("🚨 [TrendCheck] Contradictory rest trends:", result)
+
+        return result
+    }
+
+    private func formatted(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return formatter.string(from: date)
+    }
+
+
+    private func sortedValues(from hrvPoints: [HRVPoint], type: HRVType) -> [Double] {
+        hrvPoints
+            .filter { $0.type == type }
+            .sorted { $0.date < $1.date }
+            .map(\.value)
+    }
+
+    private func sortedHRValues(from hrSamples: [HeartRateSample]) -> [Double] {
+        hrSamples
+            .sorted { $0.date < $1.date }
+            .map(\.bpm)
+    }
+
+}
