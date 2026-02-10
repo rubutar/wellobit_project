@@ -176,16 +176,16 @@ final class TabRouter {
 
     // MARK: - Long-lived ViewModels (🔥 SAME PATTERN AS UITabBarController 🔥)
 
+    private lazy var sceneSettingsVM: SceneSettingsViewModel = {
+        SceneSettingsViewModel(
+            repository: LocalBreathingSceneRepository()
+        )
+    }()
+    
     private lazy var libraryVM: LibraryViewModel = {
         LibraryViewModel(
             repository: breathingRepo,
             initial: breathingRepo.load()
-        )
-    }()
-
-    private lazy var sceneSettingsVM: SceneSettingsViewModel = {
-        SceneSettingsViewModel(
-            repository: LocalBreathingSceneRepository()
         )
     }()
 
@@ -194,11 +194,12 @@ final class TabRouter {
             libraryViewModel: libraryVM,
             sceneSettingsViewModel: sceneSettingsVM,
             progressStore: progressStore,
-            badgeProgressVM: badgeProgressVM   // ✅ correct label
+            badgeProgressVM: badgeProgressVM
         )
         vm.start()
         return vm
     }()
+    
     // MARK: - Init
     init() {
         let progressRepository = LocalBreathingProgressRepository()
@@ -237,18 +238,29 @@ final class TabRouter {
 
         return LibraryListView(
             viewModel: listVM,
+            playerViewModel: playerVM,
             makeLibrary: { [weak self] in
-                guard let self else { return AnyView(EmptyView()) }
+                guard let self else {
+                    return AnyView(EmptyView())
+                }
                 return AnyView(self.makeLibrary())
             }
         )
+        .environmentObject(progressStore)
+        .environmentObject(badgeProgressVM)
     }
 
     // MARK: - LIBRARY (DETAIL)
 
     func makeLibrary() -> some View {
-        LibraryView(
-            libraryViewModel: self.libraryVM,
+
+        let freshLibraryVM = LibraryViewModel(
+            repository: breathingRepo,
+            initial: breathingRepo.load()
+        )
+
+        return LibraryView(
+            libraryViewModel: freshLibraryVM,
             sceneSettingsViewModel: self.sceneSettingsVM,
             playerViewModel: self.playerVM
         )

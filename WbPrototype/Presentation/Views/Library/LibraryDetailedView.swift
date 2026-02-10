@@ -1,15 +1,16 @@
-////
-////  LibraryListView.swift
-////  WbPrototype
-////
-////  Created by Rudi Butarbutar on 01/02/26.
-////
+//
+//  LibraryListView.swift
+//  WbPrototype
+//
+//  Created by Rudi Butarbutar on 01/02/26.
+//
 
 import SwiftUI
 
 struct LibraryDetailedView: View {
     
     @State var showPreSessionModal = false
+    @ObservedObject var playerViewModel: BreathingPlayerViewModel
 
     let session: BreathingSession
     let onStart: () -> Void
@@ -26,7 +27,6 @@ struct LibraryDetailedView: View {
             )
             .ignoresSafeArea()
             
-//            ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                         Text(session.description)
                             .font(.body)
@@ -41,7 +41,6 @@ struct LibraryDetailedView: View {
                             .cornerRadius(20)
                         
                         HStack(alignment: .top, spacing: 8) {
-                            //                        Image(systemName: "lightbulb")
                             Text(session.tip)
                         }
                         .font(.footnote)
@@ -62,35 +61,45 @@ struct LibraryDetailedView: View {
                     Spacer()
                     
                     Button(action: {
-                        showPreSessionModal = true
+//                        if playerViewModel.isPaused {
+//                            playerViewModel.showPreSessionModal = false
+//                        } else {
+                        playerViewModel.showPreSessionModal = true
+//                            onStart()
+//                        }
                     }) {
                         Text("Let’s Start")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color("ButtonColor"))
+                            .background(Color("ThemeColor"))
                             .clipShape(Capsule())
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
                 }
-//            }
             
-            if showPreSessionModal {
-                MindfulnessOverlay(
-                    onConfirm: {
-                        showPreSessionModal = false
-                        onStart()
-                    },
-                    onClose: {
-                        showPreSessionModal = false
+            
+            if playerViewModel.showPreSessionModal {
+                        MindfulnessOverlay(
+                            onConfirm: {
+                                playerViewModel.showPreSessionModal = false
+//                                playerViewModel.resume()
+                                onStart()
+                            },
+                            onClose: {
+                                playerViewModel.showPreSessionModal = false
+                            }
+                        )
                     }
-                )
             }
-        }
         .navigationTitle(session.title)
         .navigationBarTitleDisplayMode(.large)
+//        .onAppear {
+//            if playerViewModel.isPaused {
+//                playerViewModel.showPreSessionModal = true
+//            }
+//        }
     }
 }
-
