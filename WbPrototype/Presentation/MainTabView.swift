@@ -20,13 +20,17 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-            router.makeMockHome()
-                .tabItem {
-                    Label("Sandbox", systemImage: "apple.image.playground")
-                }
+//            router.makeMockHome()
+//                .tabItem {
+//                    Label("Sandbox", systemImage: "apple.image.playground")
+//                }
             router.makeListLibrary()
                 .tabItem {
                     Label("Library", systemImage: "book.circle")
+                }
+            router.makeStretchSession()
+                .tabItem {
+                    Label("Stretch", systemImage: "figure.cooldown")
                 }
             router.makeProgress()
                 .tabItem {

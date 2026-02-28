@@ -1,0 +1,218 @@
+    [
+        {
+            "id": "upward_salute",
+            "name": "Upward Salute",
+            "imageName": "upward_salute",
+            "instructions": ["Start from a standing position with your feet hip-width apart and your arms at your sides.", "Slowly sweep your arms out and up over your head.", "Keep your hands shoulder-width apart and reach toward the ceiling.", "Relax your shoulders and look slightly upward."],
+            "tips": ["Ground your feet firmly into the floor and distribute your weight evenly between your feet", "Engage your core muscles to avoid arching your lower back"],
+            "modifications": ["For less intensity, place your hands behind your head or on your hips."],
+            "benefits": ["Abdomen", "Chest", "Lats", "Obliques", "Shoulder", "Spine", "Upper Back"],
+            "caution": [
+                ""
+            ]
+        },
+        {
+            "id": "toe_touch",
+            "name": "Toe Touch",
+            "imageName": "toe_touch",
+            "instructions": [
+                "Start from a standing position with your feet hip-width apart and your arms at your sides.",
+                "Keeping your back straight, hinge at your hips to bend forward, lowering your upper body toward your legs.",
+                "Relax your head, neck, and arms and try to place your palms on the floor."
+            ],
+            "tips": [
+                "Focus on lengthening your spine as you fold forward.",
+                "Keep your legs straight but not locked."
+            ],
+            "modifications": [
+                "If you can't reach the floor, place your hands on your shins or thighs."
+            ],
+            "benefits": [
+                "Calves",
+                "Glutes",
+                "Hamstrings",
+                "Lower Back"
+            ],
+            "caution": [
+                "This exercise impacts your Hamstrings, which you've identified as an area of caution.",
+                "Please use caution while performing this exercise. Go slowly and stop if you feel any pain or discomfort."
+            ]
+        },
+        {
+            "id": "lunge",
+            "name": "Lunge",
+            "imageName": "lunge",
+            "instructions": [
+                "Start from a kneeling position with your arms at your sides.",
+                "Step forward with one leg, placing your foot flat on the floor in front of you.",
+                "Push your hips forward and raise your arms overhead.",
+                "Lift your chest and reach toward the ceiling."
+            ],
+            "tips": [
+                "Keep your front knee stable and align it directly above your ankle.",
+                "Engage your back leg, pressing the top of your foot into the floor.",
+                "Keep your torso upright and avoid arching your lower back."
+            ],
+            "modifications": [
+                "For less intensity, keep your hands on your front thigh.",
+                "Place a towel or cushion under your back knee for support.",
+                "Hold onto a wall or chair for balance if needed."
+            ],
+            "benefits": [
+                "Abdomen",
+                "Hips",
+                "Lower Back",
+                "Psoas",
+                "Quadriceps"
+            ],
+            "caution": [
+                ""
+            ]
+            
+        },
+        {
+            "id": "upward_dog",
+            "name": "Upward Dog",
+            "imageName": "upward_dog",
+            "instructions": [
+                "Start lying on your stomach with your legs extended and your hands under your shoulders.",
+                "Press your palms into the floor, straightening your arms to lift your upper body and legs off the floor.",
+                "Lift your chest, relax your shoulders, and look slightly upward."
+            ],
+            "tips": [
+                "Only the tops of your feet and your palms should be touching the floor.",
+                "Keep your arms straight but avoid locking your elbows."
+            ],
+            "modifications": [
+                "For less intensity, keep your thighs on the floor."
+            ],
+            "benefits": [
+                "Abdomen",
+                "Chest",
+                "Psoas",
+                "Spine"
+            ],
+            "caution": [
+                ""
+            ]
+        },
+        {
+            "id": "child_pose",
+            "name": "Child's Pose",
+            "imageName": "child_pose",
+            "instructions": [
+                "Start on your hands and knees in a tabletop position.",
+                "Widen your knees and bring your big toes together so they're touching.",
+                "Sit back on your heels, then reach forward with your hands and lower your chest toward the floor.",
+                "Relax your hips and rest your forehead on the floor."
+            ],
+            "tips": [
+                "Walk your fingertips forward to increase the stretch.",
+                "Allow your chest to sink towards the floor."
+            ],
+            "modifications": [
+                "For less intensity, don't spread your knees as wide.",
+                "If your forehead doesn't reach the floor, rest it on a block or folded blanket."
+            ],
+            "benefits": [
+                "Ankles",
+                "Feet",
+                "Hips",
+                "Lower Back",
+                "Shins",
+                "Shoulders"
+            ],
+            "caution": [
+                ""
+            ]
+        },
+        {
+            "id": "downward_dog",
+            "name": "Downward Dog",
+            "imageName": "downward_dog",
+            "instructions": [
+                "Start on your hands and knees in a tabletop position.",
+                "Tuck your toes under, press your palms into the floor, and straighten your arms and legs to lift your hips up and back.",
+                "Push your chest toward your thighs and your heels toward the floor."
+            ],
+            "tips": [
+                "Relax your shoulders and let your head hang between your arms.",
+                "Distribute your weight evenly between your hands and feet.",
+                "Keep a slight bend in your knees to avoid hyperextension."
+            ],
+            "modifications": [
+                "For less intensity, bend your knees more or place your hands on the edge of a chair.",
+                "To reduce pressure on your wrists, place your forearms on the floor or use a block under your hands."
+            ],
+            "benefits": [
+                "Calves",
+                "Glutes",
+                "Hamstrings",
+                "Lower Back",
+                "Shoulders",
+            ],
+            "caution": [
+                "This exercise impacts your Hamstrings, which you've identified as an area of caution.",
+                "Please use caution while performing this exercise. Go slowly and stop if you feel any pain or discomfort."
+            ]
+        },
+        {
+            "id": "wide_leg_bend",
+            "name": "Wide Leg Bend",
+            "imageName": "wide_leg_bend",
+            "instructions": [
+                "Start from a standing position with your feet wide and your toes pointed forward.",
+                "Keeping your back straight, hinge at your hips to bend forward, lowering your upper body toward your legs.",
+                "Relax your head, neck, and arms and try to place your palms on the floor."
+            ],
+            "tips": [
+                "Focus on lengthening your spine as you fold forward.",
+                "Keep your legs straight but not locked.",
+                "To deepen the stretch, grab your ankles and pull your head closer to the floor."
+            ],
+            "modifications": [
+                "If you can't reach the floor, place your hands on your shins or blocks."
+            ],
+            "benefits": [
+                "Calves",
+                "Groin",
+                "Hamstrings",
+                "Hips",
+                "Lower Back"
+            ],
+            "caution": [
+                "This exercise impacts your Hamstrings, which you've identified as an area of caution.",
+                "Please use caution while performing this exercise. Go slowly and stop if you feel any pain or discomfort."
+            ]
+        },
+        {
+            "id": "upward_salute",
+            "name": "Upward Salute",
+            "imageName": "upward_salute",
+            "instructions": [
+                "Start from a standing position with your feet hip-width apart and your arms at your sides.",
+                "Slowly sweep your arms out and up over your head.",
+                "Keep your hands shoulder-width apart and reach toward the ceiling.",
+                "Relax your shoulders and look slightly upward."
+            ],
+            "tips": [
+                "Ground your feet firmly into the floor and distribute your weight evenly between your feet.",
+                "Engage your core muscles to avoid arching your lower back."
+            ],
+            "modifications": [
+                "For less intensity, place your hands behind your head or on your hips."
+            ],
+            "benefits": [
+                "Abdomen",
+                "Chest",
+                "Lats",
+                "Obliques",
+                "Shoulders",
+                "Spine",
+                "Upper Back"
+            ],
+            "caution": [
+                ""
+            ]
+        }
+    ]

@@ -305,4 +305,8 @@ final class TabRouter {
 
         return SleepScoreViewModel(inputBuilder: inputBuilder)
     }
+    
+    func makeStretchSession() -> some View {
+        return StretchRoutineListView()
+    }
 }

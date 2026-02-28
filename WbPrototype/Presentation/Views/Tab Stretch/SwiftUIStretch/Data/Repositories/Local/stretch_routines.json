@@ -1,0 +1,28 @@
+[
+  {
+    "id": "wake_up",
+    "title": "Wake Up",
+    "description": "A simple routine to maintain your body's natural mobility and range of motion. Quick, convenient, and effective. Do it anytime, anywhere, everyday.",
+    "category": "wakeUp",
+    "steps": [
+      { "stepId": "upward_salute", "defaultDuration": 30 },
+      { "stepId": "toe_touch", "defaultDuration": 30 },
+      { "stepId": "lunge", "defaultDuration": 60 },
+      { "stepId": "upward_dog", "defaultDuration": 30 },
+      { "stepId": "child's_pose", "defaultDuration": 30 },
+      { "stepId": "downward_dog", "defaultDuration": 30 },
+      { "stepId": "wide_leg_bend", "defaultDuration": 30 },
+      { "stepId": "upward_salute", "defaultDuration": 30 }
+    ]
+  },
+  {
+    "id": "posture_reset",
+    "title": "Posture Reset",
+    "description": "Improve posture with seated stretches.",
+    "category": "postureReset",
+    "steps": [
+      { "stepId": "toe_touch", "defaultDuration": 60 },
+      { "stepId": "upward_salute", "defaultDuration": 30 }
+    ]
+  }
+]
