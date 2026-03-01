@@ -22,6 +22,7 @@ enum StretchCategory: String, Codable {
     case lowerBack
     case neck
     case wakeUp
+    case fullBody
     case postureReset
 }
 

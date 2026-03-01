@@ -2,16 +2,17 @@
 //  StretchRoutineListView.swift
 //  Wellobit
 //
-//  Created by Rudi LibraryButarbutar on 27/02/26.
+//  Created by Rudi Butarbutar on 27/02/26.
 //
 
 import SwiftUI
-import Combine
 
 struct StretchRoutineListView: View {
     
     @StateObject private var viewModel =
     StretchRoutineListViewModel(repository: LocalStretchRepository())
+    @State private var showSettings = false
+
     
     var body: some View {
         NavigationStack {
@@ -25,8 +26,6 @@ struct StretchRoutineListView: View {
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-                
-                
                 ScrollView {
                     VStack(spacing: 16) {
                         
@@ -43,6 +42,19 @@ struct StretchRoutineListView: View {
                 .navigationTitle("Stretch")
                 .task {
                     await viewModel.loadRoutines()
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                StretchPreferencesView()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.title3)
+                    }
                 }
             }
         }

@@ -9,9 +9,11 @@ import SwiftUI
 
 struct StretchSessionView: View {
     
-    @ObservedObject var viewModel: StretchSessionViewModel
+    @StateObject var viewModel: StretchSessionViewModel
     @State private var selectedStep: StretchStep?
     @State private var showStepSheet = false
+    @State private var showSettings = false
+
     
     var body: some View {
         NavigationStack {
@@ -27,10 +29,7 @@ struct StretchSessionView: View {
                 .ignoresSafeArea()
                 
                 VStack(spacing: 24) {
-                    
-//                    Text(viewModel.routine.title)
-//                        .font(.title2.bold())
-                    
+                                        
                     if let step = viewModel.currentStep {
                         
                         HStack {
@@ -52,14 +51,18 @@ struct StretchSessionView: View {
                         
                         if viewModel.isPreparing {
                             Text("Get Ready")
+                            Text("\(viewModel.preparationTime)")
+                        }
+                        else if viewModel.isInInterval {
+                            Text("Rest")
                                 .font(.headline)
                             
-                            Text("\(viewModel.preparationTime)")
-                                .font(.largeTitle.bold())
-                        } else {
-                            Text("\(viewModel.remainingTime)s")
+                            Text("\(viewModel.intervalRemaining)")
                                 .font(.largeTitle.bold())
                         }
+                        else {
+                            Text("\(viewModel.remainingTime)s")
+                        }                        
                     }
                     
                     HStack(spacing: 24) {
@@ -92,9 +95,39 @@ struct StretchSessionView: View {
             .sheet(item: $selectedStep) { step in
                 StepInfoSheet(step: step)
             }
+            .onChange(of: selectedStep != nil) { isPresented in
+                if isPresented {
+                    viewModel.pauseSession()
+                }
+            }
             .onAppear {
                 viewModel.startSession()
             }
+            .onDisappear {
+                viewModel.pauseSession()
+            }
+            .onChange(of: showSettings) { isPresented in
+                if isPresented {
+                    viewModel.pauseSession()
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                viewModel.pauseSession()
+            }
+            .sheet(isPresented: $showSettings) {
+                StretchPreferencesView()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.title3)
+                    }
+                }
+            }
         }
     }
+    
 }

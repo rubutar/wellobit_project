@@ -9,20 +9,39 @@
       { "stepId": "toe_touch", "defaultDuration": 30 },
       { "stepId": "lunge", "defaultDuration": 60 },
       { "stepId": "upward_dog", "defaultDuration": 30 },
-      { "stepId": "child's_pose", "defaultDuration": 30 },
+      { "stepId": "child_pose", "defaultDuration": 30 },
       { "stepId": "downward_dog", "defaultDuration": 30 },
       { "stepId": "wide_leg_bend", "defaultDuration": 30 },
       { "stepId": "upward_salute", "defaultDuration": 30 }
     ]
   },
   {
-    "id": "posture_reset",
-    "title": "Posture Reset",
-    "description": "Improve posture with seated stretches.",
-    "category": "postureReset",
+    "id": "full_body",
+    "title": "Full Body",
+    "description": "A comprehensive routine focused in improving overall flexibility. Move through 20+ stretches targeting key moscles and joints throughout your entire body.",
+    "category": "fullBody",
     "steps": [
-      { "stepId": "toe_touch", "defaultDuration": 60 },
-      { "stepId": "upward_salute", "defaultDuration": 30 }
+      { "stepId": "upward_salute", "defaultDuration": 30 },
+      { "stepId": "toe_touch", "defaultDuration": 30 },
+      { "stepId": "chest_opener", "defaultDuration": 30 },
+      { "stepId": "wide_leg_bend", "defaultDuration": 30 },
+      { "stepId": "side_lunge", "defaultDuration": 60 },
+      { "stepId": "lunge", "defaultDuration": 60 },
+      { "stepId": "upward_dog", "defaultDuration": 30 },
+      { "stepId": "child_pose", "defaultDuration": 30 },
+      { "stepId": "downward_dog", "defaultDuration": 30 },
+      { "stepId": "thunderbolt", "defaultDuration": 30 },
+      { "stepId": "pigeon", "defaultDuration": 60 },
+      { "stepId": "seated_twist", "defaultDuration": 60 },
+      { "stepId": "knees_to_chest", "defaultDuration": 30 },
+      { "stepId": "lying_figure_four", "defaultDuration": 60 },
+      { "stepId": "lying_hamstring", "defaultDuration": 60 },
+      { "stepId": "reclined_butterfly", "defaultDuration": 30 },
+      { "stepId": "spinal_twist", "defaultDuration": 60 },
+      { "stepId": "quad_stretch", "defaultDuration": 60 },
+      { "stepId": "butterfly", "defaultDuration": 30 },
+      { "stepId": "seated_fold", "defaultDuration": 30 },
+      { "stepId": "plow", "defaultDuration": 30 }
     ]
   }
 ]
