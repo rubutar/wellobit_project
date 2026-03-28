@@ -309,4 +309,7 @@ final class TabRouter {
     func makeStretchSession() -> some View {
         return StretchRoutineListView()
     }
+    func makeInsights() -> some View {
+        return InsightsView()
+    }
 }

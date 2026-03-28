@@ -32,14 +32,14 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Stretch", systemImage: "figure.cooldown")
                 }
-            router.makeProgress()
+            router.makeInsights()
                 .tabItem {
-                    Label("Progress", systemImage: "chart.bar")
+                    Label("Insights", systemImage: "chart.bar")
                 }
-            router.makeSleep()
-                .tabItem {
-                    Label("Sleep", systemImage: "powersleep")
-                }
+//            router.makeSleep()
+//                .tabItem {
+//                    Label("Sleep", systemImage: "powersleep")
+//                }
         }
     }
 }

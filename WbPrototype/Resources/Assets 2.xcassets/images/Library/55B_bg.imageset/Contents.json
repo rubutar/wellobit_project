@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "item_bg2.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
